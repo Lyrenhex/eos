@@ -1,0 +1,315 @@
+/*
+COPYRIGHT (C) Damian Heaton 2017
+
+The storage of this software on a computer via means of browser 'caching', and the execution of such code by user browsers is permitted. This work cannot be duplicated, copied, distributed, or modified (neither privately nor publicly) without the express, written consent of Damian Heaton, whom can be contacted (at time of notice) at damian@lyrenhex.me. This software cannot be used for commercial purposes.
+
+THIS SOFTWARE IS DISTRIBUTED "AS IS", WITHOUT WARRANTY OF ANY FORM (EITHER EXPRESS OR IMPLIED), INCLUDING (BUT NOT LIMITED TO) ANY IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+TL;DR:
+You may:
+- Store this software on a computer via a browser's cache, though not by any other means.
+- Store this software for purposes of search indexing.
+- Execute this code for the purpose of using the software.
+
+You may NOT:
+- Distribute, copy, replicate, or duplicate this copyrighted software without express, written permission from Damian Heaton.
+- Use this software, in any way, shape or form, for any commercial purpose(s).
+- Claim this software as your own, or attempt to imply affiliation with the software in any way that could be detrimental or unlawful, or to suggest that the software, or Damian Heaton, are represented by, or represent, yourself.
+*/
+
+h1, h2, h3, h4 {
+  color: #00c0ff;
+}
+a:link, a:visited {
+  color: #00c0ff;
+  text-decoration: none;
+  transition: 0.1s linear all;
+}
+a:hover, a:focus {
+  color: #0094c4;
+}
+
+button, a.btn:link, a.btn:visited, input {
+  font-family: 'Roboto', sans-serif;
+  padding: 10px;
+  font-size: 16pt;
+  background-color: #fff;
+  border: 1px solid #00c0ff;
+  border-radius: 15px;
+  box-shadow: 0 2px 4px #555;
+  transition: 0.2s ease-out all;
+  margin: 10px;
+}
+button:hover, button:focus, a.btn:hover, a.btn:focus {
+  box-shadow: 0 4px 16px #555;
+  background-color: #00c0ff;
+  color: #eee;
+  cursor: pointer;
+}
+
+textarea {
+  font-family: 'Spectral', serif;
+  padding: 10px;
+  font-size: 16pt;
+  background-color: #fff;
+  border: 1px solid #00c0ff;
+  border-radius: 15px;
+  box-shadow: 0 2px 4px #555;
+  transition: 0.2s ease-out box-shadow;
+  width: calc(100% - 30px);
+  max-width: calc(100% - 30px);
+}
+textarea:hover, textarea:focus, textarea:active {
+  box-shadow: 0 4px 16px #555;
+}
+
+.block {
+  background-color: #fff;
+  position: fixed;
+  left: 200%; /* position hidden blocks off the screen to allow the fancy transitions */
+  top: 50%;
+  transition: 1s ease-in-out all;
+  border-radius: 30px 0;
+  border: 1px solid #00c0ff;
+  box-shadow: 0 2px 4px #555;
+  width: 80%;
+  height: 80%;
+  transform: translate(-50%, -50%);
+  overflow: auto;
+  padding: 5px 10px;
+}
+
+.shown {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+}
+.done {
+  position: fixed;
+  left: -200%;
+}
+.flex {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+  justify-content: center;
+}
+.flex > button {
+  padding: 10px;
+  font-size: 48pt;
+  border-radius: 15px;
+  transition: 0.2s ease-out all;
+  margin: 10px;
+  width: 150px;
+  height: 150px;
+}
+.flex > button:hover {
+  background-color: #00c0ff;
+  color: #eee;
+  cursor: pointer;
+}
+.flex > button.round {
+  border-radius: 75px;
+}
+.flex > .round.one {
+  border: 1px solid #f31a1a;
+}
+.flex > .round.one:hover, .flex > .round.one:focus {
+  background-color: #f31a1a;
+}
+.flex > .round.two {
+  border: 1px solid #ffc107;
+}
+.flex > .round.two:hover, .flex > .round.two:focus {
+  background-color: #ffc107;
+  color: #000;
+}
+.flex > .round.four {
+  border: 1px solid #33ffc2;
+}
+.flex > .round.four:hover, .flex > .round.four:focus {
+  background-color: #33ffc2;
+  color: #000;
+}
+.flex > .round.five {
+  border: 1px solid #00ff40;
+}
+.flex > .round.five:hover, .flex > .round.five:focus {
+  background-color: #00ff40;
+  color: #000;
+}
+
+#ver {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+}
+.tracker_graphs {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  margin: auto;
+  justify-content: center;
+}
+.tracker_graphs > .graph {
+  display: block;
+  width: 45%;
+  min-width: 250px;
+  margin: 0 20px;
+  max-width: 100%;
+}
+canvas {
+  max-width: 500px;
+  display: block;
+  margin: auto;
+}
+.moods_month_annual {
+  position: relative;
+  max-width: 100%;
+}
+.moods_month_annual canvas {
+  max-height: 0;
+}
+.moods_month_annual canvas.active {
+  max-height: none;
+}
+button.arrow {
+  position: absolute;
+  font-size: 40px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  line-height: 0px;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.4;
+}
+button.arrow:hover, button.arrow:focus {
+  opacity: 0.8;
+}
+button.arrow--right {
+  right: 5px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #00c0ff;
+  width: 90%;
+}
+
+p, .spectral, li {
+  font-family: 'Spectral', serif;
+  font-size: 13pt;
+}
+
+blockquote {
+  border-left: 5px solid #ddd;
+  padding: 5px 10px;
+}
+
+.chat {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: calc(100vw - 20px);
+  height: calc(100% - 60px);
+  overflow: auto;
+}
+input[type="text"] {
+  position: fixed;
+  left: 100vw;
+  bottom: -1px;
+  width: calc(100% - 22px);
+  transition: 1s ease-in-out all;
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 10px 10px 0 0;
+}
+.chat.shown input[type="text"] {
+  left: -1px;
+}
+
+.msg {
+  display: block;
+  padding: 5px;
+  width: 70%;
+  margin-bottom: 10px;
+}
+.msg.anon {
+  background-color: #00c0ff;
+  border-radius: 30px 30px 30px 0;
+  box-shadow: 2px 2px 5px #000;
+}
+.msg.user {
+  background-color: #fff;
+  border-radius: 30px 30px 0 30px;
+  box-shadow: -2px 2px 5px #000;
+  margin-left: calc(30% - 10px);
+}
+
+.btn__menu {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  border-radius: 50%;
+  height: 50px;
+  width: 50px;
+  z-index: 10;
+}
+.btn__menu.loggedin {
+  display: block;
+}
+.menu {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: calc(100vw - 56px);
+  max-width: 360px;
+  background: #fff;
+  z-index: 9;
+  box-shadow: 0 0 10px 0 #000;
+  transform: translateX(-105%);
+  transition: 0.4s transform ease-out;
+}
+.menu h1 {
+  margin-left: 90px;
+  margin-top: 25px;
+  color: #111;
+}
+.menu button {
+  margin: 0;
+  width: 100%;
+  border: none;
+  color: #111;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 20px 25px;
+  text-align: left;
+  font-size: 18pt;
+}
+.menu button:hover, .menu button:focus {
+  background: #ccc;
+}
+.menu.shown {
+  transform: translateX(0);
+}
+
+.section {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+}
+.section.active {
+  display: block;
+}

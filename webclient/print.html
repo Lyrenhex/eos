@@ -1,0 +1,76 @@
+<!--
+COPYRIGHT (C) Damian Heaton 2017
+
+The storage of this software on a computer via means of browser 'caching', and the execution of such code by user browsers is permitted. This work cannot be duplicated, copied, distributed, or modified (neither privately nor publicly) without the express, written consent of Damian Heaton, whom can be contacted (at time of notice) at damian@lyrenhex.me. This software cannot be used for commercial purposes.
+
+THIS SOFTWARE IS DISTRIBUTED "AS IS", WITHOUT WARRANTY OF ANY FORM (EITHER EXPRESS OR IMPLIED), INCLUDING (BUT NOT LIMITED TO) ANY IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+TL;DR:
+You may:
+- Store this software on a computer via a browser's cache, though not by any other means.
+- Store this software for purposes of search indexing.
+- Execute this code for the purpose of using the software.
+
+You may NOT:
+- Distribute, copy, replicate, or duplicate this copyrighted software without express, written permission from Damian Heaton.
+- Use this software, in any way, shape or form, for any commercial purpose(s).
+- Claim this software as your own, or attempt to imply affiliation with the software in any way that could be detrimental or unlawful, or to suggest that the software, or Damian Heaton, are represented by, or represent, yourself.
+-->
+
+<!doctype html>
+<html lang="en-UK">
+  <head>
+    <title>Eos App: Print</title> <!-- set this to a generic name; we can change it based on user state and actions. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="logo.png" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.6.1/firebase-database.js"></script>
+    <!-- chartjs.org ghraphing tools -->
+    <script src="Chart.bundle.min.js"></script>
+  </head>
+
+  <body>
+    <div class="block" id="block__loggedout">
+        <h2>Wait, who are you?</h2>
+        <p>You appear not to be signed in to Eos, and we sort of need users to be signed in. Usually, that's done <a href="app.html">here</a>. Go through the login process, and we'll see you here again shortly!</p>
+        <a class="btn" href="app.html">Log in</a>
+    </div>
+    <h1>Eos Print Report: <span name='id'></span></h1>
+    <p><i>This document should be printed using your browser's native print function. Usually, this can be accessed using the key combination, CTRL+P.</i></p>
+    <p>This document is a print-friendly report of the user's data stored on Eos. Mood data has been processed to generate clear graphs, whereas the rest of this data (such as comments) are direct input of the user.</p>
+    <p><b>DATA CONTAINED WITHIN THIS DOCUMENT IS CONFIDENTIAL, AS EXPRESSED IN OUR <a href="legal.html">PRIVACY POLICY</a> (https://eos.dheaton.uk/legal.html).</b></p>
+    <h2>For professionals</h2>
+    <p>This document is intended to make doctor-patient communication easier, providing an initial breakdown of the user's past two weeks, their averages as Eos knows them, as well as any comments the user may have made regarding their thought processes and/or emotions associated with different states of mind.</p>
+    <p>Professionals should acknowledge that all mood ratings are on a scale of -2 to 2. 'Positive' is defined as any mood rated greater than 0. 'Neutral' is defined as a mood rated 0. 'Negative' is defined as any mood rated less than 0.</p>
+    <p>This document represents most, if not all, of the data that Eos has on this user (excluding chat data, which may be stored temporarily if a report was thrown during a chat conversation, but is <b>not</b> included here).</p>
+    <h2>User comments:</h2>
+    <h3>Positive comments:</h3>
+    <ul id='comments_positive'></ul>
+    <h3>Neutral comments:</h3>
+    <ul id='comments_neutral'></ul>
+    <h3>Negative comments:</h3>
+    <ul id='comments_negative'></ul>
+    <h2>Average moods</h2>
+    <h3>Mood by year</h3>
+    <div class="moods_month_annual" id="annual_moods_graphs"></div>
+    <h3>All time in months</h3>
+    <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
+    <canvas id="moodchart_months"></canvas>
+    <h3>Past two weeks</h3>
+    <canvas id="moodchart_days_fortnight"></canvas>
+    <h3>All time in days</h3>
+    <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
+    <canvas id="moodchart_days"></canvas>
+
+    <link rel="stylesheet" href="print.css" />
+    <script src="func.js"></script>
+    <script src="print.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Spectral" />
+  </body>
+</html>
