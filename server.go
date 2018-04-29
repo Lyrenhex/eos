@@ -303,48 +303,50 @@ func main() {
         log.Println(payload)
         mood := payload.Mood
         comment := payload.Data
-        switch mood {
-        case 1:
-          users[data.UserID].Positives = [20]string{
-            users[data.UserID].Positives[1],
-            users[data.UserID].Positives[2],
-            users[data.UserID].Positives[3],
-            users[data.UserID].Positives[4],
-            users[data.UserID].Positives[5],
-            users[data.UserID].Positives[6],
-            users[data.UserID].Positives[7],
-            users[data.UserID].Positives[8],
-            users[data.UserID].Positives[9],
-            users[data.UserID].Positives[10],
-            users[data.UserID].Positives[11],
-            users[data.UserID].Positives[12],
-            users[data.UserID].Positives[13],
-            users[data.UserID].Positives[14],
-            users[data.UserID].Positives[15],
-            users[data.UserID].Positives[16],
-            users[data.UserID].Positives[17],
-            users[data.UserID].Positives[18],
-            users[data.UserID].Positives[19],
-            comment,
+        if comment != "" {
+          switch mood {
+          case 1:
+            users[data.UserID].Positives = [20]string{
+              users[data.UserID].Positives[1],
+              users[data.UserID].Positives[2],
+              users[data.UserID].Positives[3],
+              users[data.UserID].Positives[4],
+              users[data.UserID].Positives[5],
+              users[data.UserID].Positives[6],
+              users[data.UserID].Positives[7],
+              users[data.UserID].Positives[8],
+              users[data.UserID].Positives[9],
+              users[data.UserID].Positives[10],
+              users[data.UserID].Positives[11],
+              users[data.UserID].Positives[12],
+              users[data.UserID].Positives[13],
+              users[data.UserID].Positives[14],
+              users[data.UserID].Positives[15],
+              users[data.UserID].Positives[16],
+              users[data.UserID].Positives[17],
+              users[data.UserID].Positives[18],
+              users[data.UserID].Positives[19],
+              comment,
+            }
+          case 0:
+            users[data.UserID].Neutrals = [5]string{
+              users[data.UserID].Neutrals[1],
+              users[data.UserID].Neutrals[2],
+              users[data.UserID].Neutrals[3],
+              users[data.UserID].Neutrals[4],
+              comment,
+            }
+          case -1:
+            users[data.UserID].Negatives = [5]string{
+              users[data.UserID].Negatives[1],
+              users[data.UserID].Negatives[2],
+              users[data.UserID].Negatives[3],
+              users[data.UserID].Negatives[4],
+              comment,
+            }
           }
-        case 0:
-          users[data.UserID].Neutrals = [5]string{
-            users[data.UserID].Neutrals[1],
-            users[data.UserID].Neutrals[2],
-            users[data.UserID].Neutrals[3],
-            users[data.UserID].Neutrals[4],
-            comment,
-          }
-        case -1:
-          users[data.UserID].Negatives = [5]string{
-            users[data.UserID].Negatives[1],
-            users[data.UserID].Negatives[2],
-            users[data.UserID].Negatives[3],
-            users[data.UserID].Negatives[4],
-            comment,
-          }
+          saveUser(data.UserID)
         }
-        saveUser(data.UserID)
       }
     }
   })

@@ -78,6 +78,16 @@ sock.onmessage = function(e) {
         if(msg.user.Name !== ""){
           update_var('name', `, ${msg.user.Name}`);
         }
+        msg.user.Neutrals.forEach((data, key) => {
+          if(data !== ""){
+            let li = document.createElement('li');
+            li.classList.add('spectral');
+            let li_text = document.createTextNode(data);
+            li.appendChild(li_text);
+            let ul = document.getElementById('comments_neutral');
+            ul.appendChild(li);
+          }
+        })
         var ctx = document.getElementById('moodchart_months');
         monthGraph(ctx, msg.user.Moods);
         var ctx = document.getElementById('moodchart_days');
