@@ -32,7 +32,6 @@ You may NOT:
 
     <style>
       body {
-        background-color: #eee;
         font-family: 'Roboto', sans-serif;
       }
 
@@ -56,18 +55,25 @@ You may NOT:
       <button onclick="section('tracker')">Mood tracker</button>
       <button onclick="section('chat')">Online chat</button>
       <button onclick="section('settings')">Settings</button>
-      <button onclick="window.open('print.html')">Print report</button>
+      <button onclick="section('print')">Print report</button>
       <button onclick="signout()">Logout</button>
-      <span id="ver" name="version_number"></span>
+      <span class="appdata">
+        Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="legal.html">here</a>.
+        <span id="ver" name="version_number"></span>
+      </span>
     </div>
     <span class="loading" id="text__loading">Getting ready!</span>
     <div class="block" id="block__login">
-      <h2>Sign in with your email address and password. Your account will be automatically created if it does not exist.</h2>
+      <h2>Sign in with your email address and password.</h2>
+      <p>Your account will be automatically created if it does not exist.</p>
+      <p>Eos does <b>NOT</b> use 'cookies' to preserve login information. If the page is reloaded, or the browser is closed, you will be automatically logged out without exception. This is done to protect your personal information.</p>
+      <p>Eos will <b>never</b>: share your private data with a third party - only average statistical anonymized information formed from all users may be shared with research professionals; share your contact information with anyone; spam you or send unsolicited emails for no valid reason.</p>
       <form onsubmit="return signin_email()">
         <input id="login_email" type="email" placeholder="Email address" required />
         <input id="login_password" type="password" placeholder="Password" required />
         <button type="submit">Sign in / Sign up</button>
       </form>
+      <p>Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="legal.html">here</a>.</p>
     </div>
     <div class="section active" id="section__app">
       <div class="block" id="block__mood">
@@ -190,6 +196,34 @@ You may NOT:
     </div>
     <div class="section" id="section__settings">
 
+    </div>
+    <div class="section noformat" id="section__print">
+      <h1>Eos Print Report</h1>
+      <p><i>This document should be printed using your browser's native print function. Usually, this can be accessed using the key combination, CTRL+P.</i></p>
+      <p>This document is a print-friendly report of the user's data stored on Eos. Mood data has been processed to generate clear graphs, whereas the rest of this data (such as comments) are direct input of the user.</p>
+      <p><b>DATA CONTAINED WITHIN THIS DOCUMENT IS CONFIDENTIAL, AS EXPRESSED IN OUR <a href="legal.html">PRIVACY POLICY</a> (https://eos.dheaton.uk/legal.html).</b></p>
+      <h2>For professionals</h2>
+      <p>This document is intended to make doctor-patient communication easier, providing an initial breakdown of the user's past two weeks, their averages as Eos knows them, as well as any comments the user may have made regarding their thought processes and/or emotions associated with different states of mind.</p>
+      <p>Professionals should acknowledge that all mood ratings are on a scale of -2 to 2. 'Positive' is defined as any mood rated greater than 0. 'Neutral' is defined as a mood rated 0. 'Negative' is defined as any mood rated less than 0.</p>
+      <p>This document represents most, if not all, of the data that Eos has on this user (excluding chat data, which may be stored temporarily if a report was thrown during a chat conversation, but is <b>not</b> included here).</p>
+      <h2>User comments:</h2>
+      <h3>Positive comments:</h3>
+      <ul id='comments_positive'></ul>
+      <h3>Neutral comments:</h3>
+      <ul id='comments_neutral'></ul>
+      <h3>Negative comments:</h3>
+      <ul id='comments_negative'></ul>
+      <h2>Average moods</h2>
+      <h3>Mood by year</h3>
+      <div class="moods_month_annual" id="annual_moods_graphs"></div>
+      <h3>All time in months</h3>
+      <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
+      <canvas id="moodchart_months"></canvas>
+      <h3>Past two weeks</h3>
+      <canvas id="moodchart_days_fortnight"></canvas>
+      <h3>All time in days</h3>
+      <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
+      <canvas id="moodchart_days"></canvas>
     </div>
     <div class="block" id="block__error">
       <h2>Oh, bugger!</h2>

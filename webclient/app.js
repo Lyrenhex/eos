@@ -171,47 +171,52 @@ function mood(mood){
 
 function ecstatic_submit() {
   let comment = document.getElementById('ecstatic_comment').value;
-  if (comment !== "") {
-    let ref = DB.ref(`/users/${USER.uid}/positives`);
-    let newRef = ref.push();
-    newRef.set(comment);
+  let json = {
+    type: 'comment',
+    mood: 1,
+    data: comment
   }
+  sock.send(JSON.stringify(json));
   mood_continue();
 }
 function happy_submit() {
   let comment = document.getElementById('happy_comment').value;
-  if (comment !== "") {
-    let ref = DB.ref(`/users/${USER.uid}/positives`);
-    let newRef = ref.push();
-    newRef.set(comment);
+  let json = {
+    type: 'comment',
+    mood: 1,
+    data: comment
   }
+  sock.send(JSON.stringify(json));
   mood_continue();
 }
 function neutral_submit() {
   let comment = document.getElementById('neutral_comment').value;
-  if (comment !== "") {
-    let ref = DB.ref(`/users/${USER.uid}/neutral`);
-    let newRef = ref.push();
-    newRef.set(comment);
+  let json = {
+    type: 'comment',
+    mood: 0,
+    data: comment
   }
+  sock.send(JSON.stringify(json));
   mood_continue();
 }
 function negative_submit() {
   let comment = document.getElementById('negative_comment').value;
-  if (comment !== "") {
-    let ref = DB.ref(`/users/${USER.uid}/negatives`);
-    let newRef = ref.push();
-    newRef.set(comment);
+  let json = {
+    type: 'comment',
+    mood: -1,
+    data: comment
   }
+  sock.send(JSON.stringify(json));
   mood_continue();
 }
 function danger_submit() {
   let comment = document.getElementById('danger_comment').value;
-  if (comment !== "") {
-    let ref = DB.ref(`/users/${USER.uid}/negatives`);
-    let newRef = ref.push();
-    newRef.set(comment);
+  let json = {
+    type: 'comment',
+    mood: -1,
+    data: comment
   }
+  sock.send(JSON.stringify(json));
   mood_continue();
 }
 function mood_continue() {

@@ -142,11 +142,6 @@ textarea:hover, textarea:focus, textarea:active {
   color: #000;
 }
 
-#ver {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-}
 .tracker_graphs {
   display: flex;
   flex-flow: row wrap;
@@ -300,6 +295,13 @@ input[type="text"] {
 .menu.shown {
   transform: translateX(0);
 }
+.menu .appdata {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  padding: 5px;
+  text-align: justify;
+}
 
 .section {
   display: none;
@@ -312,4 +314,13 @@ input[type="text"] {
 }
 .section.active {
   display: block;
+}
+
+.section.noformat {
+  margin-top: 75px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.section.noformat h1, .section.noformat h2, .section.noformat h3, .section.noformat h4, .section.noformat h5, .section.noformat h6 {
+  color: #000;
 }
