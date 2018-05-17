@@ -1,5 +1,5 @@
 /*
-COPYRIGHT (C) Damian Heaton 2017
+COPYRIGHT (C) Damian Heaton 2017 - 2018
 
 The storage of this file on a computer via means of browser 'caching', and the execution of such code by user browsers is permitted. This work cannot be duplicated, copied, distributed, or modified (neither privately nor publicly) without the express, written consent of Damian Heaton, whom can be contacted (at time of notice) at damian@lyrenhex.me. This software cannot be used for commercial purposes.
 
@@ -78,6 +78,19 @@ sock.onmessage = function(e) {
         if(msg.user.Name !== ""){
           update_var('name', `, ${msg.user.Name}`);
         }
+        msg.user.Positives.forEach((data, key) => {
+          if(data !== ""){
+            let li = document.createElement('li');
+            li.classList.add('spectral');
+            let li_text = document.createTextNode(data);
+            li.appendChild(li_text);
+            let ul = document.getElementById('comments_positive');
+            ul.appendChild(li);
+
+            let ul2 = document.getElementById('comments');
+            ul2.appendChild(li);
+          }
+        })
         msg.user.Neutrals.forEach((data, key) => {
           if(data !== ""){
             let li = document.createElement('li');
@@ -85,6 +98,16 @@ sock.onmessage = function(e) {
             let li_text = document.createTextNode(data);
             li.appendChild(li_text);
             let ul = document.getElementById('comments_neutral');
+            ul.appendChild(li);
+          }
+        })
+        msg.user.Negatives.forEach((data, key) => {
+          if(data !== ""){
+            let li = document.createElement('li');
+            li.classList.add('spectral');
+            let li_text = document.createTextNode(data);
+            li.appendChild(li_text);
+            let ul = document.getElementById('comments_negative');
             ul.appendChild(li);
           }
         })
