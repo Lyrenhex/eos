@@ -34,7 +34,7 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		return !(!strings.HasPrefix(r.Header.Get("Origin"), "https://"+config.SrvHost) && !strings.HasPrefix(r.Header.Get("Origin"), "http://"+config.SrvHost))
+		return (strings.HasPrefix(r.Header.Get("Origin"), "https://"+config.SrvHost) || strings.HasPrefix(r.Header.Get("Origin"), "http://"+config.SrvHost))
 	},
 }
 
