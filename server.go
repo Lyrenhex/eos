@@ -10,6 +10,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -28,7 +29,7 @@ var config = loadConfig()
 
 // UserIDs maps email address to user id
 var UserIDs map[string]uuid.UUID
-var users map[uuid.UUID]*User
+var users map[uuid.UUID]*User // @users[uuid.UUID], store a pointer to the user's data - avoid memory data duplication - edit the storage location directly.
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -61,7 +62,7 @@ type User struct {
 
 // Moods acts as a reusable structure to store mood data - sub structure of User
 type Moods struct {
-	Day   [7]Mood // array of 31 moods, one for each day of month. Some months will *not* use all 31 moods, and will have excess zero-ed values.
+	Day   [7]Mood // array of 7 moods, one for each day of week.
 	Month [12]Mood
 	Years [2]Year // only keep specific data on the past two years. we cannot overload the server. (not sure if we should decrease this to 1 year?)
 }
@@ -75,7 +76,6 @@ type Mood struct {
 // Year structure to create a copy of a year's Moods structure
 type Year struct {
 	Year  int
-	Day   [7]Mood
 	Month [12]Mood
 }
 
@@ -105,7 +105,9 @@ func loadConfig() Configuration {
 	file, err := os.Open("data/config.json")
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Fatal("Data folder or config.json do not exist. Please create the data folder and populate the config.json file before run.")
+			fmt.Println("Expected configuration values in `config.json`, got:")
+			fmt.Printf("%+v\n", Configuration{})
+			log.Fatal("Data folder or config.json does not exist. Please create the data folder and populate the config.json file before run.")
 		} else {
 			log.Println("error:", err)
 		}
@@ -128,7 +130,7 @@ func newUser(email, pass, name string) uuid.UUID {
 		panic(err)
 	}
 	user := &User{
-		UserID:    *uid,
+		UserID:    *uid, //
 		EmailAddr: email,
 		Password:  password,
 		Name:      name,
@@ -311,6 +313,27 @@ func main() {
 				users[data.UserID].Moods.Day[payload.Day].Num++
 				users[data.UserID].Moods.Month[payload.Month].Mood += payload.Mood
 				users[data.UserID].Moods.Month[payload.Month].Num++
+
+				yearRecorded := false
+				for i, year := range users[data.UserID].Moods.Years {
+					if year.Year == payload.Year {
+						users[data.UserID].Moods.Years[i].Month[payload.Month].Mood += payload.Mood
+						users[data.UserID].Moods.Years[i].Month[payload.Month].Num++
+						yearRecorded = true
+					}
+				}
+				if !yearRecorded {
+					newYear := Year{
+						Year:  payload.Year,
+						Month: [12]Mood{},
+					}
+					users[data.UserID].Moods.Years = [2]Year{
+						users[data.UserID].Moods.Years[1],
+						newYear,
+					}
+					users[data.UserID].Moods.Years[1].Month[payload.Month].Mood += payload.Mood
+					users[data.UserID].Moods.Years[1].Month[payload.Month].Num++
+				}
 				saveUser(data.UserID)
 			case "comment":
 				log.Println(payload)
@@ -360,6 +383,28 @@ func main() {
 					}
 					saveUser(data.UserID)
 				}
+			case "details":
+				newEmail := payload.Email
+				newPass := payload.Pass
+				newName := payload.Data
+				if newEmail != "" {
+					users[data.UserID].EmailAddr = newEmail
+				}
+				if newPass != "" {
+					newPass, _ := bcrypt.GenerateFromPassword([]byte(payload.Pass), bcrypt.DefaultCost)
+					users[data.UserID].Password = newPass
+				}
+				if newName != "" {
+					users[data.UserID].Name = newName
+				}
+				saveUser(data.UserID)
+			case "delete":
+				delete(UserIDs, users[data.UserID].EmailAddr)
+				err := os.Remove("data/userdata-" + data.UserID.String() + ".json")
+				if err != nil {
+					log.Println("Error deleting userdata-"+data.UserID.String()+".json: ", err)
+				}
+				saveUserIDs()
 			}
 		}
 	})
