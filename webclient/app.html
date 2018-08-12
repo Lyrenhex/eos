@@ -64,16 +64,20 @@ You may NOT:
     </div>
     <span class="loading" id="text__loading">Getting ready!</span>
     <div class="block" id="block__login">
-      <h2>Sign in with your email address and password.</h2>
-      <p>Your account will be automatically created if it does not exist.</p>
-      <p>Eos does <b>NOT</b> use 'cookies' to preserve login information. If the page is reloaded, or the browser is closed, you will be automatically logged out without exception. This is done to protect your personal information.</p>
-      <p>Eos will <b>never</b>: share your private data with a third party - only average statistical anonymized information formed from all users may be shared with research professionals; share your contact information with anyone; spam you or send unsolicited emails for no valid reason.</p>
-      <form onsubmit="return signin_email()">
-        <input id="login_email" type="email" placeholder="Email address" required />
-        <input id="login_password" type="password" placeholder="Password" required />
-        <button type="submit">Sign in / Sign up</button>
-      </form>
-      <p>Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="legal.html">here</a>.</p>
+      <div id="rel-container">
+          <h2>Sign in with your email address and password.</h2>
+          <p>Your account will be automatically created if it does not exist.</p>
+          <p>Eos does <b>NOT</b> use 'cookies' to preserve login information. If the page is reloaded, or the browser is closed, you will be automatically logged out without exception. This is done to protect your personal information.</p>
+          <p>Eos will <b>never</b>: share your private data with a third party - only average statistical anonymized information formed from all users may be shared with research professionals; share your contact information with anyone; spam you or send unsolicited emails for no valid reason.</p>
+          <p>By entering your login details here, and providing your details to us, you are giving us access to, and the right to store, your data. This access and right may be revoked at any time by you, through deleting your account.</p>
+          <p>Messages sent through the Eos chat service are <b>partially confidential</b>. We will not share such content unless required by law enforcement, and will not oversee or watch chats unfold. Chat history <b>will</b> be reviewed by a team member should a report occur.</p>
+          <form onsubmit="return signin_email()">
+            <input id="login_email" type="email" placeholder="Email address" required />
+            <input id="login_password" type="password" placeholder="Password" required />
+            <button type="submit">Sign in / Sign up</button>
+          </form>
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="legal.html">here</a>.</p>    
+      </div>
     </div>
     <div class="section active" id="section__app">
       <div class="block" id="block__mood">
