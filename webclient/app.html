@@ -179,10 +179,6 @@ You may NOT:
           <canvas id="moodchart_months"></canvas>
         </div>
         <div class="graph">
-          <h3>Past two weeks</h3>
-          <canvas id="moodchart_days_fortnight"></canvas>
-        </div>
-        <div class="graph">
           <h3>All time in days</h3>
           <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
           <canvas id="moodchart_days"></canvas>
@@ -215,6 +211,7 @@ You may NOT:
         <p><b>Important:</b> Here, you can delete your account <i>and all data associated with your account</i>. Please be warned that clicking the button below will immediately, and irrevocably, delete your account and all associated data. If you feel you may want to use your data again, please download it first.</p>
         <button onclick="deleteData()">Delete your data</button>
     </div>
+
     <div class="section noformat" id="section__print">
       <h1>Eos Print Report</h1>
       <p><i>This document should be printed using your browser's native print function. Usually, this can be accessed using the key combination, CTRL+P.</i></p>
@@ -233,15 +230,13 @@ You may NOT:
       <ul id='comments_negative'></ul>
       <h2>Average moods</h2>
       <h3>Mood by year</h3>
-      <div class="moods_month_annual" id="annual_moods_graphs"></div>
+      <div class="moods_month_annual" id="pr_annual_moods_graphs"></div>
       <h3>All time in months</h3>
       <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
-      <canvas id="moodchart_months"></canvas>
-      <h3>Past two weeks</h3>
-      <canvas id="moodchart_days_fortnight"></canvas>
+      <canvas id="pr_moodchart_months"></canvas>
       <h3>All time in days</h3>
       <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
-      <canvas id="moodchart_days"></canvas>
+      <canvas id="pr_moodchart_days"></canvas>
     </div>
     <div class="block" id="block__error">
       <h2>Oh, bugger!</h2>

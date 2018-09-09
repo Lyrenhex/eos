@@ -59,8 +59,6 @@ function section(id) {
   newActiveSection.classList.add('active');
 }
 
-
-// TODO: refactor this monstrosity
 function dayGraph(ctx, data) {
   var moods = [0, 0, 0, 0, 0, 0, 0];
   for(day in data.Day){

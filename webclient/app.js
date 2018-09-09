@@ -105,8 +105,12 @@ sock.onmessage = function(e) {
             let ul = document.getElementById('comments_positive');
             ul.appendChild(li);
 
+            let li2 = document.createElement('li');
+            li2.classList.add('spectral');
+            let li_text2 = document.createTextNode(data);
+            li2.appendChild(li_text2);
             let ul2 = document.getElementById('comments');
-            ul2.appendChild(li);
+            ul2.appendChild(li2);
           }
         })
         msg.user.Neutrals.forEach((data, key) => {
@@ -129,9 +133,15 @@ sock.onmessage = function(e) {
             ul.appendChild(li);
           }
         })
+
         var ctx = document.getElementById('moodchart_months');
         monthGraph(ctx, msg.user.Moods);
         var ctx = document.getElementById('moodchart_days');
+        dayGraph(ctx, msg.user.Moods);
+
+        var ctx = document.getElementById('pr_moodchart_months');
+        monthGraph(ctx, msg.user.Moods);
+        var ctx = document.getElementById('pr_moodchart_days');
         dayGraph(ctx, msg.user.Moods);
 
         //var ctx = document.getElementById('moodchart_days_fortnight');
@@ -142,6 +152,13 @@ sock.onmessage = function(e) {
           YEARS.push(year);
           year = years[year];
           var tracker = document.getElementById('annual_moods_graphs');
+          tracker.appendChild(year);
+        }
+        var years = yearGraph(msg.user.Moods);
+        for(year in years){
+          YEARS.push(year);
+          year = years[year];
+          var tracker = document.getElementById('pr_annual_moods_graphs');
           tracker.appendChild(year);
         }
         document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('activeYear');
