@@ -50,7 +50,7 @@ You may NOT:
   <body>
     <button id="btn__menu" class="btn__menu" onclick="toggle('menu')">&#9776;</button>
     <div class="menu" id="menu">
-      <h1>Eos web app</h1>
+      <h1>Eos for web</h1>
       <button onclick="section('app')">Log mood</button>
       <button onclick="section('tracker')">Mood tracker</button>
       <button onclick="section('chat')">Online chat</button>
@@ -64,16 +64,20 @@ You may NOT:
     </div>
     <span class="loading" id="text__loading">Getting ready!</span>
     <div class="block" id="block__login">
-      <h2>Sign in with your email address and password.</h2>
-      <p>Your account will be automatically created if it does not exist.</p>
-      <p>Eos does <b>NOT</b> use 'cookies' to preserve login information. If the page is reloaded, or the browser is closed, you will be automatically logged out without exception. This is done to protect your personal information.</p>
-      <p>Eos will <b>never</b>: share your private data with a third party - only average statistical anonymized information formed from all users may be shared with research professionals; share your contact information with anyone; spam you or send unsolicited emails for no valid reason.</p>
-      <form onsubmit="return signin_email()">
-        <input id="login_email" type="email" placeholder="Email address" required />
-        <input id="login_password" type="password" placeholder="Password" required />
-        <button type="submit">Sign in / Sign up</button>
-      </form>
-      <p>Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="legal.html">here</a>.</p>
+      <div id="rel-container">
+          <h2>Sign in with your email address and password.</h2>
+          <p>Your account will be automatically created if it does not exist.</p>
+          <p>Eos does <b>NOT</b> use 'cookies' to preserve login information. If the page is reloaded, or the browser is closed, you will be automatically logged out without exception. This is done to protect your personal information.</p>
+          <p>Eos will <b>never</b>: share your private data with a third party - only average statistical anonymized information formed from all users may be shared with research professionals; share your contact information with anyone; spam you or send unsolicited emails for no valid reason.</p>
+          <p>By entering your login details here, and providing your details to us, you are giving us access to, and the right to store, your data. This access and right may be revoked at any time by you, through deleting your account.</p>
+          <p>Messages sent through the Eos chat service are <b>partially confidential</b>. We will not share such content unless required by law enforcement, and will not oversee or watch chats unfold. Chat history <b>will</b> be reviewed by a team member should a report occur.</p>
+          <form onsubmit="return signin_email()">
+            <input id="login_email" type="email" placeholder="Email address" required />
+            <input id="login_password" type="password" placeholder="Password" required />
+            <button type="submit">Sign in / Sign up</button>
+          </form>
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="legal.html">here</a>.</p>    
+      </div>
     </div>
     <div class="section active" id="section__app">
       <div class="block" id="block__mood">
@@ -164,30 +168,24 @@ You may NOT:
     <!-- END OF BIG BLOCK OF MOODS -->
 
     <div class="section" id="section__tracker">
-      <div class="block shown" id="block__tracker">
-        <h2>Your tracker</h2>
-        <div class="tracker_graphs">
-          <div class="graph">
-              <h3>Mood by year</h3>
-              <div class="moods_month_annual" id="annual_moods_graphs">
-                <button class="arrow" onclick="monthPrev()">&lsaquo;</button>
-                <button class="arrow arrow--right" onclick="monthNext()">&rsaquo;</button>
-              </div>
-          </div>
-          <div class="graph">
-            <h3>All time in months</h3>
-            <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
-            <canvas id="moodchart_months"></canvas>
-          </div>
-          <div class="graph">
-            <h3>Past two weeks</h3>
-            <canvas id="moodchart_days_fortnight"></canvas>
-          </div>
-          <div class="graph">
-            <h3>All time in days</h3>
-            <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
-            <canvas id="moodchart_days"></canvas>
-          </div>
+      <h2>Your tracker</h2>
+      <div class="tracker_graphs">
+        <div class="graph">
+            <h3>Mood by year</h3>
+            <div class="moods_month_annual" id="annual_moods_graphs">
+              <button class="arrow" onclick="monthPrev()">&lsaquo;</button>
+              <button class="arrow arrow--right" onclick="monthNext()">&rsaquo;</button>
+            </div>
+        </div>
+        <div class="graph">
+          <h3>All time in months</h3>
+          <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
+          <canvas id="moodchart_months"></canvas>
+        </div>
+        <div class="graph">
+          <h3>All time in days</h3>
+          <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
+          <canvas id="moodchart_days"></canvas>
         </div>
       </div>
     </div>
@@ -195,8 +193,29 @@ You may NOT:
 
     </div>
     <div class="section" id="section__settings">
+      <h2>Your Account Settings</h2>
 
+      <form onsubmit="return update_acc()">
+        <label for="account_email">
+          Email address:
+          <input id="account_email" type="email" placeholder="email goes here" />
+        </label><br />
+        <label for="account_password">
+          Password:
+          <input id="account_password" type="password" placeholder="[HIDDEN]" />
+        </label><br />
+        <label for="account_name">
+          Name:
+          <input id="account_name" type="text" placeholder="name goes here" />
+        </label><br />
+          
+          <button type="submit">Update settings</button>
+        </form><br />
+        <a class="btn" id="downloadLink" download="data.json">Download your data</a>
+        <p><b>Important:</b> Here, you can delete your account <i>and all data associated with your account</i>. Please be warned that clicking the button below will immediately, and irrevocably, delete your account and all associated data. If you feel you may want to use your data again, please download it first.</p>
+        <button onclick="deleteData()">Delete your data</button>
     </div>
+
     <div class="section noformat" id="section__print">
       <h1>Eos Print Report</h1>
       <p><i>This document should be printed using your browser's native print function. Usually, this can be accessed using the key combination, CTRL+P.</i></p>
@@ -215,15 +234,13 @@ You may NOT:
       <ul id='comments_negative'></ul>
       <h2>Average moods</h2>
       <h3>Mood by year</h3>
-      <div class="moods_month_annual" id="annual_moods_graphs"></div>
+      <div class="moods_month_annual" id="pr_annual_moods_graphs"></div>
       <h3>All time in months</h3>
       <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
-      <canvas id="moodchart_months"></canvas>
-      <h3>Past two weeks</h3>
-      <canvas id="moodchart_days_fortnight"></canvas>
+      <canvas id="pr_moodchart_months"></canvas>
       <h3>All time in days</h3>
       <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
-      <canvas id="moodchart_days"></canvas>
+      <canvas id="pr_moodchart_days"></canvas>
     </div>
     <div class="block" id="block__error">
       <h2>Oh, bugger!</h2>

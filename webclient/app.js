@@ -54,6 +54,13 @@ function signin_email() {
 
   return false;
 }
+function update_acc() {
+  let newEmail = document.getElementById('account_email').value;
+  let newPass = document.getElementById('account_password').value;
+  let newName = document.getElementById('account_name').value;
+
+  sock.send(JSON.stringify({'type':'details', 'emailAddress':newEmail, 'password': newPass, 'data': newName}));
+}
 sock.onerror = function(e) {
   console.error(e);
   // TODO: onerror
@@ -74,7 +81,18 @@ sock.onmessage = function(e) {
         done('block__login');
         show('block__mood');
         document.getElementById('btn__menu').classList.add('loggedin');
+        setState();
+        window.onresize = setState;
         console.log(msg)
+
+        var file = new Blob([JSON.stringify(msg.user)], {type: "application/json"});
+        var downloadLink = document.getElementById('downloadLink');
+        downloadLink.href = URL.createObjectURL(file);
+
+        document.getElementById('account_email').placeholder = msg.user.EmailAddr;
+        document.getElementById('account_name').placeholder = msg.user.Name;
+        
+
         if(msg.user.Name !== ""){
           update_var('name', `, ${msg.user.Name}`);
         }
@@ -87,8 +105,12 @@ sock.onmessage = function(e) {
             let ul = document.getElementById('comments_positive');
             ul.appendChild(li);
 
+            let li2 = document.createElement('li');
+            li2.classList.add('spectral');
+            let li_text2 = document.createTextNode(data);
+            li2.appendChild(li_text2);
             let ul2 = document.getElementById('comments');
-            ul2.appendChild(li);
+            ul2.appendChild(li2);
           }
         })
         msg.user.Neutrals.forEach((data, key) => {
@@ -111,88 +133,49 @@ sock.onmessage = function(e) {
             ul.appendChild(li);
           }
         })
+
         var ctx = document.getElementById('moodchart_months');
         monthGraph(ctx, msg.user.Moods);
         var ctx = document.getElementById('moodchart_days');
         dayGraph(ctx, msg.user.Moods);
+
+        var ctx = document.getElementById('pr_moodchart_months');
+        monthGraph(ctx, msg.user.Moods);
+        var ctx = document.getElementById('pr_moodchart_days');
+        dayGraph(ctx, msg.user.Moods);
+
         //var ctx = document.getElementById('moodchart_days_fortnight');
         //fortGraph(ctx, msg.user.Moods);
 
-        /* var years = yearGraph(msg.user.Moods);
+        var years = yearGraph(msg.user.Moods);
         for(year in years){
           YEARS.push(year);
           year = years[year];
           var tracker = document.getElementById('annual_moods_graphs');
           tracker.appendChild(year);
         }
-        document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('active'); */
+        var years = yearGraph(msg.user.Moods);
+        for(year in years){
+          YEARS.push(year);
+          year = years[year];
+          var tracker = document.getElementById('pr_annual_moods_graphs');
+          tracker.appendChild(year);
+        }
+        document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('activeYear');
       }
   }
 }
-
-firebase.auth().onAuthStateChanged(function(user) {
-  done('text__loading');
-  if (user) {
-    document.title = `Eos: How are you?`;
-    if (!user.emailVerified) {
-      user.sendEmailVerification();
-    }
-    if(user.displayName !== null){
-      update_var('name', `, ${user.displayName}`);
-      document.title = `Eos: How are you, ${user.displayName}?`;
-    }
-    done('block__login');
-    done('block__login_email');
-    show('block__mood');
-    USER = user;
-    DB = firebase.database();
-    document.getElementById('buttons_system').classList.add('loggedin');
-    var commentsRef = DB.ref(`/users/${user.uid}/positives`);
-    commentsRef.on('child_added', function(data) {
-      let li = document.createElement('li');
-      li.classList.add('spectral');
-      let li_text = document.createTextNode(data.val());
-      li.appendChild(li_text);
-      let ul = document.getElementById('comments');
-      ul.appendChild(li);
-    });
-    var moodsRef = DB.ref(`/users/${user.uid}/moods`);
-    moodsRef.once('value', function(data) {
-      data = data.val();
-      if(data !== null){
-        var ctx = document.getElementById('moodchart_months');
-        monthGraph(ctx, data);
-        var ctx = document.getElementById('moodchart_days');
-        dayGraph(ctx, data);
-        var ctx = document.getElementById('moodchart_days_fortnight');
-        fortGraph(ctx, data);
-
-        var years = yearGraph(data);
-        for(year in years){
-          YEARS.push(year);
-          year = years[year];
-          var tracker = document.getElementById('annual_moods_graphs');
-          tracker.appendChild(year);
-        }
-        document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('active');
-      }
-    });
-  } else {
-    document.title = 'Eos Login';
-    show('block__login');
-  }
-}, (error) => {
-  err(error);
-});
 
 function mood(mood){
   let date = new Date();
   let month = date.getMonth();
   let day = date.getDay();
+  let year = date.getUTCFullYear();
   let json = {
     type: 'mood',
     day: day,
     month: month,
+    year: year,
     mood: mood
   }
   console.log(JSON.stringify(json))
@@ -257,27 +240,40 @@ function mood_continue() {
   show('block__chat');
 }
 
-function monthPrev() {
-  var active = document.getElementsByClassName('active')[0];
+function monthNext() {
+  var active = document.getElementsByClassName('activeYear')[0];
   var index = YEARS.indexOf(active.id);
   if (index-1 < 0){
     index = YEARS.length - 1;
   } else {
     index--;
   }
-  active.classList.remove('active');
+  active.classList.remove('activeYear');
   active = document.getElementById(`graph.${YEARS[index]}`);
-  active.classList.add('active');
+  active.classList.add('activeYear');
 }
-function monthNext() {
-  var active = document.getElementsByClassName('active')[0];
+function monthPrev() {
+  var active = document.getElementsByClassName('activeYear')[0];
   var index = YEARS.indexOf(active.id);
   if (index+1 >= YEARS.length){
     index = 0;
   } else {
     index++;
   }
-  active.classList.remove('active');
+  active.classList.remove('activeYear');
   active = document.getElementById(`graph.${YEARS[index]}`);
-  active.classList.add('active');
+  active.classList.add('activeYear');
+}
+
+function setState() {
+  if (window.innerWidth >= 800) {
+    show('menu');
+  }
+}
+
+function deleteData() {
+  let json = {
+    type: 'delete'
+  }
+  sock.send(JSON.stringify(json));
 }
