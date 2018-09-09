@@ -9,7 +9,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -28,7 +31,10 @@ var config = loadConfig()
 
 // UserIDs maps email address to user id
 var UserIDs map[string]uuid.UUID
-var users map[uuid.UUID]*User
+var users map[uuid.UUID]*User           // @users[uuid.UUID], store a pointer to the user\"s data - avoid memory data duplication - edit the storage location directly.
+var userPairs map[uuid.UUID]WaitingUser // @UserPairs[uuid.UUID], store a pointer to the other member\"s websocket connection
+var wUser WaitingUser
+var chatlogs map[string][]ChatMessage
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -45,6 +51,7 @@ type Configuration struct {
 	EnvCert string `json:"envCertificate"`
 	SrvHost string `json:"srvHostname"`
 	SrvPort int    `json:"srvPort"`
+	ApiKey  string `json:"apiKey"`
 }
 
 // User data type, built on numerous structures.
@@ -61,7 +68,7 @@ type User struct {
 
 // Moods acts as a reusable structure to store mood data - sub structure of User
 type Moods struct {
-	Day   [7]Mood // array of 31 moods, one for each day of month. Some months will *not* use all 31 moods, and will have excess zero-ed values.
+	Day   [7]Mood // array of 7 moods, one for each day of week.
 	Month [12]Mood
 	Years [2]Year // only keep specific data on the past two years. we cannot overload the server. (not sure if we should decrease this to 1 year?)
 }
@@ -72,32 +79,69 @@ type Mood struct {
 	Num  int
 }
 
-// Year structure to create a copy of a year's Moods structure
+// Year structure to create a copy of a year\"s Moods structure
 type Year struct {
 	Year  int
-	Day   [7]Mood
 	Month [12]Mood
 }
 
 // Payload acts as a consistent structure to interface with JSON client-server exchange data.
 type Payload struct {
-	Type  string `json:"type"`
-	Flag  bool   `json:"flag"`
-	Data  string `json:"data"`
-	Email string `json:"emailAddress"`
-	Pass  string `json:"password"`
-	Day   int    `json:"day"`
-	Month int    `json:"month"`
-	Year  int    `json:"year"`
-	Mood  int    `json:"mood"`
-	MsgID int    `json:"mid"`
-	User  User   `json:"user"`
+	Type   string `json:"type"`
+	Flag   bool   `json:"flag"`
+	Data   string `json:"data"`
+	Email  string `json:"emailAddress"`
+	Pass   string `json:"password"`
+	Day    int    `json:"day"`
+	Month  int    `json:"month"`
+	Year   int    `json:"year"`
+	Mood   int    `json:"mood"`
+	MsgID  int    `json:"mid"`
+	ChatID string `json:"cid"`
+	User   User   `json:"user"`
 }
 
 // Data stores key information for chat sessions
 type Data struct {
 	UserID uuid.UUID
-	ChatID int
+}
+
+type WaitingUser struct {
+	UserID     uuid.UUID
+	Connection *websocket.Conn
+}
+
+type MLRequest struct {
+	Comment         MLComment   `json:"comment"`
+	RequestedAttrbs MLAttribute `json:"requestedAttributes"`
+	DNS             bool        `json:"doNotStore"`
+}
+type MLComment struct {
+	Text string `json:"text"`
+}
+type MLAttribute struct {
+	Attrb MLTOXICITY `json:"SEVERE_TOXICITY"`
+}
+type MLTOXICITY struct{}
+
+type MLResponse struct {
+	AttrbScores AttributeScores `json:"attributeScores"`
+}
+type AttributeScores struct {
+	Toxicity Toxicity `json:"SEVERE_TOXICITY"`
+}
+type Toxicity struct {
+	Summary SummaryScores `json:"summaryScore"`
+}
+type SummaryScores struct {
+	Score float64 `json:"value"`
+	Type  string  `json:"type"`
+}
+
+type ChatMessage struct {
+	Sent    bool
+	User    uuid.UUID
+	Message string
 }
 
 func loadConfig() Configuration {
@@ -105,7 +149,9 @@ func loadConfig() Configuration {
 	file, err := os.Open("data/config.json")
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Fatal("Data folder or config.json do not exist. Please create the data folder and populate the config.json file before run.")
+			fmt.Println("Expected configuration values in `config.json`, got:")
+			fmt.Printf("%+v\n", Configuration{})
+			log.Fatal("Data folder or config.json does not exist. Please create the data folder and populate the config.json file before run.")
 		} else {
 			log.Println("error:", err)
 		}
@@ -121,14 +167,14 @@ func loadConfig() Configuration {
 }
 
 func newUser(email, pass, name string) uuid.UUID {
-	/* For use during new user creation, generate a new userid and a new User structure to store the new user's data, prepopulated with email pass and name data, with the rest zero-ed for later input. Return the userid for immediate usage, and add to the *memory* user store, and maintain the email-userid pairing in the UserIDs map. */
+	/* For use during new user creation, generate a new userid and a new User structure to store the new user\"s data, prepopulated with email pass and name data, with the rest zero-ed for later input. Return the userid for immediate usage, and add to the *memory* user store, and maintain the email-userid pairing in the UserIDs map. */
 	uid, _ := uuid.NewV4()
 	password, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {
 		panic(err)
 	}
 	user := &User{
-		UserID:    *uid,
+		UserID:    *uid, //
 		EmailAddr: email,
 		Password:  password,
 		Name:      name,
@@ -144,7 +190,7 @@ func newUser(email, pass, name string) uuid.UUID {
 	return *uid
 }
 func saveUser(uid uuid.UUID) {
-	/* Save the user's data to their own file, stored according to their user id. */
+	/* Save the user\"s data to their own file, stored according to their user id. */
 	file, err := os.Create("data/userdata-" + uid.String() + ".json")
 	if err == nil {
 		defer file.Close()
@@ -158,7 +204,7 @@ func saveUser(uid uuid.UUID) {
 	}
 }
 func loadUser(uid uuid.UUID) {
-	/* Based on the provided user id, load the user's data from their own data file, add the user back to the standard users map, and return the user structure for immediate use. */
+	/* Based on the provided user id, load the user\"s data from their own data file, add the user back to the standard users map, and return the user structure for immediate use. */
 	file, err := os.Open("data/userdata-" + uid.String() + ".json")
 	if err == nil {
 		defer file.Close()
@@ -174,7 +220,7 @@ func loadUser(uid uuid.UUID) {
 	}
 }
 func loginUser(email, password string) (uuid.UUID, bool) {
-	/* Based on provided email and password strings, check that the login is correct and, if so, load the user's data and return UID to calling func. */
+	/* Based on provided email and password strings, check that the login is correct and, if so, load the user\"s data and return UID to calling func. */
 	success := true
 	uid := UserIDs[email]
 	if uid == uuid.UUID([16]byte{}) { // `uid` matches the `uuid.UUID` default value
@@ -276,6 +322,11 @@ func main() {
 		alive := true
 		conn.SetCloseHandler(func(code int, text string) error {
 			log.Println("connection closed; breaking inf loop")
+			if partner, activeConv := userPairs[data.UserID]; activeConv {
+				partner.Connection.WriteJSON(&Payload{
+					Type: "chat:closed",
+				})
+			}
 			alive = false
 			return nil
 		})
@@ -288,11 +339,12 @@ func main() {
 			}
 			switch payload.Type {
 			case "login":
+				payload.Email = strings.ToLower(payload.Email)
 				uid, success := loginUser(payload.Email, payload.Pass)
 				if success {
 					data.UserID = uid
 				} else if uid == uuid.UUID([16]byte{}) {
-					// user doesn't exist; make them
+					// user doesn\"t exist; make them
 					uid = newUser(payload.Email, payload.Pass, "friend")
 					success = true
 					data.UserID = uid
@@ -311,6 +363,27 @@ func main() {
 				users[data.UserID].Moods.Day[payload.Day].Num++
 				users[data.UserID].Moods.Month[payload.Month].Mood += payload.Mood
 				users[data.UserID].Moods.Month[payload.Month].Num++
+
+				yearRecorded := false
+				for i, year := range users[data.UserID].Moods.Years {
+					if year.Year == payload.Year {
+						users[data.UserID].Moods.Years[i].Month[payload.Month].Mood += payload.Mood
+						users[data.UserID].Moods.Years[i].Month[payload.Month].Num++
+						yearRecorded = true
+					}
+				}
+				if !yearRecorded {
+					newYear := Year{
+						Year:  payload.Year,
+						Month: [12]Mood{},
+					}
+					users[data.UserID].Moods.Years = [2]Year{
+						users[data.UserID].Moods.Years[1],
+						newYear,
+					}
+					users[data.UserID].Moods.Years[1].Month[payload.Month].Mood += payload.Mood
+					users[data.UserID].Moods.Years[1].Month[payload.Month].Num++
+				}
 				saveUser(data.UserID)
 			case "comment":
 				log.Println(payload)
@@ -359,6 +432,123 @@ func main() {
 						}
 					}
 					saveUser(data.UserID)
+				}
+			case "details":
+				newEmail := payload.Email
+				newPass := payload.Pass
+				newName := payload.Data
+				if newEmail != "" {
+					users[data.UserID].EmailAddr = newEmail
+				}
+				if newPass != "" {
+					newPass, _ := bcrypt.GenerateFromPassword([]byte(payload.Pass), bcrypt.DefaultCost)
+					users[data.UserID].Password = newPass
+				}
+				if newName != "" {
+					users[data.UserID].Name = newName
+				}
+				saveUser(data.UserID)
+			case "delete":
+				delete(UserIDs, users[data.UserID].EmailAddr)
+				err := os.Remove("data/userdata-" + data.UserID.String() + ".json")
+				if err != nil {
+					log.Println("Error deleting userdata-"+data.UserID.String()+".json: ", err)
+				}
+				saveUserIDs()
+			case "chat:start":
+				userWUser := WaitingUser{
+					UserID:     data.UserID,
+					Connection: conn,
+				}
+				defaultWUser := WaitingUser{}
+				if wUser != defaultWUser {
+					// generate new chat ID
+					cid, _ := uuid.NewV4()
+					strCid := cid.String()
+					chatlogs[strCid] = make([]ChatMessage, 0)
+
+					userPairs[data.UserID] = wUser
+					userPairs[wUser.UserID] = userWUser
+					conn.WriteJSON(&Payload{
+						Type:   "chat:ready",
+						Flag:   true,
+						ChatID: strCid,
+					})
+					wUser.Connection.WriteJSON(&Payload{
+						Type:   "chat:ready",
+						Flag:   true,
+						ChatID: strCid,
+					})
+					wUser = defaultWUser
+				} else {
+					wUser = userWUser
+					conn.WriteJSON(&Payload{
+						Type: "chat:ready",
+						Flag: false,
+					})
+				}
+			case "chat:send":
+				apiURL := "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + config.ApiKey
+
+				request := &MLRequest{
+					Comment:         MLComment{Text: payload.Data},
+					RequestedAttrbs: MLAttribute{MLTOXICITY{}},
+					DNS:             true,
+				}
+				jsonValue, _ := json.Marshal(request)
+				resp, _ := http.Post(apiURL, "application/json", bytes.NewBuffer(jsonValue))
+				body, err := ioutil.ReadAll(resp.Body)
+				response := *resp
+				if response.StatusCode == 200 && err == nil { // request went through - huzzah
+					defer response.Body.Close()
+					mlResponse := MLResponse{}
+					json.Unmarshal(body, &mlResponse)
+					sendMessage := true
+					if mlResponse.AttrbScores.Toxicity.Summary.Score >= 0.9 {
+						// reject the message
+						conn.WriteJSON(&Payload{
+							Type:  "chat:rejected",
+							MsgID: len(chatlogs[payload.ChatID]),
+						})
+						sendMessage = false
+					}
+					log.Println(chatlogs)
+					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+						Sent:    sendMessage,
+						User:    data.UserID,
+						Message: payload.Data,
+					})
+					log.Println(chatlogs)
+
+					conn.WriteJSON(&Payload{
+						Type: "chat:message",
+						Flag: false,
+						Data: payload.Data,
+					})
+					userPairs[data.UserID].Connection.WriteJSON(&Payload{
+						Type: "chat:message",
+						Flag: true,
+						Data: payload.Data,
+					})
+				}
+			case "chat:verify":
+				msg := chatlogs[payload.ChatID][payload.MsgID]
+				if msg.User == data.UserID {
+					conn.WriteJSON(&Payload{
+						Type: "chat:message",
+						Flag: false,
+						Data: msg.Message,
+					})
+					userPairs[data.UserID].Connection.WriteJSON(&Payload{
+						Type: "chat:message",
+						Flag: true,
+						Data: msg.Message,
+					})
+					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+						Sent:    true,
+						User:    data.UserID,
+						Message: msg.Message,
+					})
 				}
 			}
 		}

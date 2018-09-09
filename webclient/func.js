@@ -59,8 +59,6 @@ function section(id) {
   newActiveSection.classList.add('active');
 }
 
-
-// TODO: refactor this monstrosity
 function dayGraph(ctx, data) {
   var moods = [0, 0, 0, 0, 0, 0, 0];
   for(day in data.Day){
@@ -208,14 +206,17 @@ function monthGraph(ctx, data){
 }
 function yearGraph(data){
   var moods = {};
-  for(month in data.Month){
-    for(year in data.Month[month].years){
-      if (moods[year] === undefined){
-        moods[year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  for(year in data.Years) {
+    if (year.Year !== 0) {
+      if (moods[data.Years[year].Year] === undefined) {
+        moods[data.Years[year].Year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       }
-      moods[year][month] = data.Month[month].years[year].Mood / data.Month[month].years[year].Num;
+      data.Years[year].Month.forEach((month, i) => {
+        moods[data.Years[year].Year][i] = month.Mood / month.Num;
+      })
     }
   }
+
   var graphs = {};
   for (year in moods) {
     let ctx = document.createElement('canvas');

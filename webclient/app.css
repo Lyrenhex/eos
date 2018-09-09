@@ -17,6 +17,10 @@ You may NOT:
 - Claim this software as your own, or attempt to imply affiliation with the software in any way that could be detrimental or unlawful, or to suggest that the software, or Damian Heaton, are represented by, or represent, yourself.
 */
 
+body {
+  background-color: #00c0ff;
+}
+
 h1, h2, h3, h4 {
   color: #00c0ff;
 }
@@ -77,6 +81,15 @@ textarea:hover, textarea:focus, textarea:active {
   transform: translate(-50%, -50%);
   overflow: auto;
   padding: 5px 10px;
+}
+
+.rel-container {
+  position: relative;
+  height: 100%;
+}
+#login-footer {
+  position: absolute;
+  bottom: 0;
 }
 
 .shown {
@@ -168,7 +181,7 @@ canvas {
 .moods_month_annual canvas {
   max-height: 0;
 }
-.moods_month_annual canvas.active {
+.moods_month_annual canvas.activeYear {
   max-height: none;
 }
 button.arrow {
@@ -214,7 +227,7 @@ blockquote {
   height: calc(100% - 60px);
   overflow: auto;
 }
-input[type="text"] {
+.chat input[type="text"] {
   position: fixed;
   left: 100vw;
   bottom: -1px;
@@ -258,6 +271,11 @@ input[type="text"] {
 }
 .btn__menu.loggedin {
   display: block;
+}
+@media only print {
+  .btn__menu.loggedin {
+    display: none;
+  }
 }
 .menu {
   display: block;
@@ -311,16 +329,41 @@ input[type="text"] {
   width: 100vw;
   height: 100vh;
   z-index: -1;
+  overflow: auto;
+  margin-left: 20px;
 }
 .section.active {
   display: block;
 }
 
 .section.noformat {
-  margin-top: 75px;
   margin-left: 20px;
   margin-right: 20px;
 }
 .section.noformat h1, .section.noformat h2, .section.noformat h3, .section.noformat h4, .section.noformat h5, .section.noformat h6 {
   color: #000;
+}
+
+@media only screen and (min-width: 800px){
+  .btn__menu.loggedin {
+    display: none;
+  }
+  .menu.shown {
+    box-shadow: none;
+    border-right: 2px solid #0099ff;
+  }
+  .menu h1 {
+    margin-left: 25px;
+  }
+  .section {
+    left: 360px;
+    width: calc(100vw - 360px);
+  }
+  .block.shown {
+    width: calc(80% - 360px);
+    left: calc(50% + 180px);
+  }
+  .block.shown.done {
+    left: -200%;
+  }
 }
