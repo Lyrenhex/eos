@@ -99,3 +99,11 @@ footer a:link, footer a:visited {
 .url-block img {
   width: 100%;
 }
+
+.carousel {
+  display: block;
+  margin: auto auto 20px auto;
+  box-shadow: 0 2px 8px #555;
+  border-radius: 20px;
+  width: 90%;
+}
