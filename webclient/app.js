@@ -17,6 +17,7 @@ You may NOT:
 - Claim this software as your own, or attempt to imply affiliation with the software in any way that could be detrimental or unlawful, or to suggest that the software, or Damian Heaton, are represented by, or represent, yourself.
 */
 
+// EDIT THIS LINE AS NECESSARY. Usually, the server should operate on the same hostname as the web app, but the port may need changing depending on which port your server is configured to use.
 var serverAddr = `ws://${window.location.hostname}:9874`;
 
 
@@ -59,7 +60,7 @@ function update_acc() {
   let newPass = document.getElementById('account_password').value;
   let newName = document.getElementById('account_name').value;
 
-  sock.send(JSON.stringify({'type':'details', 'emailAddress':newEmail, 'password': newPass, 'data': newName}));
+  sock.send(JSON.stringify({'type':'details', 'emailAddress': newEmail, 'password': newPass, 'data': newName}));
 }
 sock.onerror = function(e) {
   console.error(e);
@@ -70,6 +71,7 @@ sock.onclose = function(e) {
 }
 sock.onmessage = function(e) {
   let msg = JSON.parse(e.data);
+  console.log(msg);
   switch(msg.type){
     case 'version':
       done('text__loading');
@@ -77,13 +79,12 @@ sock.onmessage = function(e) {
       update_var('version_number', `version ${msg.data}`)
       break;
     case 'login':
-      if (msg.flag) {
+      if (msg.flag) {        
         done('block__login');
         show('block__mood');
         document.getElementById('btn__menu').classList.add('loggedin');
         setState();
         window.onresize = setState;
-        console.log(msg)
 
         var file = new Blob([JSON.stringify(msg.user)], {type: "application/json"});
         var downloadLink = document.getElementById('downloadLink');

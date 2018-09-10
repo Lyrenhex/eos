@@ -326,6 +326,17 @@ func main() {
 				partner.Connection.WriteJSON(&Payload{
 					Type: "chat:closed",
 				})
+				file, err := os.Create("data/chatlogs.json")
+				if err == nil {
+					defer file.Close()
+					encoder := json.NewEncoder(file)
+					err = encoder.Encode(chatlogs)
+					if err != nil {
+						log.Println("Error saving chatlogs.json: ", err)
+					}
+				} else {
+					log.Println("Error saving chatlogs.json: ", err)
+				}
 			}
 			alive = false
 			return nil

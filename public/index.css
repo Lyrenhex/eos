@@ -87,9 +87,7 @@ footer {
   background-color: #fff;
 }
 footer a:link, footer a:visited {
-  color: #00c0ff;
-  margin-right: 20px;
-  text-shadow: 1px 1px 1px #000;
+  color: #0094c5;
 }
 
 .url-block {

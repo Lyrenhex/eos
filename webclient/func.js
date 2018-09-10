@@ -48,9 +48,7 @@ function update_var(varName, text){
   }
 }
 function signout() {
-  firebase.auth().signOut().then(() => {
-    location.reload();
-  });
+  location.reload();
 }
 function section(id) {
   let activeSection = document.getElementsByClassName("section active")[0];

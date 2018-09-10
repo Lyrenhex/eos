@@ -168,29 +168,38 @@ You may NOT:
     <!-- END OF BIG BLOCK OF MOODS -->
 
     <div class="section" id="section__tracker">
-      <h2>Your tracker</h2>
-      <div class="tracker_graphs">
-        <div class="graph">
-            <h3>Mood by year</h3>
-            <div class="moods_month_annual" id="annual_moods_graphs">
-              <button class="arrow" onclick="monthPrev()">&lsaquo;</button>
-              <button class="arrow arrow--right" onclick="monthNext()">&rsaquo;</button>
+      <div class="block shown">
+          <h2>Your tracker</h2>
+          <div class="tracker_graphs">
+            <div class="graph">
+                <h3>Mood by year</h3>
+                <div class="moods_month_annual" id="annual_moods_graphs">
+                  <button class="arrow" onclick="monthPrev()">&lsaquo;</button>
+                  <button class="arrow arrow--right" onclick="monthNext()">&rsaquo;</button>
+                </div>
             </div>
-        </div>
-        <div class="graph">
-          <h3>All time in months</h3>
-          <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
-          <canvas id="moodchart_months"></canvas>
-        </div>
-        <div class="graph">
-          <h3>All time in days</h3>
-          <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
-          <canvas id="moodchart_days"></canvas>
-        </div>
+            <div class="graph">
+              <h3>All time in months</h3>
+              <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
+              <canvas id="moodchart_months"></canvas>
+            </div>
+            <div class="graph">
+              <h3>All time in days</h3>
+              <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
+              <canvas id="moodchart_days"></canvas>
+            </div>
+          </div>
       </div>
     </div>
     <div class="section" id="section__chat">
-
+      <div class="block shown" id="chat_flow_1">
+        <h1>Hey there, welcome!</h1>
+        <p>This is the Eos online chat service. Don't worry! It's not required or anything: it's a bonus extra tool for you to use that you might find useful. Ultimately, the goal here is simple: two people with probably similar difficulties chat to each other for a bit, helping each other out in the process! Sounds great, yeah?</p>
+        <p>To get started is simple: just click the big "get chatting" button below, and we'll pair you up with someone - on a first come, first serve basis. To protect your - and their - identities, neither of you see the other person's name, email address, user ID, or any other information we have on you: just the messages as you send them.</p>
+        <p>Also, as a heads up: we know that some people aren't cool on the net. To help defend against this, we employ some <a href="https://perspectiveapi.com">technology provided by Google</a> to help recognise potentially harmful messages. If your message is falsely flagged, don't worry about it! Just verify that it isn't offensive and we'll let it through. It's worth mentioning here that should you send an offensive message, the other user has every right and ability to report the conversation: we'll look at a transcript of the discussion (along with information on any messages caught by the filter) and decide our next move in accordance with our Confidentiality Agreement... But let's hope it never comes to that, yeah?</p>
+        <p>Phew, now that's out of the way... Let's get to chatting!</p>
+        <button onclick="startChat()">Get chatting!</button>
+      </div>
     </div>
     <div class="section" id="section__settings">
       <h2>Your Account Settings</h2>
