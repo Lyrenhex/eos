@@ -377,4 +377,28 @@ blockquote {
   .block h2 {
     margin-left: auto;
   }
+  .loading {
+    left: calc(50% + 180px);
+  }
+  .loading.done {
+    left: -200%;
+  }
+  .unit {
+    width: calc(100% - 380px);
+    position: relative;
+    top: 0;
+    left: 380px;
+    height: 100%;
+    overflow: hidden;
+  }
+  .unit #chatlog {
+    height: calc(100% - 110px);
+    overflow: auto;
+  }
+  .unit #chatbox {
+    height: 70px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+  }
 }

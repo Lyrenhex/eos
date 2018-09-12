@@ -34,7 +34,7 @@ var UserIDs map[string]uuid.UUID
 var users map[uuid.UUID]*User           // @users[uuid.UUID], store a pointer to the user\"s data - avoid memory data duplication - edit the storage location directly.
 var userPairs map[uuid.UUID]WaitingUser // @UserPairs[uuid.UUID], store a pointer to the other member\"s websocket connection
 var wUser WaitingUser
-var chatlogs map[string][]ChatMessage
+var chatlogs map[string]([]ChatMessage)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -282,6 +282,8 @@ func redirectToHTTPS(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	users = make(map[uuid.UUID]*User)
+	chatlogs = make(map[string][]ChatMessage)
+	userPairs = make(map[uuid.UUID]WaitingUser)
 
 	f, err := os.OpenFile("data/server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -337,6 +339,9 @@ func main() {
 				} else {
 					log.Println("Error saving chatlogs.json: ", err)
 				}
+			} else if wUser.UserID == data.UserID {
+				defaultWUser := WaitingUser{}
+				wUser = defaultWUser
 			}
 			alive = false
 			return nil
@@ -476,10 +481,13 @@ func main() {
 					// generate new chat ID
 					cid, _ := uuid.NewV4()
 					strCid := cid.String()
+					log.Println(chatlogs)
 					chatlogs[strCid] = make([]ChatMessage, 0)
+					log.Println(chatlogs)
 
 					userPairs[data.UserID] = wUser
 					userPairs[wUser.UserID] = userWUser
+
 					conn.WriteJSON(&Payload{
 						Type:   "chat:ready",
 						Flag:   true,

@@ -27,6 +27,10 @@ function done(blockId) {
   let block = document.getElementById(blockId);
   block.classList.add('done');
 }
+function undone(blockId) {
+  let block = document.getElementById(blockId);
+  block.classList.remove('done');
+}
 function show(blockId) {
   let block = document.getElementById(blockId);
   block.classList.add('shown');

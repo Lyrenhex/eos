@@ -164,6 +164,22 @@ sock.onmessage = function(e) {
         }
         document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('activeYear');
       }
+    case "chat:ready":
+      if (msg.flag) { // chat connection with partner established
+        document.getElementById("chatbox")
+            .addEventListener("keyup", function(event) {
+            event.preventDefault();
+            if (event.keyCode === 13) {
+                document.getElementById("chatbox__send").click();
+            }
+        });
+        done('text__loading');
+        show('chat_flow_2');
+      } else { // waiting on another user to start chat
+        done('chat_flow_1');
+        undone('text__loading');
+        document.getElementById('text__loading').innerText = "Finding you someone to talk to";
+      }
   }
 }
 
@@ -275,6 +291,13 @@ function setState() {
 function deleteData() {
   let json = {
     type: 'delete'
+  }
+  sock.send(JSON.stringify(json));
+}
+
+function startChat() {
+  let json = {
+    type: "chat:start"
   }
   sock.send(JSON.stringify(json));
 }

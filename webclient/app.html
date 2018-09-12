@@ -41,8 +41,9 @@ You may NOT:
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        color: #00c0ff;
+        color: #fff;
         transition: 1s ease-in all;
+        text-align: center;
       }
     </style>
   </head>
@@ -199,6 +200,14 @@ You may NOT:
         <p>Also, as a heads up: we know that some people aren't cool on the net. To help defend against this, we employ some <a href="https://perspectiveapi.com">technology provided by Google</a> to help recognise potentially harmful messages. If your message is falsely flagged, don't worry about it! Just verify that it isn't offensive and we'll let it through. It's worth mentioning here that should you send an offensive message, the other user has every right and ability to report the conversation: we'll look at a transcript of the discussion (along with information on any messages caught by the filter) and decide our next move in accordance with our Confidentiality Agreement... But let's hope it never comes to that, yeah?</p>
         <p>Phew, now that's out of the way... Let's get to chatting!</p>
         <button onclick="startChat()">Get chatting!</button>
+      </div>
+      <div class="unit" id="chat_flow_2">
+        <div id="chatlog">
+
+        </div>
+        <input type="text" id="chatbox" />
+        <button id="chatbox__send" onclick="sendChatMsg()">&#2b9e;</button>
+        <button id="chat__report" onclick="sendChatReport()">I feel uncomfortable</button>
       </div>
     </div>
     <div class="section" id="section__settings">
