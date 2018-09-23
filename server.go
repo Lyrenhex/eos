@@ -46,12 +46,13 @@ var upgrader = websocket.Upgrader{
 
 // Configuration stores the JSON configuration stored in `config.json` as a Go-friendly structure.
 type Configuration struct {
-	EnvProd bool   `json:"envProduction"`
-	EnvKey  string `json:"envKey"`
-	EnvCert string `json:"envCertificate"`
-	SrvHost string `json:"srvHostname"`
-	SrvPort int    `json:"srvPort"`
-	ApiKey  string `json:"apiKey"`
+	EnvProd  bool   `json:"envProduction"`
+	EnvKey   string `json:"envKey"`
+	EnvCert  string `json:"envCertificate"`
+	SrvHost  string `json:"srvHostname"`
+	SrvPort  int    `json:"srvPort"`
+	GApiKey  string `json:"googleApiKey"`
+	DWebhook string `json:"discordWebhook"`
 }
 
 // User data type, built on numerous structures.
@@ -138,9 +139,18 @@ type SummaryScores struct {
 	Type  string  `json:"type"`
 }
 
+type DiscordWebhookRequest struct {
+	Content [1]DiscordWebhookEmbed `json:"embeds"`
+}
+type DiscordWebhookEmbed struct {
+	ReportID    string `json:"title"`
+	Description string `json:"description"`
+	ReportUri   string `json:"url"`
+}
+
 type ChatMessage struct {
 	Sent    bool
-	User    uuid.UUID
+	User    string
 	Message string
 }
 
@@ -328,17 +338,6 @@ func main() {
 				partner.Connection.WriteJSON(&Payload{
 					Type: "chat:closed",
 				})
-				file, err := os.Create("data/chatlogs.json")
-				if err == nil {
-					defer file.Close()
-					encoder := json.NewEncoder(file)
-					err = encoder.Encode(chatlogs)
-					if err != nil {
-						log.Println("Error saving chatlogs.json: ", err)
-					}
-				} else {
-					log.Println("Error saving chatlogs.json: ", err)
-				}
 			} else if wUser.UserID == data.UserID {
 				defaultWUser := WaitingUser{}
 				wUser = defaultWUser
@@ -507,7 +506,8 @@ func main() {
 					})
 				}
 			case "chat:send":
-				apiURL := "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + config.ApiKey
+				log.Println(payload.Data)
+				apiURL := "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + config.GApiKey
 
 				request := &MLRequest{
 					Comment:         MLComment{Text: payload.Data},
@@ -534,7 +534,28 @@ func main() {
 					log.Println(chatlogs)
 					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
 						Sent:    sendMessage,
-						User:    data.UserID,
+						User:    data.UserID.String(),
+						Message: payload.Data,
+					})
+					log.Println(chatlogs)
+
+					conn.WriteJSON(&Payload{
+						Type: "chat:message",
+						Flag: false,
+						Data: payload.Data,
+					})
+					userPairs[data.UserID].Connection.WriteJSON(&Payload{
+						Type: "chat:message",
+						Flag: true,
+						Data: payload.Data,
+					})
+				} else {
+					log.Println("Error occurred in NEURAL NETWORK: ", response.StatusCode, err)
+					log.Println("Bypassing filter, sending message.")
+
+					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+						Sent:    true,
+						User:    data.UserID.String(),
 						Message: payload.Data,
 					})
 					log.Println(chatlogs)
@@ -552,7 +573,7 @@ func main() {
 				}
 			case "chat:verify":
 				msg := chatlogs[payload.ChatID][payload.MsgID]
-				if msg.User == data.UserID {
+				if msg.User == data.UserID.String() {
 					conn.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: false,
@@ -565,10 +586,37 @@ func main() {
 					})
 					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
 						Sent:    true,
-						User:    data.UserID,
+						User:    data.UserID.String(),
 						Message: msg.Message,
 					})
 				}
+			case "chat:report":
+				file, err := os.Create("data/reportlog-" + payload.ChatID + ".json")
+				if err == nil {
+					defer file.Close()
+					encoder := json.NewEncoder(file)
+					err = encoder.Encode(chatlogs[payload.ChatID])
+					if err != nil {
+						log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
+					}
+
+					request := &DiscordWebhookRequest{
+						Content: [1]DiscordWebhookEmbed{DiscordWebhookEmbed{
+							ReportID:    payload.ChatID,
+							Description: "New reported chat log. Please click the link to access the page with which to handle this report log. This link will expire after the report has been addressed, and requires a valid administrator login. In cases where the chat log includes illegal content, please refer to Lyrenhex for escalation and referral to the local law enforcement authorities.",
+							ReportUri:   "https://" + config.SrvHost + "/admin/report.html?id=" + payload.ChatID,
+						}},
+					}
+					jsonValue, _ := json.Marshal(request)
+					log.Println(string(jsonValue))
+					resp, err := http.Post(config.DWebhook, "application/json", bytes.NewBuffer(jsonValue))
+					if resp.StatusCode != 204 || err != nil {
+						log.Println("Discord Webhook error: ", resp, err)
+					}
+				} else {
+					log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
+				}
+				break
 			}
 		}
 	})

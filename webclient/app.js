@@ -20,6 +20,8 @@ You may NOT:
 // EDIT THIS LINE AS NECESSARY. Usually, the server should operate on the same hostname as the web app, but the port may need changing depending on which port your server is configured to use.
 var serverAddr = `ws://${window.location.hostname}:9874`;
 
+var CHATID = "";
+
 
 var YEARS = [];
 
@@ -164,8 +166,10 @@ sock.onmessage = function(e) {
         }
         document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('activeYear');
       }
+      break;
     case "chat:ready":
       if (msg.flag) { // chat connection with partner established
+        CHATID = msg.cid;
         document.getElementById("chatbox")
             .addEventListener("keyup", function(event) {
             event.preventDefault();
@@ -173,6 +177,9 @@ sock.onmessage = function(e) {
                 document.getElementById("chatbox__send").click();
             }
         });
+        if(document.getElementById('chat_flow_1')
+          .classList.contains("shown"))
+          done('chat_flow_1');
         done('text__loading');
         show('chat_flow_2');
       } else { // waiting on another user to start chat
@@ -180,6 +187,10 @@ sock.onmessage = function(e) {
         undone('text__loading');
         document.getElementById('text__loading').innerText = "Finding you someone to talk to";
       }
+      break;
+    case "chat:message":
+      console.log(msg);
+      break;
   }
 }
 
@@ -298,6 +309,24 @@ function deleteData() {
 function startChat() {
   let json = {
     type: "chat:start"
+  }
+  sock.send(JSON.stringify(json));
+}
+function sendChatMsg() {
+  let chatbox = document.getElementById('chatbox');
+  let textToSend = chatbox.value;
+  let json = {
+    type: "chat:send",
+    cid: CHATID,
+    data: textToSend
+  }
+  sock.send(JSON.stringify(json));
+  chatbox.value = "";
+}
+function sendChatReport() {
+  let json = {
+    type: "chat:report",
+    cid: CHATID
   }
   sock.send(JSON.stringify(json));
 }
