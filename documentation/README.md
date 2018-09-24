@@ -3,10 +3,9 @@
 ## Contents
 
 1. Project overview
-2. Server API [server.md]
-3. Client API [client.md]
-4. Technical details [tech.md]
-5. Research, notable decisions [research.md]
+2. Server API [[server.md](server.md)]
+3. Technical details [[tech.md](tech.md)]
+4. Research, notable decisions [[research.pdf](research.pdf)]
 
 ## Project overview
 

@@ -65,6 +65,7 @@ type User struct {
 	Positives [20]string // allow more positives, but cap at 20 comments before replacing existing ones.
 	Neutrals  [5]string  // less emphasis on storing non-positive comments. Keep 5 for reports before replacement.
 	Negatives [5]string
+	Admin     bool
 }
 
 // Moods acts as a reusable structure to store mood data - sub structure of User
@@ -88,18 +89,19 @@ type Year struct {
 
 // Payload acts as a consistent structure to interface with JSON client-server exchange data.
 type Payload struct {
-	Type   string `json:"type"`
-	Flag   bool   `json:"flag"`
-	Data   string `json:"data"`
-	Email  string `json:"emailAddress"`
-	Pass   string `json:"password"`
-	Day    int    `json:"day"`
-	Month  int    `json:"month"`
-	Year   int    `json:"year"`
-	Mood   int    `json:"mood"`
-	MsgID  int    `json:"mid"`
-	ChatID string `json:"cid"`
-	User   User   `json:"user"`
+	Type   string        `json:"type"`
+	Flag   bool          `json:"flag"`
+	Data   string        `json:"data"`
+	Email  string        `json:"emailAddress"`
+	Pass   string        `json:"password"`
+	Day    int           `json:"day"`
+	Month  int           `json:"month"`
+	Year   int           `json:"year"`
+	Mood   int           `json:"mood"`
+	MsgID  int           `json:"mid"`
+	ChatID string        `json:"cid"`
+	User   User          `json:"user"`
+	Log    []ChatMessage `json:"chatlog"`
 }
 
 // Data stores key information for chat sessions
@@ -149,9 +151,9 @@ type DiscordWebhookEmbed struct {
 }
 
 type ChatMessage struct {
-	Sent    bool
-	User    string
-	Message string
+	Sent    bool   `json:"aiDecision"`
+	User    string `json:"sender"`
+	Message string `json:"message"`
 }
 
 func loadConfig() Configuration {
