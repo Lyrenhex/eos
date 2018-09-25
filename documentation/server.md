@@ -42,6 +42,18 @@ Upon successfully connecting to the WebSocket server, the server **must** respon
 }
 ```
 
+Once the login has been processed, the server will return the following:
+
+```javascript
+{
+    "type": "login",
+    "flag": true, // true if user authentication success, false otherwise.
+    "user": {} // User object
+}
+```
+
+[Documentation on the User object](user.md)
+
 This method **MUST** be called before calling any subsequent method within the server's functionality; non-logged-in method calls will be discarded by the server automatically.
 
 ### Submitting new Mood data (mood)

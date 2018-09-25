@@ -59,6 +59,7 @@ typings/
 
 # server data folder containing config, user data, and report files
 data/
+data/config.json
 
 \.vs/eos-v2/v15/
 

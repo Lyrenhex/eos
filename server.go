@@ -358,17 +358,19 @@ func main() {
 			case "login":
 				payload.Email = strings.ToLower(payload.Email)
 				uid, success := loginUser(payload.Email, payload.Pass)
+				userData := User{}
 				if success {
 					data.UserID = uid
+					userData = *users[uid]
 				} else if uid == uuid.UUID([16]byte{}) {
 					// user doesn\"t exist; make them
 					uid = newUser(payload.Email, payload.Pass, "friend")
 					success = true
 					data.UserID = uid
+					userData = *users[uid]
 				} else {
 					continue
 				}
-				userData := *users[uid]
 				userData.Password = []byte("")
 				conn.WriteJSON(&Payload{
 					Type: "login",
