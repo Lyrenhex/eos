@@ -204,6 +204,12 @@ sock.onmessage = function(e) {
         }));
       }
       break;
+    case "chat:banned":
+      if(document.getElementById('chat_flow_1')
+      .classList.contains("shown"))
+        done('chat_flow_1');
+      done('text__loading');
+      show('chat_flow_banned');
   }
 }
 
