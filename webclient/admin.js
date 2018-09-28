@@ -79,7 +79,7 @@ function submit_flag() {
   }));
 }
 
-function submit_flag() {
+function submit_decision() {
   let reportUser = document.getElementById('report_malign').value;
   sock.send(JSON.stringify({
     type: "admin:decision",

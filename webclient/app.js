@@ -189,7 +189,20 @@ sock.onmessage = function(e) {
       }
       break;
     case "chat:message":
-      console.log(msg);
+      let chatlog = document.getElementById('chatlog');
+      let newMessage = document.createElement('p');
+      newMessage.classList.add(msg.flag ? "otherUser" : "user");
+      newMessage.innerHTML = `${msg.flag ? "Peer: " : ""}${msg.data}`;
+      chatlog.appendChild(newMessage);
+      break;
+    case "chat:rejected":
+      if (confirm("Woah there! Are you sure that you're saying something nice? Remember, the other person is likely in a difficult place, much like you might be!")) {
+        sock.send(JSON.stringify({
+          type: "chat:verify",
+          cid: CHATID,
+          mid: msg.mid
+        }));
+      }
       break;
   }
 }

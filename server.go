@@ -521,70 +521,68 @@ func main() {
 					})
 				}
 			case "chat:send":
-				log.Println(payload.Data)
-				apiURL := "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + config.GApiKey
+				if payload.Data != "" {
+					apiURL := "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + config.GApiKey
 
-				request := &MLRequest{
-					Comment:         MLComment{Text: payload.Data},
-					RequestedAttrbs: MLAttribute{MLTOXICITY{}},
-					DNS:             true,
-				}
-				jsonValue, _ := json.Marshal(request)
-				resp, _ := http.Post(apiURL, "application/json", bytes.NewBuffer(jsonValue))
-				body, err := ioutil.ReadAll(resp.Body)
-				response := *resp
-				if response.StatusCode == 200 && err == nil { // request went through - huzzah
-					defer response.Body.Close()
-					mlResponse := MLResponse{}
-					json.Unmarshal(body, &mlResponse)
-					sendMessage := true
-					if mlResponse.AttrbScores.Toxicity.Summary.Score >= 0.9 {
-						// reject the message
-						conn.WriteJSON(&Payload{
-							Type:  "chat:rejected",
-							MsgID: len(chatlogs[payload.ChatID]),
-						})
-						sendMessage = false
+					request := &MLRequest{
+						Comment:         MLComment{Text: payload.Data},
+						RequestedAttrbs: MLAttribute{MLTOXICITY{}},
+						DNS:             true,
 					}
-					log.Println(chatlogs)
-					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
-						Sent:    sendMessage,
-						User:    data.UserID.String(),
-						Message: html.EscapeString(payload.Data),
-					})
-					log.Println(chatlogs)
+					jsonValue, _ := json.Marshal(request)
+					resp, _ := http.Post(apiURL, "application/json", bytes.NewBuffer(jsonValue))
+					body, err := ioutil.ReadAll(resp.Body)
+					response := *resp
+					if response.StatusCode == 200 && err == nil { // request went through - huzzah
+						mlResponse := MLResponse{}
+						json.Unmarshal(body, &mlResponse)
+						response.Body.Close()
+						sendMessage := true
+						if mlResponse.AttrbScores.Toxicity.Summary.Score >= 0.9 {
+							// reject the message
+							conn.WriteJSON(&Payload{
+								Type:  "chat:rejected",
+								MsgID: len(chatlogs[payload.ChatID]),
+							})
+							sendMessage = false
+						}
+						chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+							Sent:    sendMessage,
+							User:    data.UserID.String(),
+							Message: html.EscapeString(payload.Data),
+						})
 
-					conn.WriteJSON(&Payload{
-						Type: "chat:message",
-						Flag: false,
-						Data: html.EscapeString(payload.Data),
-					})
-					userPairs[data.UserID].Connection.WriteJSON(&Payload{
-						Type: "chat:message",
-						Flag: true,
-						Data: html.EscapeString(payload.Data),
-					})
-				} else {
-					log.Println("Error occurred in NEURAL NETWORK: ", response.StatusCode, err)
-					log.Println("Bypassing filter, sending message.")
+						conn.WriteJSON(&Payload{
+							Type: "chat:message",
+							Flag: false,
+							Data: html.EscapeString(payload.Data),
+						})
+						userPairs[data.UserID].Connection.WriteJSON(&Payload{
+							Type: "chat:message",
+							Flag: true,
+							Data: html.EscapeString(payload.Data),
+						})
+					} else {
+						log.Println("Error occurred in NEURAL NETWORK: ", response.StatusCode, err)
+						log.Println("Bypassing filter, sending message.")
 
-					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
-						Sent:    true,
-						User:    data.UserID.String(),
-						Message: html.EscapeString(payload.Data),
-					})
-					log.Println(chatlogs)
+						chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+							Sent:    true,
+							User:    data.UserID.String(),
+							Message: html.EscapeString(payload.Data),
+						})
 
-					conn.WriteJSON(&Payload{
-						Type: "chat:message",
-						Flag: false,
-						Data: html.EscapeString(payload.Data),
-					})
-					userPairs[data.UserID].Connection.WriteJSON(&Payload{
-						Type: "chat:message",
-						Flag: true,
-						Data: html.EscapeString(payload.Data),
-					})
+						conn.WriteJSON(&Payload{
+							Type: "chat:message",
+							Flag: false,
+							Data: html.EscapeString(payload.Data),
+						})
+						userPairs[data.UserID].Connection.WriteJSON(&Payload{
+							Type: "chat:message",
+							Flag: true,
+							Data: html.EscapeString(payload.Data),
+						})
+					}
 				}
 			case "chat:verify":
 				msg := chatlogs[payload.ChatID][payload.MsgID]
@@ -608,7 +606,6 @@ func main() {
 			case "chat:report":
 				file, err := os.Create("data/reportlog-" + payload.ChatID + ".json")
 				if err == nil {
-					defer file.Close()
 					encoder := json.NewEncoder(file)
 					err = encoder.Encode(ChatLog{
 						ChatLog: chatlogs[payload.ChatID],
@@ -616,12 +613,13 @@ func main() {
 					if err != nil {
 						log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
 					}
+					file.Close()
 
 					request := &DiscordWebhookRequest{
 						Content: [1]DiscordWebhookEmbed{DiscordWebhookEmbed{
 							ReportID:    payload.ChatID,
 							Description: "New reported chat log. Please click the link to access the page with which to handle this report log. This link will expire after the report has been addressed, and requires a valid administrator login. In cases where the chat log includes illegal content, please refer to Lyrenhex for escalation and referral to the local law enforcement authorities.",
-							ReportUri:   "https://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
+							ReportUri:   "http://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
 						}},
 					}
 					jsonValue, _ := json.Marshal(request)
@@ -633,9 +631,7 @@ func main() {
 				} else {
 					log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
 				}
-				break
 			case "admin:access":
-				log.Println(payload)
 				if users[data.UserID].Admin {
 					file, err := os.Open("data/reportlog-" + payload.ChatID + ".json")
 					if err != nil {
@@ -644,20 +640,59 @@ func main() {
 						} else {
 							log.Println("error:", err)
 						}
+					} else {
+						decoder := json.NewDecoder(file)
+						reportlog := ChatLog{}
+						err = decoder.Decode(&reportlog)
+						file.Close()
+						if err != nil {
+							log.Fatal("Error reading reportlog-"+payload.ChatID+".json: ", err)
+						}
+						log.Println(reportlog)
+						conn.WriteJSON(&Payload{
+							Type: "admin:chatlog",
+							Log:  reportlog.ChatLog,
+						})
 					}
-					defer file.Close()
-					decoder := json.NewDecoder(file)
-					reportlog := ChatLog{}
-					err = decoder.Decode(&reportlog)
+				}
+			case "admin:decision":
+				if users[data.UserID].Admin {
+					err := os.Remove("data/reportlog-" + payload.ChatID + ".json")
 					if err != nil {
-						log.Fatal("Error reading reportlog-"+payload.ChatID+".json: ", err)
+						if os.IsNotExist(err) {
+							log.Println("Request to decide nonexistent report " + payload.ChatID + ".")
+						} else {
+							log.Println("error:", err)
+						}
+					} else {
+						log.Println("Decision rendered on Report " + payload.ChatID)
+						if payload.Data != "" {
+							bannedID, _ := uuid.ParseHex(payload.Data)
+							users[*bannedID].Banned = true
+							saveUser(*bannedID)
+							log.Println("User " + bannedID.String() + " banned.")
+						}
 					}
-					log.Println(reportlog)
 					conn.WriteJSON(&Payload{
-						Type: "admin:chatlog",
-						Log:  reportlog.ChatLog,
+						Type: "admin:success",
 					})
 				}
+			case "admin:flag":
+				if users[data.UserID].Admin {
+					err := os.Rename("data/reportlog-"+payload.ChatID+".json", "data/FLAGGED-reportlog-"+payload.ChatID+".json")
+					if err != nil {
+						if os.IsNotExist(err) {
+							log.Println("Request to flag nonexistent report " + payload.ChatID + ".")
+						} else {
+							log.Println("error:", err)
+						}
+					} else {
+						log.Println("Report " + payload.ChatID + " flagged.")
+					}
+				}
+				conn.WriteJSON(&Payload{
+					Type: "admin:success",
+				})
 			}
 		}
 	})
