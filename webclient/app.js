@@ -81,7 +81,7 @@ sock.onmessage = function(e) {
       update_var('version_number', `version ${msg.data}`)
       break;
     case 'login':
-      if (msg.flag) {        
+      if (msg.flag) {
         done('block__login');
         show('block__mood');
         document.getElementById('btn__menu').classList.add('loggedin');

@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"html"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -66,6 +67,7 @@ type User struct {
 	Neutrals  [5]string  // less emphasis on storing non-positive comments. Keep 5 for reports before replacement.
 	Negatives [5]string
 	Admin     bool
+	Banned    bool
 }
 
 // Moods acts as a reusable structure to store mood data - sub structure of User
@@ -150,6 +152,9 @@ type DiscordWebhookEmbed struct {
 	ReportUri   string `json:"url"`
 }
 
+type ChatLog struct {
+	ChatLog []ChatMessage `json:"chatlog"`
+}
 type ChatMessage struct {
 	Sent    bool   `json:"aiDecision"`
 	User    string `json:"sender"`
@@ -475,38 +480,44 @@ func main() {
 				}
 				saveUserIDs()
 			case "chat:start":
-				userWUser := WaitingUser{
-					UserID:     data.UserID,
-					Connection: conn,
-				}
-				defaultWUser := WaitingUser{}
-				if wUser != defaultWUser {
-					// generate new chat ID
-					cid, _ := uuid.NewV4()
-					strCid := cid.String()
-					log.Println(chatlogs)
-					chatlogs[strCid] = make([]ChatMessage, 0)
-					log.Println(chatlogs)
+				if !users[data.UserID].Banned {
+					userWUser := WaitingUser{
+						UserID:     data.UserID,
+						Connection: conn,
+					}
+					defaultWUser := WaitingUser{}
+					if wUser != defaultWUser {
+						// generate new chat ID
+						cid, _ := uuid.NewV4()
+						strCid := cid.String()
+						log.Println(chatlogs)
+						chatlogs[strCid] = make([]ChatMessage, 0)
+						log.Println(chatlogs)
 
-					userPairs[data.UserID] = wUser
-					userPairs[wUser.UserID] = userWUser
+						userPairs[data.UserID] = wUser
+						userPairs[wUser.UserID] = userWUser
 
-					conn.WriteJSON(&Payload{
-						Type:   "chat:ready",
-						Flag:   true,
-						ChatID: strCid,
-					})
-					wUser.Connection.WriteJSON(&Payload{
-						Type:   "chat:ready",
-						Flag:   true,
-						ChatID: strCid,
-					})
-					wUser = defaultWUser
+						conn.WriteJSON(&Payload{
+							Type:   "chat:ready",
+							Flag:   true,
+							ChatID: strCid,
+						})
+						wUser.Connection.WriteJSON(&Payload{
+							Type:   "chat:ready",
+							Flag:   true,
+							ChatID: strCid,
+						})
+						wUser = defaultWUser
+					} else {
+						wUser = userWUser
+						conn.WriteJSON(&Payload{
+							Type: "chat:ready",
+							Flag: false,
+						})
+					}
 				} else {
-					wUser = userWUser
 					conn.WriteJSON(&Payload{
-						Type: "chat:ready",
-						Flag: false,
+						Type: "chat:banned",
 					})
 				}
 			case "chat:send":
@@ -539,19 +550,19 @@ func main() {
 					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
 						Sent:    sendMessage,
 						User:    data.UserID.String(),
-						Message: payload.Data,
+						Message: html.EscapeString(payload.Data),
 					})
 					log.Println(chatlogs)
 
 					conn.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: false,
-						Data: payload.Data,
+						Data: html.EscapeString(payload.Data),
 					})
 					userPairs[data.UserID].Connection.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: true,
-						Data: payload.Data,
+						Data: html.EscapeString(payload.Data),
 					})
 				} else {
 					log.Println("Error occurred in NEURAL NETWORK: ", response.StatusCode, err)
@@ -560,19 +571,19 @@ func main() {
 					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
 						Sent:    true,
 						User:    data.UserID.String(),
-						Message: payload.Data,
+						Message: html.EscapeString(payload.Data),
 					})
 					log.Println(chatlogs)
 
 					conn.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: false,
-						Data: payload.Data,
+						Data: html.EscapeString(payload.Data),
 					})
 					userPairs[data.UserID].Connection.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: true,
-						Data: payload.Data,
+						Data: html.EscapeString(payload.Data),
 					})
 				}
 			case "chat:verify":
@@ -581,17 +592,17 @@ func main() {
 					conn.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: false,
-						Data: msg.Message,
+						Data: html.EscapeString(payload.Data),
 					})
 					userPairs[data.UserID].Connection.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: true,
-						Data: msg.Message,
+						Data: html.EscapeString(payload.Data),
 					})
 					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
 						Sent:    true,
 						User:    data.UserID.String(),
-						Message: msg.Message,
+						Message: html.EscapeString(payload.Data),
 					})
 				}
 			case "chat:report":
@@ -599,7 +610,9 @@ func main() {
 				if err == nil {
 					defer file.Close()
 					encoder := json.NewEncoder(file)
-					err = encoder.Encode(chatlogs[payload.ChatID])
+					err = encoder.Encode(ChatLog{
+						ChatLog: chatlogs[payload.ChatID],
+					})
 					if err != nil {
 						log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
 					}
@@ -608,7 +621,7 @@ func main() {
 						Content: [1]DiscordWebhookEmbed{DiscordWebhookEmbed{
 							ReportID:    payload.ChatID,
 							Description: "New reported chat log. Please click the link to access the page with which to handle this report log. This link will expire after the report has been addressed, and requires a valid administrator login. In cases where the chat log includes illegal content, please refer to Lyrenhex for escalation and referral to the local law enforcement authorities.",
-							ReportUri:   "https://" + config.SrvHost + "/admin/report.html?id=" + payload.ChatID,
+							ReportUri:   "https://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
 						}},
 					}
 					jsonValue, _ := json.Marshal(request)
@@ -621,6 +634,30 @@ func main() {
 					log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
 				}
 				break
+			case "admin:access":
+				log.Println(payload)
+				if users[data.UserID].Admin {
+					file, err := os.Open("data/reportlog-" + payload.ChatID + ".json")
+					if err != nil {
+						if os.IsNotExist(err) {
+							log.Println("Request to access nonexistent report " + payload.ChatID + ".")
+						} else {
+							log.Println("error:", err)
+						}
+					}
+					defer file.Close()
+					decoder := json.NewDecoder(file)
+					reportlog := ChatLog{}
+					err = decoder.Decode(&reportlog)
+					if err != nil {
+						log.Fatal("Error reading reportlog-"+payload.ChatID+".json: ", err)
+					}
+					log.Println(reportlog)
+					conn.WriteJSON(&Payload{
+						Type: "admin:chatlog",
+						Log:  reportlog.ChatLog,
+					})
+				}
 			}
 		}
 	})

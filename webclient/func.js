@@ -23,6 +23,12 @@ Date.prototype.getWeek = function() { // get the current week of the year (start
   return Math.ceil((((this - onejan) /millisecsInDay) + onejan.getDay()+1)/7);
 };
 
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
 function done(blockId) {
   let block = document.getElementById(blockId);
   block.classList.add('done');

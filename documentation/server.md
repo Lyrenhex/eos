@@ -28,7 +28,7 @@ Upon successfully connecting to the WebSocket server, the server **must** respon
 ```javascript
 {
     "type": "version",
-    "data": // version number of the server
+    "data": "" // version number of the server
 }
 ```
 
@@ -116,7 +116,14 @@ This method must be called, and a ChatID must be provided, before any other chat
 }
 ```
 
-Handling of setting up chat details, and connecting users together (usually via a first-come-first-serve queue system) is handled by the server. If the user is awaiting a partner, the server should send this as response:
+If the user is banned from online chat functionality, processing of this command will be ignored and the server will respond with a simple notice of the form:
+
+```javascript
+{
+    "type": "chat:banned"
+}
+```
+Otherwise, handling of setting up chat details, and connecting users together (usually via a first-come-first-serve queue system) is handled by the server. If the user is awaiting a partner, the server should send this as response:
 
 ```javascript
 {
@@ -240,8 +247,35 @@ Different servers may handle chat reports differently. This is not addressed by 
 {
     "type": "admin:decision",
     "cid": "", // ID of the chatlog you are deciding on.
-    "flag": true // true to accept the report as valid and ban the user; false to reject the report as invalid and trigger no action.
+    "data": "" // userID of the offending user to ban. if not applicable, leave as a blank string.
 }
 ```
 
-Upon a decision being made, the chatlog should therefore be deleted immediately. **It is important to note that, if a chatlog contains illegal content or is part of an ongoing investigation, the matter should be escalated to the server admin and a copy of all relevant data should be made by them. The report should NOT be decided upon.**
+Upon a decision being made, the chatlog should therefore be deleted immediately. **It is important to note that, if a chatlog contains illegal content or is part of an ongoing investigation, the matter should be escalated to the server admin and a copy of all relevant data should be made by them. The report should NOT be decided upon. This should be achieved via `admin:flag`.**
+
+Upon completion, the server will provide this response:
+
+```javascript
+{
+    "type": "admin:success"
+}
+```
+
+## Admin API: Flag a report for escalation
+
+**ADMIN API METHODS WILL ONLY RETURN A RESPONSE IF THE LOGGED-IN EOS ACCOUNT'S "ADMIN" PARAMETER IS SET TO TRUE.**
+
+```javascript
+{
+    "type": "admin:flag",
+    "cid": "" // ID of the chatlog you are deciding on.
+}
+```
+
+Upon completion, the server will provide this response:
+
+```javascript
+{
+    "type": "admin:success"
+}
+```
