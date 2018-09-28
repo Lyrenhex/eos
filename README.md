@@ -20,6 +20,6 @@
 4. Create `data` folder and set up [configuration file](documentation/tech.md), `data/config.json`
 5. Run: `>> go run eos-v2`
 
-## Setting up
+## Updating
 
-To set up the application, a data folder should be created in the application's root. 
+To update the software, simply perform a `git fetch` in the `$GOROOT/src/gitlab.com/lyrenhex/eos-v2` folder.
