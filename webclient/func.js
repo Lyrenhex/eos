@@ -23,9 +23,19 @@ Date.prototype.getWeek = function() { // get the current week of the year (start
   return Math.ceil((((this - onejan) /millisecsInDay) + onejan.getDay()+1)/7);
 };
 
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
+}
+
 function done(blockId) {
   let block = document.getElementById(blockId);
   block.classList.add('done');
+}
+function undone(blockId) {
+  let block = document.getElementById(blockId);
+  block.classList.remove('done');
 }
 function show(blockId) {
   let block = document.getElementById(blockId);
@@ -48,9 +58,7 @@ function update_var(varName, text){
   }
 }
 function signout() {
-  firebase.auth().signOut().then(() => {
-    location.reload();
-  });
+  location.reload();
 }
 function section(id) {
   let activeSection = document.getElementsByClassName("section active")[0];

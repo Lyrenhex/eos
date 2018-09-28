@@ -1,7 +1,0 @@
-{
-    "envProduction": false,
-    "envKey": null,
-    "envCertificate": null,
-    "srvHostname": "localhost",
-    "srvPort": 9874
-}

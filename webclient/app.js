@@ -17,7 +17,10 @@ You may NOT:
 - Claim this software as your own, or attempt to imply affiliation with the software in any way that could be detrimental or unlawful, or to suggest that the software, or Damian Heaton, are represented by, or represent, yourself.
 */
 
+// EDIT THIS LINE AS NECESSARY. Usually, the server should operate on the same hostname as the web app, but the port may need changing depending on which port your server is configured to use.
 var serverAddr = `ws://${window.location.hostname}:9874`;
+
+var CHATID = "";
 
 
 var YEARS = [];
@@ -59,7 +62,7 @@ function update_acc() {
   let newPass = document.getElementById('account_password').value;
   let newName = document.getElementById('account_name').value;
 
-  sock.send(JSON.stringify({'type':'details', 'emailAddress':newEmail, 'password': newPass, 'data': newName}));
+  sock.send(JSON.stringify({'type':'details', 'emailAddress': newEmail, 'password': newPass, 'data': newName}));
 }
 sock.onerror = function(e) {
   console.error(e);
@@ -70,6 +73,7 @@ sock.onclose = function(e) {
 }
 sock.onmessage = function(e) {
   let msg = JSON.parse(e.data);
+  console.log(msg);
   switch(msg.type){
     case 'version':
       done('text__loading');
@@ -83,7 +87,6 @@ sock.onmessage = function(e) {
         document.getElementById('btn__menu').classList.add('loggedin');
         setState();
         window.onresize = setState;
-        console.log(msg)
 
         var file = new Blob([JSON.stringify(msg.user)], {type: "application/json"});
         var downloadLink = document.getElementById('downloadLink');
@@ -163,6 +166,44 @@ sock.onmessage = function(e) {
         }
         document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('activeYear');
       }
+      break;
+    case "chat:ready":
+      if (msg.flag) { // chat connection with partner established
+        CHATID = msg.cid;
+        document.getElementById("chatbox")
+            .addEventListener("keyup", function(event) {
+            event.preventDefault();
+            if (event.keyCode === 13) {
+                document.getElementById("chatbox__send").click();
+            }
+        });
+        if(document.getElementById('chat_flow_1')
+          .classList.contains("shown"))
+          done('chat_flow_1');
+        done('text__loading');
+        show('chat_flow_2');
+      } else { // waiting on another user to start chat
+        done('chat_flow_1');
+        undone('text__loading');
+        document.getElementById('text__loading').innerText = "Finding you someone to talk to";
+      }
+      break;
+    case "chat:message":
+      let chatlog = document.getElementById('chatlog');
+      let newMessage = document.createElement('p');
+      newMessage.classList.add(msg.flag ? "otherUser" : "user");
+      newMessage.innerHTML = `${msg.flag ? "Peer: " : ""}${msg.data}`;
+      chatlog.appendChild(newMessage);
+      break;
+    case "chat:rejected":
+      if (confirm("Woah there! Are you sure that you're saying something nice? Remember, the other person is likely in a difficult place, much like you might be!")) {
+        sock.send(JSON.stringify({
+          type: "chat:verify",
+          cid: CHATID,
+          mid: msg.mid
+        }));
+      }
+      break;
   }
 }
 
@@ -274,6 +315,31 @@ function setState() {
 function deleteData() {
   let json = {
     type: 'delete'
+  }
+  sock.send(JSON.stringify(json));
+}
+
+function startChat() {
+  let json = {
+    type: "chat:start"
+  }
+  sock.send(JSON.stringify(json));
+}
+function sendChatMsg() {
+  let chatbox = document.getElementById('chatbox');
+  let textToSend = chatbox.value;
+  let json = {
+    type: "chat:send",
+    cid: CHATID,
+    data: textToSend
+  }
+  sock.send(JSON.stringify(json));
+  chatbox.value = "";
+}
+function sendChatReport() {
+  let json = {
+    type: "chat:report",
+    cid: CHATID
   }
   sock.send(JSON.stringify(json));
 }

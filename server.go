@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"html"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -34,7 +35,7 @@ var UserIDs map[string]uuid.UUID
 var users map[uuid.UUID]*User           // @users[uuid.UUID], store a pointer to the user\"s data - avoid memory data duplication - edit the storage location directly.
 var userPairs map[uuid.UUID]WaitingUser // @UserPairs[uuid.UUID], store a pointer to the other member\"s websocket connection
 var wUser WaitingUser
-var chatlogs map[string][]ChatMessage
+var chatlogs map[string]([]ChatMessage)
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -46,12 +47,13 @@ var upgrader = websocket.Upgrader{
 
 // Configuration stores the JSON configuration stored in `config.json` as a Go-friendly structure.
 type Configuration struct {
-	EnvProd bool   `json:"envProduction"`
-	EnvKey  string `json:"envKey"`
-	EnvCert string `json:"envCertificate"`
-	SrvHost string `json:"srvHostname"`
-	SrvPort int    `json:"srvPort"`
-	ApiKey  string `json:"apiKey"`
+	EnvProd  bool   `json:"envProduction"`
+	EnvKey   string `json:"envKey"`
+	EnvCert  string `json:"envCertificate"`
+	SrvHost  string `json:"srvHostname"`
+	SrvPort  int    `json:"srvPort"`
+	GApiKey  string `json:"googleApiKey"`
+	DWebhook string `json:"discordWebhook"`
 }
 
 // User data type, built on numerous structures.
@@ -64,6 +66,8 @@ type User struct {
 	Positives [20]string // allow more positives, but cap at 20 comments before replacing existing ones.
 	Neutrals  [5]string  // less emphasis on storing non-positive comments. Keep 5 for reports before replacement.
 	Negatives [5]string
+	Admin     bool
+	Banned    bool
 }
 
 // Moods acts as a reusable structure to store mood data - sub structure of User
@@ -87,18 +91,19 @@ type Year struct {
 
 // Payload acts as a consistent structure to interface with JSON client-server exchange data.
 type Payload struct {
-	Type   string `json:"type"`
-	Flag   bool   `json:"flag"`
-	Data   string `json:"data"`
-	Email  string `json:"emailAddress"`
-	Pass   string `json:"password"`
-	Day    int    `json:"day"`
-	Month  int    `json:"month"`
-	Year   int    `json:"year"`
-	Mood   int    `json:"mood"`
-	MsgID  int    `json:"mid"`
-	ChatID string `json:"cid"`
-	User   User   `json:"user"`
+	Type   string        `json:"type"`
+	Flag   bool          `json:"flag"`
+	Data   string        `json:"data"`
+	Email  string        `json:"emailAddress"`
+	Pass   string        `json:"password"`
+	Day    int           `json:"day"`
+	Month  int           `json:"month"`
+	Year   int           `json:"year"`
+	Mood   int           `json:"mood"`
+	MsgID  int           `json:"mid"`
+	ChatID string        `json:"cid"`
+	User   User          `json:"user"`
+	Log    []ChatMessage `json:"chatlog"`
 }
 
 // Data stores key information for chat sessions
@@ -138,10 +143,22 @@ type SummaryScores struct {
 	Type  string  `json:"type"`
 }
 
+type DiscordWebhookRequest struct {
+	Content [1]DiscordWebhookEmbed `json:"embeds"`
+}
+type DiscordWebhookEmbed struct {
+	ReportID    string `json:"title"`
+	Description string `json:"description"`
+	ReportUri   string `json:"url"`
+}
+
+type ChatLog struct {
+	ChatLog []ChatMessage `json:"chatlog"`
+}
 type ChatMessage struct {
-	Sent    bool
-	User    uuid.UUID
-	Message string
+	Sent    bool   `json:"aiDecision"`
+	User    string `json:"sender"`
+	Message string `json:"message"`
 }
 
 func loadConfig() Configuration {
@@ -282,6 +299,8 @@ func redirectToHTTPS(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	users = make(map[uuid.UUID]*User)
+	chatlogs = make(map[string][]ChatMessage)
+	userPairs = make(map[uuid.UUID]WaitingUser)
 
 	f, err := os.OpenFile("data/server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -326,6 +345,9 @@ func main() {
 				partner.Connection.WriteJSON(&Payload{
 					Type: "chat:closed",
 				})
+			} else if wUser.UserID == data.UserID {
+				defaultWUser := WaitingUser{}
+				wUser = defaultWUser
 			}
 			alive = false
 			return nil
@@ -341,17 +363,19 @@ func main() {
 			case "login":
 				payload.Email = strings.ToLower(payload.Email)
 				uid, success := loginUser(payload.Email, payload.Pass)
+				userData := User{}
 				if success {
 					data.UserID = uid
+					userData = *users[uid]
 				} else if uid == uuid.UUID([16]byte{}) {
 					// user doesn\"t exist; make them
 					uid = newUser(payload.Email, payload.Pass, "friend")
 					success = true
 					data.UserID = uid
+					userData = *users[uid]
 				} else {
 					continue
 				}
-				userData := *users[uid]
 				userData.Password = []byte("")
 				conn.WriteJSON(&Payload{
 					Type: "login",
@@ -456,100 +480,219 @@ func main() {
 				}
 				saveUserIDs()
 			case "chat:start":
-				userWUser := WaitingUser{
-					UserID:     data.UserID,
-					Connection: conn,
-				}
-				defaultWUser := WaitingUser{}
-				if wUser != defaultWUser {
-					// generate new chat ID
-					cid, _ := uuid.NewV4()
-					strCid := cid.String()
-					chatlogs[strCid] = make([]ChatMessage, 0)
+				if !users[data.UserID].Banned {
+					userWUser := WaitingUser{
+						UserID:     data.UserID,
+						Connection: conn,
+					}
+					defaultWUser := WaitingUser{}
+					if wUser != defaultWUser {
+						// generate new chat ID
+						cid, _ := uuid.NewV4()
+						strCid := cid.String()
+						log.Println(chatlogs)
+						chatlogs[strCid] = make([]ChatMessage, 0)
+						log.Println(chatlogs)
 
-					userPairs[data.UserID] = wUser
-					userPairs[wUser.UserID] = userWUser
-					conn.WriteJSON(&Payload{
-						Type:   "chat:ready",
-						Flag:   true,
-						ChatID: strCid,
-					})
-					wUser.Connection.WriteJSON(&Payload{
-						Type:   "chat:ready",
-						Flag:   true,
-						ChatID: strCid,
-					})
-					wUser = defaultWUser
+						userPairs[data.UserID] = wUser
+						userPairs[wUser.UserID] = userWUser
+
+						conn.WriteJSON(&Payload{
+							Type:   "chat:ready",
+							Flag:   true,
+							ChatID: strCid,
+						})
+						wUser.Connection.WriteJSON(&Payload{
+							Type:   "chat:ready",
+							Flag:   true,
+							ChatID: strCid,
+						})
+						wUser = defaultWUser
+					} else {
+						wUser = userWUser
+						conn.WriteJSON(&Payload{
+							Type: "chat:ready",
+							Flag: false,
+						})
+					}
 				} else {
-					wUser = userWUser
 					conn.WriteJSON(&Payload{
-						Type: "chat:ready",
-						Flag: false,
+						Type: "chat:banned",
 					})
 				}
 			case "chat:send":
-				apiURL := "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + config.ApiKey
+				if payload.Data != "" {
+					apiURL := "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + config.GApiKey
 
-				request := &MLRequest{
-					Comment:         MLComment{Text: payload.Data},
-					RequestedAttrbs: MLAttribute{MLTOXICITY{}},
-					DNS:             true,
-				}
-				jsonValue, _ := json.Marshal(request)
-				resp, _ := http.Post(apiURL, "application/json", bytes.NewBuffer(jsonValue))
-				body, err := ioutil.ReadAll(resp.Body)
-				response := *resp
-				if response.StatusCode == 200 && err == nil { // request went through - huzzah
-					defer response.Body.Close()
-					mlResponse := MLResponse{}
-					json.Unmarshal(body, &mlResponse)
-					sendMessage := true
-					if mlResponse.AttrbScores.Toxicity.Summary.Score >= 0.9 {
-						// reject the message
-						conn.WriteJSON(&Payload{
-							Type:  "chat:rejected",
-							MsgID: len(chatlogs[payload.ChatID]),
-						})
-						sendMessage = false
+					request := &MLRequest{
+						Comment:         MLComment{Text: payload.Data},
+						RequestedAttrbs: MLAttribute{MLTOXICITY{}},
+						DNS:             true,
 					}
-					log.Println(chatlogs)
-					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
-						Sent:    sendMessage,
-						User:    data.UserID,
-						Message: payload.Data,
-					})
-					log.Println(chatlogs)
+					jsonValue, _ := json.Marshal(request)
+					resp, _ := http.Post(apiURL, "application/json", bytes.NewBuffer(jsonValue))
+					body, err := ioutil.ReadAll(resp.Body)
+					response := *resp
+					if response.StatusCode == 200 && err == nil { // request went through - huzzah
+						mlResponse := MLResponse{}
+						json.Unmarshal(body, &mlResponse)
+						response.Body.Close()
+						sendMessage := true
+						if mlResponse.AttrbScores.Toxicity.Summary.Score >= 0.9 {
+							// reject the message
+							conn.WriteJSON(&Payload{
+								Type:  "chat:rejected",
+								MsgID: len(chatlogs[payload.ChatID]),
+							})
+							sendMessage = false
+						}
+						chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+							Sent:    sendMessage,
+							User:    data.UserID.String(),
+							Message: html.EscapeString(payload.Data),
+						})
 
-					conn.WriteJSON(&Payload{
-						Type: "chat:message",
-						Flag: false,
-						Data: payload.Data,
-					})
-					userPairs[data.UserID].Connection.WriteJSON(&Payload{
-						Type: "chat:message",
-						Flag: true,
-						Data: payload.Data,
-					})
+						conn.WriteJSON(&Payload{
+							Type: "chat:message",
+							Flag: false,
+							Data: html.EscapeString(payload.Data),
+						})
+						userPairs[data.UserID].Connection.WriteJSON(&Payload{
+							Type: "chat:message",
+							Flag: true,
+							Data: html.EscapeString(payload.Data),
+						})
+					} else {
+						log.Println("Error occurred in NEURAL NETWORK: ", response.StatusCode, err)
+						log.Println("Bypassing filter, sending message.")
+
+						chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+							Sent:    true,
+							User:    data.UserID.String(),
+							Message: html.EscapeString(payload.Data),
+						})
+
+						conn.WriteJSON(&Payload{
+							Type: "chat:message",
+							Flag: false,
+							Data: html.EscapeString(payload.Data),
+						})
+						userPairs[data.UserID].Connection.WriteJSON(&Payload{
+							Type: "chat:message",
+							Flag: true,
+							Data: html.EscapeString(payload.Data),
+						})
+					}
 				}
 			case "chat:verify":
 				msg := chatlogs[payload.ChatID][payload.MsgID]
-				if msg.User == data.UserID {
+				if msg.User == data.UserID.String() {
 					conn.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: false,
-						Data: msg.Message,
+						Data: html.EscapeString(payload.Data),
 					})
 					userPairs[data.UserID].Connection.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: true,
-						Data: msg.Message,
+						Data: html.EscapeString(payload.Data),
 					})
 					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
 						Sent:    true,
-						User:    data.UserID,
-						Message: msg.Message,
+						User:    data.UserID.String(),
+						Message: html.EscapeString(payload.Data),
 					})
 				}
+			case "chat:report":
+				file, err := os.Create("data/reportlog-" + payload.ChatID + ".json")
+				if err == nil {
+					encoder := json.NewEncoder(file)
+					err = encoder.Encode(ChatLog{
+						ChatLog: chatlogs[payload.ChatID],
+					})
+					if err != nil {
+						log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
+					}
+					file.Close()
+
+					request := &DiscordWebhookRequest{
+						Content: [1]DiscordWebhookEmbed{DiscordWebhookEmbed{
+							ReportID:    payload.ChatID,
+							Description: "New reported chat log. Please click the link to access the page with which to handle this report log. This link will expire after the report has been addressed, and requires a valid administrator login. In cases where the chat log includes illegal content, please refer to Lyrenhex for escalation and referral to the local law enforcement authorities.",
+							ReportUri:   "http://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
+						}},
+					}
+					jsonValue, _ := json.Marshal(request)
+					log.Println(string(jsonValue))
+					resp, err := http.Post(config.DWebhook, "application/json", bytes.NewBuffer(jsonValue))
+					if resp.StatusCode != 204 || err != nil {
+						log.Println("Discord Webhook error: ", resp, err)
+					}
+				} else {
+					log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
+				}
+			case "admin:access":
+				if users[data.UserID].Admin {
+					file, err := os.Open("data/reportlog-" + payload.ChatID + ".json")
+					if err != nil {
+						if os.IsNotExist(err) {
+							log.Println("Request to access nonexistent report " + payload.ChatID + ".")
+						} else {
+							log.Println("error:", err)
+						}
+					} else {
+						decoder := json.NewDecoder(file)
+						reportlog := ChatLog{}
+						err = decoder.Decode(&reportlog)
+						file.Close()
+						if err != nil {
+							log.Fatal("Error reading reportlog-"+payload.ChatID+".json: ", err)
+						}
+						log.Println(reportlog)
+						conn.WriteJSON(&Payload{
+							Type: "admin:chatlog",
+							Log:  reportlog.ChatLog,
+						})
+					}
+				}
+			case "admin:decision":
+				if users[data.UserID].Admin {
+					err := os.Remove("data/reportlog-" + payload.ChatID + ".json")
+					if err != nil {
+						if os.IsNotExist(err) {
+							log.Println("Request to decide nonexistent report " + payload.ChatID + ".")
+						} else {
+							log.Println("error:", err)
+						}
+					} else {
+						log.Println("Decision rendered on Report " + payload.ChatID)
+						if payload.Data != "" {
+							bannedID, _ := uuid.ParseHex(payload.Data)
+							users[*bannedID].Banned = true
+							saveUser(*bannedID)
+							log.Println("User " + bannedID.String() + " banned.")
+						}
+					}
+					conn.WriteJSON(&Payload{
+						Type: "admin:success",
+					})
+				}
+			case "admin:flag":
+				if users[data.UserID].Admin {
+					err := os.Rename("data/reportlog-"+payload.ChatID+".json", "data/FLAGGED-reportlog-"+payload.ChatID+".json")
+					if err != nil {
+						if os.IsNotExist(err) {
+							log.Println("Request to flag nonexistent report " + payload.ChatID + ".")
+						} else {
+							log.Println("error:", err)
+						}
+					} else {
+						log.Println("Report " + payload.ChatID + " flagged.")
+					}
+				}
+				conn.WriteJSON(&Payload{
+					Type: "admin:success",
+				})
 			}
 		}
 	})
