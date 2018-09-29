@@ -18,7 +18,8 @@ First, a skeletal structure will be shown. Each field will be described in more 
     "Positives": [],
     "Neutrals": [],
     "Negatives": [],
-    "Admin": false
+    "Admin": false,
+    "Banned": false
 }
 ```
 
@@ -266,3 +267,7 @@ Provided for statistical or report purposes, this contains the latest 5 negative
 ## Administrator flag `Admin`
 
 This is a boolean value, and is provided to allow clients to customise their UI as appropriate. This property will be `true` if the user is marked as an administrator account, or `false` otherwise. If the value is `false`, the account will not be able to perform administrator actions, so any UI elements making use of this should be hidden. The server will reject unauthorised methods silently.
+
+## Ban flag `Banned`
+
+This is a boolean value, provided to provide early notice that the user's account is banned from using the Eos Chat functionality. Clients may customise UI based on this. If ignored, the server will reject any `chat:start` requests by the user.
