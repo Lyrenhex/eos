@@ -8,7 +8,7 @@ Data is saved and stored to individual files within the `data` folder. Configura
 {
     "envProduction": true, // true if production environment, false otherwise
     "envKey": "", // File path to TLS key. REQUIRED IF PRODUCTION.
-    "envCert": "", // File path to TLS certificate. REQUIRED IF PRODUCTION.
+    "envCertificate": "", // File path to TLS certificate. REQUIRED IF PRODUCTION.
     "srvHostname": "", // Server's hostname. This should be the domain name the server is running on. Used for security and URLs.
     "srvPort": 9874, // Sets the port that the WebSocket serber will run on. Modifying this will require changing the client to account for it.
     "googleApiKey": "", // API key for Google Cloud if using Perspective API. Not required.
