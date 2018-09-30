@@ -18,7 +18,7 @@ You may NOT:
 */
 
 // EDIT THIS LINE AS NECESSARY. Usually, the server should operate on the same hostname as the web app, but the port may need changing depending on which port your server is configured to use.
-var serverAddr = `ws://${window.location.hostname}:9874`;
+var serverAddr = `wss://${window.location.hostname}:9874`;
 
 var reportID;
 
