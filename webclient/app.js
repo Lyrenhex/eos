@@ -18,7 +18,8 @@ You may NOT:
 */
 
 // EDIT THIS LINE AS NECESSARY. Usually, the server should operate on the same hostname as the web app, but the port may need changing depending on which port your server is configured to use.
-var serverAddr = `wss://${window.location.hostname}:9874`;
+var serverAddr = `${location.protocol == "https:" ? "wss:" : "ws:"}//${window.location.hostname}:9874`;
+
 
 var CHATID = "";
 
@@ -65,8 +66,7 @@ function update_acc() {
   sock.send(JSON.stringify({'type':'details', 'emailAddress': newEmail, 'password': newPass, 'data': newName}));
 }
 sock.onerror = function(e) {
-  console.error(e);
-  // TODO: onerror
+  show('block__error');
 }
 sock.onclose = function(e) {
   // TODO: onclose
@@ -210,6 +210,10 @@ sock.onmessage = function(e) {
         done('chat_flow_1');
       done('text__loading');
       show('chat_flow_banned');
+      break;
+    case "chat:closed":
+      toggle('chat_flow_2');
+      show('chat_flow_end');
   }
 }
 
@@ -326,6 +330,8 @@ function deleteData() {
 }
 
 function startChat() {
+  if (document.getElementById('chat_flow_end').classList.contains('shown'))
+  document.getElementById('chat_flow_end').classList.remove('shown')
   let json = {
     type: "chat:start"
   }
@@ -346,6 +352,12 @@ function sendChatReport() {
   let json = {
     type: "chat:report",
     cid: CHATID
+  }
+  sock.send(JSON.stringify(json));
+}
+function endChat() {
+  let json = {
+    type: "chat:close"
   }
   sock.send(JSON.stringify(json));
 }

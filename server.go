@@ -25,7 +25,7 @@ import (
 )
 
 // VERSION stores hardcoded constant storing the server version. AN X VERSION SERVER SHOULD DISTRIBUTE WEBAPP FILES COMPATIBLE WITH IT
-const VERSION = "2.0:stage"
+const VERSION = "2.0:staging"
 
 var config = loadConfig()
 
@@ -92,6 +92,8 @@ func main() {
 				partner.Connection.WriteJSON(&Payload{
 					Type: "chat:closed",
 				})
+				defaultWUser := WaitingUser{}
+				userPairs[data.UserID] = defaultWUser
 			} else if wUser.UserID == data.UserID {
 				defaultWUser := WaitingUser{}
 				wUser = defaultWUser
@@ -366,7 +368,7 @@ func main() {
 						Content: [1]DiscordWebhookEmbed{DiscordWebhookEmbed{
 							ReportID:    payload.ChatID,
 							Description: "New reported chat log. Please click the link to access the page with which to handle this report log. This link will expire after the report has been addressed, and requires a valid administrator login. In cases where the chat log includes illegal content, please refer to Lyrenhex for escalation and referral to the local law enforcement authorities.",
-							ReportUri:   "http://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
+							ReportURI:   "http://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
 						}},
 					}
 					jsonValue, _ := json.Marshal(request)
@@ -377,6 +379,17 @@ func main() {
 					}
 				} else {
 					log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
+				}
+			case "chat:close":
+				if partner, activeConv := userPairs[data.UserID]; activeConv {
+					defaultWUser := WaitingUser{}
+					partner.Connection.WriteJSON(&Payload{
+						Type: "chat:closed",
+					})
+					conn.WriteJSON(&Payload{
+						Type: "chat:closed",
+					})
+					userPairs[data.UserID] = defaultWUser
 				}
 			case "admin:access":
 				if users[data.UserID].Admin {

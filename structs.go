@@ -135,7 +135,7 @@ type DiscordWebhookRequest struct {
 type DiscordWebhookEmbed struct {
 	ReportID    string `json:"title"`
 	Description string `json:"description"`
-	ReportUri   string `json:"url"`
+	ReportURI   string `json:"url"`
 }
 
 // ChatLog stores an array of ChatMessages for simple log parsing
