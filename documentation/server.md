@@ -212,6 +212,14 @@ Sending will then occur as if the message had been allowed through the filter au
 }
 ```
 
+## Chat API: Close a chat
+
+```javascript
+{
+    "type": "chat:close"
+}
+```
+
 Different servers may handle chat reports differently. This is not addressed by this specification.
 
 ## Admin API: Access a report

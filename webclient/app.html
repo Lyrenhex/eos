@@ -59,7 +59,7 @@ You may NOT:
       <button onclick="section('print')">Full report</button>
       <button onclick="signout()">Logout</button>
       <span class="appdata">
-        Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="legal.html">here</a>.
+        Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.
         <span id="ver" name="version_number"></span>
       </span>
     </div>
@@ -77,7 +77,7 @@ You may NOT:
             <input id="login_password" type="password" placeholder="Password" required />
             <button type="submit">Sign in / Sign up</button>
           </form>
-          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="legal.html">here</a>.</p>    
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
       </div>
     </div>
     <div class="section active" id="section__app">
@@ -160,7 +160,7 @@ You may NOT:
           <li>Try to keep the conversation calm and friendly; remember that the other party likely has conditions or isn't feeling great either, so care should be taken.</li>
         </ul>
 
-        <br /><a class="btn" href="chat.html">Talk to someone</a><br />
+        <br /><button onclick="section('chat')">Talk to someone</a><br />
 
         <p><small>We use some <a href="https://perspectiveapi.com" target="_blank">Google-powered AI</a> to help with moderation and keep chats safe for both parties. Don't worry about it; no messages will be prevented from reaching, it'll just alert you when a message is likely to upset the other party, so you can check if what you wrote is what you meant. <b>You don't need to worry if what you said is what you meant; it's probably a false positive and means nothing.</b></small></p>
       </div>
@@ -208,6 +208,13 @@ You may NOT:
         <input type="text" id="chatbox" />
         <button id="chatbox__send" onclick="sendChatMsg()">&#10147;</button>
         <button id="chat__report" onclick="sendChatReport()">I feel uncomfortable</button>
+        <button id="chat__end" onclick="endChat()">Close chat</button>
+      </div>
+      <div class="block" id="chat_flow_end">
+        <h2>Chat closed.</h2>
+        <p>Hey there! Thanks for chatting through Eos! Sadly, either you or the other person have decided to end the chat for whatever reason; maybe they had things to do now, a lesson or something, or they decided they needed to try other tactics to help themselves. Either way, it's not the end!</p>
+        <p>If you want to continue chatting with someone, just hit the button below and we'll get you straight back in the queue!</p>
+        <button onclick="startChat()">Chat more!</button>
       </div>
       <div class="block" id="chat_flow_banned">
         <h2>Oh... This account's been banned.</h2>
@@ -269,7 +276,7 @@ You may NOT:
       <h2>Oh, bugger!</h2>
       <p>Unfortunately, it appears that we've hit quite the snag. If you feel like it, could you be so kind as to email <a href="mailto:dh64784@gmail.com">dh64784@gmail.com</a> with some information about what happened (what you were doing to cause this message to appear) and the error dump displayed below?</p>
       <p>Please be sure to check back later to see if it's fixed! :&gt;</p>
-      <pre id="error_dump"></pre>
+      <pre>Failed to connect to WebSocket server.</pre>
     </div>
 
     <link rel="stylesheet" href="app.css" />
