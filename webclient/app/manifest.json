@@ -1,7 +1,7 @@
 {
     "dir": "ltr",
     "name": "Eos, the Mental Health App",
-    "scope": "/",
+    "scope": "./",
     "display": "standalone",
     "start_url": "app.html",
     "short_name": "Eos",
