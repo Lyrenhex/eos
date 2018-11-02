@@ -15,13 +15,14 @@ import (
 
 // Configuration stores the JSON configuration stored in `config.json` as a Go-friendly structure.
 type Configuration struct {
-	EnvProd  bool   `json:"envProduction"`
-	EnvKey   string `json:"envKey"`
-	EnvCert  string `json:"envCertificate"`
-	SrvHost  string `json:"srvHostname"`
-	SrvPort  int    `json:"srvPort"`
-	GApiKey  string `json:"googleApiKey"`
-	DWebhook string `json:"discordWebhook"`
+	EnvProd    bool   `json:"envProduction"`
+	EnvKey     string `json:"envKey"`
+	EnvCert    string `json:"envCertificate"`
+	SrvHost    string `json:"srvHostname"`
+	SrvPort    int    `json:"srvPort"`
+	GApiKey    string `json:"googleApiKey"`
+	DWebhook   string `json:"discordWebhook"`
+	MailApiKey string `json:"sendgridApiKey"`
 }
 
 // Payload acts as a consistent structure to interface with JSON client-server exchange data.
