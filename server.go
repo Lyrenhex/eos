@@ -11,6 +11,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html"
 	"io/ioutil"
 	"log"
@@ -21,20 +22,87 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/nu7hatch/gouuid"
+	"gitlab.com/lyrenhex/eos-v2/chat"
+	"gitlab.com/lyrenhex/eos-v2/perspectiveapi"
+	"gitlab.com/lyrenhex/eos-v2/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // VERSION stores hardcoded constant storing the server version. AN X VERSION SERVER SHOULD DISTRIBUTE WEBAPP FILES COMPATIBLE WITH IT
-const VERSION = "2.0:staging"
+const VERSION = "2.0:staging-rc2"
 
-var config = loadConfig()
+// Configuration stores the JSON configuration stored in `config.json` as a Go-friendly structure.
+type Configuration struct {
+	EnvProd    bool   `json:"envProduction"`
+	EnvKey     string `json:"envKey"`
+	EnvCert    string `json:"envCertificate"`
+	SrvHost    string `json:"srvHostname"`
+	SrvPort    int    `json:"srvPort"`
+	GApiKey    string `json:"googleApiKey"`
+	DWebhook   string `json:"discordWebhook"`
+	MailAPIKey string `json:"sendgridApiKey"`
+}
 
-// UserIDs maps email address to user id
-var UserIDs map[string]uuid.UUID        // @UserIDs["email address"] => uuid.UUID
-var users map[uuid.UUID]*User           // @users[uuid.UUID], store a pointer to the user\"s data - avoid memory data duplication - edit the storage location directly.
-var userPairs map[uuid.UUID]WaitingUser // @UserPairs[uuid.UUID], store a pointer to the other member\"s websocket connection
-var wUser WaitingUser                   // store a WaitingUser object to represent the connection data and UserID of the currently waiting user for Eos chat.
-var chatlogs map[string]([]ChatMessage) // store a 2d array of ChatMessages - []ChatMessage per chat.
+func (c *Configuration) load() {
+	/* Load the server configuration from data/config.json, and return a Configuration structure pre-populated with the config data. If config.json is not openable, throw a Fatal error to terminate (we cannot recover; config is necessary) */
+	file, err := os.Open("data/config.json")
+	if err != nil {
+		if os.IsNotExist(err) {
+			fmt.Println("Expected configuration values in `config.json`, got:")
+			fmt.Printf("%+v\n", c)
+			log.Fatal("Data folder or config.json does not exist. Please create the data folder and populate the config.json file before run.")
+		} else {
+			log.Println("error:", err)
+		}
+	}
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&c)
+	if err != nil {
+		log.Fatal("Error reading config.json: ", err)
+	}
+}
+
+// Payload acts as a consistent structure to interface with JSON client-server exchange data.
+type Payload struct {
+	Type   string             `json:"type"`
+	Flag   bool               `json:"flag"`
+	Data   string             `json:"data"`
+	Email  string             `json:"emailAddress"`
+	Pass   string             `json:"password"`
+	Day    int                `json:"day"`
+	Month  int                `json:"month"`
+	Year   int                `json:"year"`
+	Mood   int                `json:"mood"`
+	MsgID  int                `json:"mid"`
+	ChatID string             `json:"cid"`
+	User   user.User          `json:"user"`
+	Log    []chat.ChatMessage `json:"chatlog"`
+}
+
+func redirectToHTTPS(w http.ResponseWriter, req *http.Request) {
+	/* For production environments, forcefully redirect the user to HTTPS using HSTS */
+	target := "https://" + req.Host + req.URL.Path
+	if len(req.URL.RawQuery) > 0 {
+		target += "?" + req.URL.RawQuery
+	}
+	log.Printf("client redirect to: %s", target)
+	req.Header.Set("Strict-Transport-Security", "max-age=63072000")
+	http.Redirect(w, req, target,
+		http.StatusTemporaryRedirect)
+}
+
+var config = Configuration{}
+
+func init() {
+	config.load()
+
+	user.Users = make(map[uuid.UUID]*user.User)
+	chat.Chatlogs = make(map[string][]chat.ChatMessage)
+	chat.UserPairs = make(map[uuid.UUID]chat.WaitingUser)
+
+	user.ReadIDs()
+}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -45,10 +113,6 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
-	users = make(map[uuid.UUID]*User)
-	chatlogs = make(map[string][]ChatMessage)
-	userPairs = make(map[uuid.UUID]WaitingUser)
-
 	f, err := os.OpenFile("data/server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
@@ -56,8 +120,6 @@ func main() {
 	defer f.Close()
 
 	log.SetOutput(f)
-
-	readUserIDs()
 
 	// Concurrently run a simple static webserver on port 80 or port 443 if in Production environment, for serving the online webapp from the `webclient` directory.
 	go func() {
@@ -84,19 +146,19 @@ func main() {
 			Type: "version",
 			Data: VERSION,
 		})
-		data := &Data{}
+		u := &user.User{}
 		alive := true
 		conn.SetCloseHandler(func(code int, text string) error {
 			log.Println("connection closed; breaking inf loop")
-			if partner, activeConv := userPairs[data.UserID]; activeConv {
+			if partner, activeConv := chat.UserPairs[u.UserID]; activeConv {
 				partner.Connection.WriteJSON(&Payload{
 					Type: "chat:closed",
 				})
-				defaultWUser := WaitingUser{}
-				userPairs[data.UserID] = defaultWUser
-			} else if wUser.UserID == data.UserID {
-				defaultWUser := WaitingUser{}
-				wUser = defaultWUser
+				defaultWUser := chat.WaitingUser{}
+				chat.UserPairs[u.UserID] = defaultWUser
+			} else if chat.QueuedUser.UserID == u.UserID {
+				defaultWUser := chat.WaitingUser{}
+				chat.QueuedUser = defaultWUser
 			}
 			alive = false
 			return nil
@@ -111,154 +173,74 @@ func main() {
 			switch payload.Type {
 			case "login":
 				payload.Email = strings.ToLower(payload.Email)
-				uid, success := loginUser(payload.Email, payload.Pass)
-				userData := User{}
-				if success {
-					data.UserID = uid
-					userData = *users[uid]
-				} else if uid == uuid.UUID([16]byte{}) {
+				success, exists := u.Login(payload.Email, payload.Pass)
+				if !exists {
 					// user doesn\"t exist; make them
-					uid = newUser(payload.Email, payload.Pass, "friend")
+					u = user.New(payload.Email, payload.Pass, "friend")
 					success = true
-					data.UserID = uid
-					userData = *users[uid]
-				} else {
-					continue
 				}
-				userData.Password = []byte("")
 				conn.WriteJSON(&Payload{
 					Type: "login",
 					Flag: success,
-					User: userData,
+					User: *u,
 				})
 			case "mood":
-				users[data.UserID].Moods.Day[payload.Day].Mood += payload.Mood
-				users[data.UserID].Moods.Day[payload.Day].Num++
-				users[data.UserID].Moods.Month[payload.Month].Mood += payload.Mood
-				users[data.UserID].Moods.Month[payload.Month].Num++
-
-				yearRecorded := false
-				for i, year := range users[data.UserID].Moods.Years {
-					if year.Year == payload.Year {
-						users[data.UserID].Moods.Years[i].Month[payload.Month].Mood += payload.Mood
-						users[data.UserID].Moods.Years[i].Month[payload.Month].Num++
-						yearRecorded = true
-					}
-				}
-				if !yearRecorded {
-					newYear := Year{
-						Year:  payload.Year,
-						Month: [12]Mood{},
-					}
-					users[data.UserID].Moods.Years = [2]Year{
-						users[data.UserID].Moods.Years[1],
-						newYear,
-					}
-					users[data.UserID].Moods.Years[1].Month[payload.Month].Mood += payload.Mood
-					users[data.UserID].Moods.Years[1].Month[payload.Month].Num++
-				}
-				saveUser(data.UserID)
+				u.AddMood(payload.Day, payload.Month, payload.Year, payload.Mood)
 			case "comment":
-				log.Println(payload)
-				mood := payload.Mood
-				comment := payload.Data
-				if comment != "" {
-					switch mood {
-					case 1:
-						users[data.UserID].Positives = [20]string{
-							users[data.UserID].Positives[1],
-							users[data.UserID].Positives[2],
-							users[data.UserID].Positives[3],
-							users[data.UserID].Positives[4],
-							users[data.UserID].Positives[5],
-							users[data.UserID].Positives[6],
-							users[data.UserID].Positives[7],
-							users[data.UserID].Positives[8],
-							users[data.UserID].Positives[9],
-							users[data.UserID].Positives[10],
-							users[data.UserID].Positives[11],
-							users[data.UserID].Positives[12],
-							users[data.UserID].Positives[13],
-							users[data.UserID].Positives[14],
-							users[data.UserID].Positives[15],
-							users[data.UserID].Positives[16],
-							users[data.UserID].Positives[17],
-							users[data.UserID].Positives[18],
-							users[data.UserID].Positives[19],
-							comment,
-						}
-					case 0:
-						users[data.UserID].Neutrals = [5]string{
-							users[data.UserID].Neutrals[1],
-							users[data.UserID].Neutrals[2],
-							users[data.UserID].Neutrals[3],
-							users[data.UserID].Neutrals[4],
-							comment,
-						}
-					case -1:
-						users[data.UserID].Negatives = [5]string{
-							users[data.UserID].Negatives[1],
-							users[data.UserID].Negatives[2],
-							users[data.UserID].Negatives[3],
-							users[data.UserID].Negatives[4],
-							comment,
-						}
-					}
-					saveUser(data.UserID)
-				}
+				u.AddComment(payload.Mood, payload.Data)
 			case "details":
 				newEmail := payload.Email
 				newPass := payload.Pass
 				newName := payload.Data
 				if newEmail != "" {
-					users[data.UserID].EmailAddr = newEmail
+					u.EmailAddr = newEmail
 				}
 				if newPass != "" {
 					newPass, _ := bcrypt.GenerateFromPassword([]byte(payload.Pass), bcrypt.DefaultCost)
-					users[data.UserID].Password = newPass
+					u.Password = newPass
 				}
 				if newName != "" {
-					users[data.UserID].Name = newName
+					u.Name = newName
 				}
-				saveUser(data.UserID)
+				u.Save()
 			case "delete":
-				delete(UserIDs, users[data.UserID].EmailAddr)
-				err := os.Remove("data/userdata-" + data.UserID.String() + ".json")
+				delete(user.UserIDs, u.EmailAddr)
+				err := os.Remove("data/userdata-" + u.UserID.String() + ".json")
 				if err != nil {
-					log.Println("Error deleting userdata-"+data.UserID.String()+".json: ", err)
+					log.Println("Error deleting userdata-"+u.UserID.String()+".json: ", err)
 				}
-				saveUserIDs()
+				user.SaveIDs()
 			case "chat:start":
-				if !users[data.UserID].Banned {
-					userWUser := WaitingUser{
-						UserID:     data.UserID,
+				if !u.Banned {
+					userWUser := chat.WaitingUser{
+						UserID:     u.UserID,
 						Connection: conn,
 					}
-					defaultWUser := WaitingUser{}
-					if wUser != defaultWUser {
+					defaultWUser := chat.WaitingUser{}
+					if chat.QueuedUser != defaultWUser {
 						// generate new chat ID
 						cid, _ := uuid.NewV4()
 						strCid := cid.String()
-						log.Println(chatlogs)
-						chatlogs[strCid] = make([]ChatMessage, 0)
-						log.Println(chatlogs)
+						log.Println(chat.Chatlogs)
+						chat.Chatlogs[strCid] = make([]chat.ChatMessage, 0)
+						log.Println(chat.Chatlogs)
 
-						userPairs[data.UserID] = wUser
-						userPairs[wUser.UserID] = userWUser
+						chat.UserPairs[u.UserID] = chat.QueuedUser
+						chat.UserPairs[chat.QueuedUser.UserID] = userWUser
 
 						conn.WriteJSON(&Payload{
 							Type:   "chat:ready",
 							Flag:   true,
 							ChatID: strCid,
 						})
-						wUser.Connection.WriteJSON(&Payload{
+						chat.QueuedUser.Connection.WriteJSON(&Payload{
 							Type:   "chat:ready",
 							Flag:   true,
 							ChatID: strCid,
 						})
-						wUser = defaultWUser
+						chat.QueuedUser = defaultWUser
 					} else {
-						wUser = userWUser
+						chat.QueuedUser = userWUser
 						conn.WriteJSON(&Payload{
 							Type: "chat:ready",
 							Flag: false,
@@ -273,9 +255,9 @@ func main() {
 				if payload.Data != "" {
 					apiURL := "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + config.GApiKey
 
-					request := &MLRequest{
-						Comment:         MLComment{Text: payload.Data},
-						RequestedAttrbs: MLAttribute{MLTOXICITY{}},
+					request := &perspectiveapi.MLRequest{
+						Comment:         perspectiveapi.MLComment{Text: payload.Data},
+						RequestedAttrbs: perspectiveapi.MLAttribute{perspectiveapi.MLTOXICITY{}},
 						DNS:             true,
 					}
 					jsonValue, _ := json.Marshal(request)
@@ -283,7 +265,7 @@ func main() {
 					body, err := ioutil.ReadAll(resp.Body)
 					response := *resp
 					if response.StatusCode == 200 && err == nil { // request went through - huzzah
-						mlResponse := MLResponse{}
+						mlResponse := perspectiveapi.MLResponse{}
 						json.Unmarshal(body, &mlResponse)
 						response.Body.Close()
 						sendMessage := true
@@ -291,13 +273,13 @@ func main() {
 							// reject the message
 							conn.WriteJSON(&Payload{
 								Type:  "chat:rejected",
-								MsgID: len(chatlogs[payload.ChatID]),
+								MsgID: len(chat.Chatlogs[payload.ChatID]),
 							})
 							sendMessage = false
 						}
-						chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+						chat.Chatlogs[payload.ChatID] = append(chat.Chatlogs[payload.ChatID], chat.ChatMessage{
 							Sent:    sendMessage,
-							User:    data.UserID.String(),
+							User:    u.UserID.String(),
 							Message: html.EscapeString(payload.Data),
 						})
 
@@ -306,7 +288,7 @@ func main() {
 							Flag: false,
 							Data: html.EscapeString(payload.Data),
 						})
-						userPairs[data.UserID].Connection.WriteJSON(&Payload{
+						chat.UserPairs[u.UserID].Connection.WriteJSON(&Payload{
 							Type: "chat:message",
 							Flag: true,
 							Data: html.EscapeString(payload.Data),
@@ -315,9 +297,9 @@ func main() {
 						log.Println("Error occurred in NEURAL NETWORK: ", response.StatusCode, err)
 						log.Println("Bypassing filter, sending message.")
 
-						chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+						chat.Chatlogs[payload.ChatID] = append(chat.Chatlogs[payload.ChatID], chat.ChatMessage{
 							Sent:    true,
-							User:    data.UserID.String(),
+							User:    u.UserID.String(),
 							Message: html.EscapeString(payload.Data),
 						})
 
@@ -326,7 +308,7 @@ func main() {
 							Flag: false,
 							Data: html.EscapeString(payload.Data),
 						})
-						userPairs[data.UserID].Connection.WriteJSON(&Payload{
+						chat.UserPairs[u.UserID].Connection.WriteJSON(&Payload{
 							Type: "chat:message",
 							Flag: true,
 							Data: html.EscapeString(payload.Data),
@@ -334,21 +316,21 @@ func main() {
 					}
 				}
 			case "chat:verify":
-				msg := chatlogs[payload.ChatID][payload.MsgID]
-				if msg.User == data.UserID.String() {
+				msg := chat.Chatlogs[payload.ChatID][payload.MsgID]
+				if msg.User == u.UserID.String() {
 					conn.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: false,
 						Data: html.EscapeString(payload.Data),
 					})
-					userPairs[data.UserID].Connection.WriteJSON(&Payload{
+					chat.UserPairs[u.UserID].Connection.WriteJSON(&Payload{
 						Type: "chat:message",
 						Flag: true,
 						Data: html.EscapeString(payload.Data),
 					})
-					chatlogs[payload.ChatID] = append(chatlogs[payload.ChatID], ChatMessage{
+					chat.Chatlogs[payload.ChatID] = append(chat.Chatlogs[payload.ChatID], chat.ChatMessage{
 						Sent:    true,
-						User:    data.UserID.String(),
+						User:    u.UserID.String(),
 						Message: html.EscapeString(payload.Data),
 					})
 				}
@@ -356,19 +338,19 @@ func main() {
 				file, err := os.Create("data/reportlog-" + payload.ChatID + ".json")
 				if err == nil {
 					encoder := json.NewEncoder(file)
-					err = encoder.Encode(ChatLog{
-						ChatLog: chatlogs[payload.ChatID],
+					err = encoder.Encode(chat.ChatLog{
+						ChatLog: chat.Chatlogs[payload.ChatID],
 					})
 					if err != nil {
 						log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
 					}
 					file.Close()
 
-					request := &DiscordWebhookRequest{
-						Content: [1]DiscordWebhookEmbed{DiscordWebhookEmbed{
+					request := &chat.DiscordWebhookRequest{
+						Content: [1]chat.DiscordWebhookEmbed{chat.DiscordWebhookEmbed{
 							ReportID:    payload.ChatID,
 							Description: "New reported chat log. Please click the link to access the page with which to handle this report log. This link will expire after the report has been addressed, and requires a valid administrator login. In cases where the chat log includes illegal content, please refer to Lyrenhex for escalation and referral to the local law enforcement authorities.",
-							ReportURI:   "http://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
+							ReportURI:   "https://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
 						}},
 					}
 					jsonValue, _ := json.Marshal(request)
@@ -381,18 +363,18 @@ func main() {
 					log.Println("Error saving reportlog-"+payload.ChatID+".json: ", err)
 				}
 			case "chat:close":
-				if partner, activeConv := userPairs[data.UserID]; activeConv {
-					defaultWUser := WaitingUser{}
+				if partner, activeConv := chat.UserPairs[u.UserID]; activeConv {
+					defaultWUser := chat.WaitingUser{}
 					partner.Connection.WriteJSON(&Payload{
 						Type: "chat:closed",
 					})
 					conn.WriteJSON(&Payload{
 						Type: "chat:closed",
 					})
-					userPairs[data.UserID] = defaultWUser
+					chat.UserPairs[u.UserID] = defaultWUser
 				}
 			case "admin:access":
-				if users[data.UserID].Admin {
+				if u.Admin {
 					file, err := os.Open("data/reportlog-" + payload.ChatID + ".json")
 					if err != nil {
 						if os.IsNotExist(err) {
@@ -402,7 +384,7 @@ func main() {
 						}
 					} else {
 						decoder := json.NewDecoder(file)
-						reportlog := ChatLog{}
+						reportlog := chat.ChatLog{}
 						err = decoder.Decode(&reportlog)
 						file.Close()
 						if err != nil {
@@ -416,7 +398,7 @@ func main() {
 					}
 				}
 			case "admin:decision":
-				if users[data.UserID].Admin {
+				if u.Admin {
 					err := os.Remove("data/reportlog-" + payload.ChatID + ".json")
 					if err != nil {
 						if os.IsNotExist(err) {
@@ -428,8 +410,8 @@ func main() {
 						log.Println("Decision rendered on Report " + payload.ChatID)
 						if payload.Data != "" {
 							bannedID, _ := uuid.ParseHex(payload.Data)
-							users[*bannedID].Banned = true
-							saveUser(*bannedID)
+							user.Users[*bannedID].Banned = true
+							user.Users[*bannedID].Save()
 							log.Println("User " + bannedID.String() + " banned.")
 						}
 					}
@@ -438,7 +420,7 @@ func main() {
 					})
 				}
 			case "admin:flag":
-				if users[data.UserID].Admin {
+				if u.Admin {
 					err := os.Rename("data/reportlog-"+payload.ChatID+".json", "data/FLAGGED-reportlog-"+payload.ChatID+".json")
 					if err != nil {
 						if os.IsNotExist(err) {
