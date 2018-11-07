@@ -66,3 +66,4 @@ data/config.json
 \.vs/
 
 eos-v2\.exe
+debug
