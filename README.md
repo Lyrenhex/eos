@@ -24,7 +24,7 @@
 5. Install the backend modules: `>> go install gitlab.com/lyrenhex/eos-v2`
 6. Build the binary: `>> go build gitlab.com/lyrenhex/eos-v2`
   - The binary should be built in the root Eos folder (that is, the folder which contains the `data` and `webclient` folders).
-7. Run: `>> go run server.go structs.go func.go`
+7. Run: `>> .\eos-v2.exe`
 
 ## Updating
 

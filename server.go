@@ -23,24 +23,27 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/nu7hatch/gouuid"
 	"gitlab.com/lyrenhex/eos-v2/chat"
+	"gitlab.com/lyrenhex/eos-v2/mail"
 	"gitlab.com/lyrenhex/eos-v2/perspectiveapi"
 	"gitlab.com/lyrenhex/eos-v2/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // VERSION stores hardcoded constant storing the server version. AN X VERSION SERVER SHOULD DISTRIBUTE WEBAPP FILES COMPATIBLE WITH IT
-const VERSION = "2.0:staging-rc2"
+const VERSION = "2.0:staging-rc3"
 
 // Configuration stores the JSON configuration stored in `config.json` as a Go-friendly structure.
 type Configuration struct {
-	EnvProd    bool   `json:"envProduction"`
-	EnvKey     string `json:"envKey"`
-	EnvCert    string `json:"envCertificate"`
-	SrvHost    string `json:"srvHostname"`
-	SrvPort    int    `json:"srvPort"`
-	GApiKey    string `json:"googleApiKey"`
-	DWebhook   string `json:"discordWebhook"`
-	MailAPIKey string `json:"sendgridApiKey"`
+	EnvProd     bool   `json:"envProduction"`
+	EnvKey      string `json:"envKey"`
+	EnvCert     string `json:"envCertificate"`
+	SrvHost     string `json:"srvHostname"`
+	SrvPort     int    `json:"srvPort"`
+	GApiKey     string `json:"googleApiKey"`
+	DWebhook    string `json:"discordWebhook"`
+	MailAPIKey  string `json:"sendgridApiKey"`
+	MailAPIID   string `json:"sendgridApiID"`
+	MailAddress string `json:"sendgridAddress"`
 }
 
 func (c *Configuration) load() {
@@ -93,11 +96,17 @@ func redirectToHTTPS(w http.ResponseWriter, req *http.Request) {
 }
 
 var config = Configuration{}
+var mailService = mail.SendGrid{}
 
 func init() {
 	config.load()
 
+	mailService.APIKey = config.MailAPIKey
+	mailService.APIID = config.MailAPIID
+	mailService.Email = config.MailAddress
+
 	user.Users = make(map[uuid.UUID]*user.User)
+	user.PendingUsers = make(map[string]string)
 	chat.Chatlogs = make(map[string][]chat.ChatMessage)
 	chat.UserPairs = make(map[uuid.UUID]chat.WaitingUser)
 
@@ -173,17 +182,52 @@ func main() {
 			switch payload.Type {
 			case "login":
 				payload.Email = strings.ToLower(payload.Email)
-				success, exists := u.Login(payload.Email, payload.Pass)
-				if !exists {
-					// user doesn\"t exist; make them
-					u = user.New(payload.Email, payload.Pass, "friend")
-					success = true
-				}
+				success, _ := u.Login(payload.Email, payload.Pass)
 				conn.WriteJSON(&Payload{
 					Type: "login",
 					Flag: success,
 					User: *u,
 				})
+			case "signup":
+				payload.Email = strings.ToLower(payload.Email)
+				_, exists := u.Login(payload.Email, "")
+				if !exists {
+					newID, _ := uuid.NewV4()
+					emailID := newID.String()
+					user.PendingUsers[emailID] = payload.Email
+					mailService.SendAuth(payload.Email, emailID)
+					conn.WriteJSON(&Payload{
+						Type: "signup",
+						Flag: true,
+					})
+				} else {
+					conn.WriteJSON(&Payload{
+						Type: "signup",
+						Flag: false,
+					})
+				}
+			case "verifyEmail":
+				emailID := payload.Data
+				conn.WriteJSON(&Payload{
+					Type: "verifyEmail",
+					Data: user.PendingUsers[emailID],
+				})
+			case "createAccount":
+				emailID := payload.Data
+				if user.UserIDs[user.PendingUsers[emailID]] == uuid.UUID([16]byte{}) {
+					u = user.New(user.PendingUsers[emailID], payload.Pass, "friend")
+					delete(user.PendingUsers, emailID)
+					conn.WriteJSON(&Payload{
+						Type: "login",
+						Flag: true,
+						User: *u,
+					})
+				} else {
+					conn.WriteJSON(&Payload{
+						Type: "login",
+						Flag: false,
+					})
+				}
 			case "mood":
 				u.AddMood(payload.Day, payload.Month, payload.Year, payload.Mood)
 			case "comment":

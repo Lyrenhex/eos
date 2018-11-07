@@ -66,16 +66,49 @@ You may NOT:
     <span class="loading" id="text__loading">Getting ready!</span>
     <div class="block" id="block__login">
       <div id="rel-container">
-          <h2>Sign in with your email address and password.</h2>
-          <p>Your account will be automatically created if it does not exist.</p>
+          <h2>Sign in</h2>
           <p>Eos does <b>NOT</b> use 'cookies' to preserve login information. If the page is reloaded, or the browser is closed, you will be automatically logged out without exception. This is done to protect your personal information.</p>
-          <p>Eos will <b>never</b>: share your private data with a third party - only average statistical anonymized information formed from all users may be shared with research professionals; share your contact information with anyone; spam you or send unsolicited emails for no valid reason.</p>
-          <p>By entering your login details here, and providing your details to us, you are giving us access to, and the right to store, your data. This access and right may be revoked at any time by you, through deleting your account.</p>
           <p>Messages sent through the Eos chat service are <b>partially confidential</b>. We will not share such content unless required by law enforcement, and will not oversee or watch chats unfold. Chat history <b>will</b> be reviewed by a team member should a report occur.</p>
+          <p id="text__login" class="formText">Your email address or password is incorrect, or the account does not exist.</p>
           <form onsubmit="return signin_email()">
             <input id="login_email" type="email" placeholder="Email address" required />
             <input id="login_password" type="password" placeholder="Password" required />
-            <button type="submit">Sign in / Sign up</button>
+            <button type="submit">Sign in</button>
+          </form>
+          <hr />
+          <h2>Sign up</h2>
+          <p>Eos will <b>never</b>: share your private data with a third party - only average statistical anonymized information formed from all users may be shared with research professionals; share your contact information with anyone; spam you or send unsolicited emails for no valid reason.</p>
+          <p>By entering your login details here, and providing your details to us, you are giving us access to, and the right to store, your data. This access and right may be revoked at any time by you, through deleting your account.</p>
+          <p id="text__signup" class="formText">This email address is already associated with an account.</p>
+          <form onsubmit="return signup_email()">
+            <input id="signup_emailAddr" type="email" placeholder="Email address" required />
+            <input name="Privacy" type="checkbox" required />
+            <label for="Privacy">I agree to Eos having my email address in accordance with the <a href="https://eoschat.uk/legal.html">privacy policy</a>.</label>
+            <button type="submit">Sign up</button>
+          </form>
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+      </div>
+    </div>
+    <div class="block" id="block__signup-1">
+      <div id="rel-container">
+          <h2>Check your email</h2>
+          <p>Please check your email inbox to verify your email address. This will allow you to continue with the account creation process.</p>
+          <p>If you cannot find an email from <code>noreply@mail.eoschat.uk</code>, please check your spam and junk folders.</p>
+          <p>Your account creation request will automatically expire when the Eos server is next restarted -- please act quickly to finish setting up your account.</p>
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+      </div>
+    </div>
+    <div class="block" id="block__signup">
+      <div id="rel-container">
+          <h2>Create your account</h2>
+          <p>Please check your email inbox to obtain the verification token, and supply it here, to verify that the email you supplied is correct. If you made a mistake when providing your email address, please restart the account creation process. The email will be from  <code>noreply@mail.eoschat.uk</code>.</p>
+          <p>Eos will <b>never</b>: share your private data with a third party - only average statistical anonymized information formed from all users may be shared with research professionals; share your contact information with anyone; spam you or send unsolicited emails for no valid reason.</p>
+          <p>By entering your login details here, and providing your details to us, you are giving us access to, and the right to store, your data. This access and right may be revoked at any time by you, through deleting your account.</p>
+          <form onsubmit="return create_email()">
+            <input id="create_token" type="text" placeholder="Verification token" />
+            <input id="create_password" type="password" placeholder="Password" required />
+            <input name="TermsAndPrivacy" type="checkbox" required /><label for="TermsAndPrivacy">I agree to the Terms and Conditions, and agree to my data being stored within the Eos project as per the Privacy Policy, both of which can be viewed <a href="https://eoschat.uk/legal.html">here</a>.</label>
+            <button type="submit">Create account</button>
           </form>
           <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
       </div>
