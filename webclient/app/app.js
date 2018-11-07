@@ -54,7 +54,22 @@ function signin_email() {
   var email = document.getElementById('login_email').value;
   var passw = document.getElementById('login_password').value;
 
-  sock.send(JSON.stringify({'type':'login', 'emailAddress':email, 'password': passw}))
+  sock.send(JSON.stringify({'type':'login', 'emailAddress':email, 'password': passw}));
+
+  return false;
+}
+function signup_email() {
+  var email = document.getElementById('signup_emailAddr').value;
+
+  sock.send(JSON.stringify({'type':'signup', 'emailAddress':email}));
+
+  return false;
+}
+function create_email() {
+  var token = document.getElementById('create_token').value;
+  var passw = document.getElementById('create_password').value;
+
+  sock.send(JSON.stringify({'type':'createAccount', 'data':token, 'password': passw}));
 
   return false;
 }
@@ -80,9 +95,18 @@ sock.onmessage = function(e) {
       show('block__login');
       update_var('version_number', `version ${msg.data}`)
       break;
+    case 'signup':
+      if (msg.flag){
+        done('block__login');
+        show('block__signup');
+      } else {
+        document.getElementById('text__signup').classList.add('display');
+      }
+      break;
     case 'login':
       if (msg.flag) {
-        done('block__login');
+        if (document.getElementById('block__signup').classList.contains('shown')) done('block__signup');
+        else done('block__login');
         show('block__mood');
         document.getElementById('btn__menu').classList.add('loggedin');
         setState();
@@ -165,6 +189,8 @@ sock.onmessage = function(e) {
           tracker.appendChild(year);
         }
         document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('activeYear');
+      } else {
+        document.getElementById('text__login').classList.add('display');
       }
       break;
     case "chat:ready":

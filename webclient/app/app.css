@@ -48,7 +48,7 @@ button, a.btn:link, a.btn:visited, input {
   margin: 10px;
   color: #000;
 }
-input {
+input[type=text], input[type=password], input[type=email] {
   width: calc(95% - 24px);
 }
 button:hover, button:focus, a.btn:hover, a.btn:focus {
@@ -88,6 +88,13 @@ textarea:hover, textarea:focus, textarea:active {
 .rel-container {
   position: relative;
   height: 100%;
+}
+.formText {
+  color: red;
+  display: none;
+}
+.formText.display {
+  display: block;
 }
 
 .shown {

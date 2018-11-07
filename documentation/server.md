@@ -52,9 +52,75 @@ Once the login has been processed, the server will return the following:
 }
 ```
 
+**Notice:** This method used to create a new account if the requested one did not already exist. This has changed in `v2.0:staging-rc3`, instead breaking this functionality into its own API method.
+
 [Documentation on the User object](user.md)
 
 This method **MUST** be called before calling any subsequent method within the server's functionality; non-logged-in method calls will be discarded by the server automatically.
+
+### Creating a new account (signup)
+
+```javascript
+{
+    "type": "signup",
+    "emailAddress": "", // email address goes here
+}
+```
+
+This API method is a *flow*, meaning that it does not operate independantly and makes use of additional methods for the same purpose.
+
+If there is no existing account with the email address supplied, the server will respond:
+
+```javascript
+{
+    "type": "signup",
+    "flag": true, // if an account already exists, this will be false
+}
+```
+
+If `flag` is `true`, this represents that the server (through SendGrid) has issued a verification email to the email address supplied. To continue, the user should check their emails.
+
+### Verifying email address (verifyEmail)
+
+```javascript
+{
+    "type": "verifyEmail",
+    "data": "", // the verification token received via email should go here
+}
+```
+
+After the user follows the instructions in the email to verify their email, they should either (have a verification token) or (have clicked a link handling this for them).
+
+The server should respond to this request with:
+
+```javascript
+{
+    "type": "verifyEmail",
+    "data": "", // the email address associated with the verification token
+}
+```
+
+This supplied email address should be used to pre-populate the user's email address field in the signup form (**DO NOT ALLOW THE USER TO CHANGE THIS MANUALLY**).
+
+### Completing the signup process (createAccount)
+
+```javascript
+{
+    "type": "createAccount",
+    "data": "", // verification token supplied via email earlier
+    "password": "", // the user's chosen password
+}
+```
+
+The server will automatically log the user in to the newly created account:
+
+```javascript
+{
+    "type": "login",
+    "flag": true, // true if successful, false if the email address already has an account
+    "user": {}, // User object -- this is a blank User object if the account creation was unsuccessful
+}
+```
 
 ### Submitting new Mood data (mood)
 

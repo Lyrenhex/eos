@@ -9,11 +9,39 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserIDs maps email address to user id
-var UserIDs map[string]uuid.UUID // @UserIDs["email address"] => uuid.UUID
-var Users map[uuid.UUID]*User    // @Users[uuid.UUID], store a pointer to the user\"s data - avoid memory data duplication - edit the storage location directly.
+// UserIDs is a map of string email addresses returning their associated UserID
+// (of type uuid.UUID)
+var UserIDs map[string]uuid.UUID
 
-// User data type, built on numerous structures.
+// Users is a map of uuid.UUID userIDs returning the associated pointer to the
+// intended user's User object.
+var Users map[uuid.UUID]*User
+
+// PendingUsers is a map of unique account-generation IDs to the associated
+// email address, for verifying emails.
+var PendingUsers map[string]string
+
+// User represents a specific user account, and stores the following data:
+// - UserID, of type uuid.UUID, a unique identifier for this account used
+// 	 internally
+// - EmailAddr, a string keeping track of the user's current email address,
+//   regardless of verification status (THIS MAY NOT BE THE USER'S LOGIN
+//   EMAIL ADDRESS)
+// - Password, stored as an array of bytes as the result of the bcrypt hashing
+//   routine
+// - Name, a string of the user's provided name (THIS MAY NOT BE THE USER'S
+//   FULL / LEGAL NAME)
+// - Moods, a Moods structure
+// - Positives, an array of 20 strings storing the user's last 20 positive
+//   comments
+// - Neutrals, an array of 5 strings storing the user's last 5 unemottional
+//   comments
+// - Negatives, an array of 5 strings storing the user's last 5 negative
+//   comments
+// - Admin, a boolean flag representing whether the user has administrator
+//   powers or not
+// - Banned, a boolean flag representing whether the user has had their chatting
+//   rights revoked or not
 type User struct {
 	UserID    uuid.UUID
 	EmailAddr string
@@ -27,25 +55,32 @@ type User struct {
 	Banned    bool
 }
 
-// Moods acts as a reusable structure to store mood data - sub structure of User
+// Moods, a sub-structure of User, stores arrays of moods for each day of the
+// week, month of the year, and a Year object
 type Moods struct {
 	Day   [7]Mood // array of 7 moods, one for each day of week.
 	Month [12]Mood
 	Years [2]Year // only keep specific data on the past two years. we cannot overload the server. (not sure if we should decrease this to 1 year?)
 }
 
-// Mood stores information for a particular time unit
+// Mood stores information for a particular time unit, as a Mood integer
+// which acts as a total sum of the user's moods, and a Num integer, serving
+// as a running tally of the number of Moods recorded, for division to form the
+// mean average
 type Mood struct {
 	Mood int
 	Num  int
 }
 
-// Year structure to create a copy of a year\"s Moods structure
+// Year structure to create a copy of a year's Moods structure
 type Year struct {
 	Year  int
 	Month [12]Mood
 }
 
+// New creates a new User object with the email address, password, and name
+// specified, returning a pointer to the created user for later use.
+// The User is added to the Users list automatically and the UserID is added to the UserIDs list, which are subsequently saved.
 func New(email, pass, name string) *User {
 	/* For use during new user creation, generate a new userid and a new User structure to store the new user\"s data, prepopulated with email pass and name data, with the rest zero-ed for later input. Return the userid for immediate usage, and add to the *memory* user store, and maintain the email-userid pairing in the UserIDs map. */
 	uid, _ := uuid.NewV4()
@@ -70,6 +105,8 @@ func New(email, pass, name string) *User {
 	return user
 }
 
+// Save encodes the User object into basic JSON notation, which is then written
+// to a file specific to that user's UserID.
 func (u *User) Save() {
 	/* Save the user\"s data to their own file, stored according to their user id. */
 	file, err := os.Create("data/userdata-" + u.UserID.String() + ".json")
@@ -85,6 +122,8 @@ func (u *User) Save() {
 	}
 }
 
+// Load reads the data stored in the file relevant to the provided UserID, uid,
+// and decodes the resulting JSON into the current User object.
 func (u *User) Load(uid uuid.UUID) {
 	/* Based on the provided user id, load the user\"s data from their own data file, add the user back to the standard users map, and return the user structure for immediate use. */
 	file, err := os.Open("data/userdata-" + uid.String() + ".json")
@@ -101,6 +140,12 @@ func (u *User) Load(uid uuid.UUID) {
 	}
 }
 
+// Login runs standard security checks (specifically, comparing the existence
+// of the requested user account and confirming whether the password is correct)
+// before either running Load() on the current User or not, and returning
+// whether the login was successful (account exists and password is correct)
+// and if the account exists (for if the login was unsuccessful). Login does not
+// automatically run New() if the account does not exist.
 func (u *User) Login(email, password string) (bool, bool) {
 	/* Based on provided email and password strings, check that the login is correct and, if so, load the user\"s data and return UID to calling func. */
 	success := true
@@ -120,6 +165,8 @@ func (u *User) Login(email, password string) (bool, bool) {
 	return success, exists
 }
 
+// AddMood updates the User's Mood data, adding the mood onto each Mood object
+// as per the provided day, month, and year.
 func (u *User) AddMood(day, month, year, mood int) {
 	u.Moods.Day[day].Mood += mood
 	u.Moods.Day[day].Num++
@@ -149,6 +196,10 @@ func (u *User) AddMood(day, month, year, mood int) {
 	u.Save()
 }
 
+// AddComment appends a new comment to the end of the current User's
+// comment array based on the supplied mood (which should be an integer
+// betwen -1 and 1, as both negatives and both positives are treated
+// identically)
 func (u *User) AddComment(mood int, comment string) {
 	if comment != "" {
 		switch mood {
@@ -196,6 +247,8 @@ func (u *User) AddComment(mood int, comment string) {
 	}
 }
 
+// ReadIDs loads the UserIDs stored in persistant memory into the UserIDs array,
+// creating the array if nonexistent.
 func ReadIDs() {
 	/* Read the email-userid pairs from users.json and store in the UserIDs map for reference when logging in (clients will send an email and password; lookup email in UserIDs to grab their userid, then load their userfile.json) */
 	log.Println("Loading UserIDs from file")
@@ -212,6 +265,7 @@ func ReadIDs() {
 	}
 }
 
+// SaveIDs writes the contents of the UserIDs map into persistant memory.
 func SaveIDs() {
 	/* Save the email-userid pairs, replacing the existing file is present. */
 	log.Println("Saving UserIDs to file")
