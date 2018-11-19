@@ -61,9 +61,15 @@ typings/
 data/
 data/config.json
 
+# Different instances may have different sites -- ignore everything in `webclient` but `app`
+/webclient/*
+!/webclient/app
+
+# exclude VS Code things
 \.vs/eos-v2/v15/
-
 \.vs/
+\.vscode/
 
+# exclude executable builds and VSCode Debugging logs
 eos-v2\.exe
 debug
