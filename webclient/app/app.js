@@ -181,7 +181,6 @@ sock.onmessage = function(e) {
           var tracker = document.getElementById('annual_moods_graphs');
           tracker.appendChild(year);
         }
-        var years = yearGraph(msg.user.Moods);
         for(year in years){
           YEARS.push(year);
           year = years[year];

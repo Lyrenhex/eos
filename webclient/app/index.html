@@ -59,7 +59,7 @@ You may NOT:
       <button onclick="section('print')">Full report</button>
       <button onclick="signout()">Logout</button>
       <span class="appdata">
-        Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.
+        Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.
         <span id="ver" name="version_number"></span>
       </span>
     </div>
@@ -81,9 +81,9 @@ You may NOT:
           <p>By entering your login details here, and providing your details to us, you are giving us access to, and the right to store, your data. This access and right may be revoked at any time by you, through deleting your account.</p>
           <p id="text__signup" class="formText">This email address is already associated with an account.</p>
           <form onsubmit="return signup_email()">
-            <input id="signup_emailAddr" type="email" placeholder="Email address" required />
+            <input id="signup_emailAddr" type="email" placeholder="Email address" required /><br />
             <input name="Privacy" type="checkbox" required />
-            <label for="Privacy">I agree to Eos having my email address in accordance with the <a href="https://eoschat.uk/legal.html">privacy policy</a>.</label>
+            <label for="Privacy">I agree to Eos having my email address in accordance with the <a href="../legal.html">privacy policy</a>.</label>
             <button type="submit">Sign up</button>
           </form>
           <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
@@ -95,7 +95,7 @@ You may NOT:
           <p>Please check your email inbox to verify your email address. This will allow you to continue with the account creation process.</p>
           <p>If you cannot find an email from <code>noreply@mail.eoschat.uk</code>, please check your spam and junk folders.</p>
           <p>Your account creation request will automatically expire when the Eos server is next restarted -- please act quickly to finish setting up your account.</p>
-          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.</p>    
       </div>
     </div>
     <div class="block" id="block__signup">
@@ -107,10 +107,10 @@ You may NOT:
           <form onsubmit="return create_email()">
             <input id="create_token" type="text" placeholder="Verification token" />
             <input id="create_password" type="password" placeholder="Password" required />
-            <input name="TermsAndPrivacy" type="checkbox" required /><label for="TermsAndPrivacy">I agree to the Terms and Conditions, and agree to my data being stored within the Eos project as per the Privacy Policy, both of which can be viewed <a href="https://eoschat.uk/legal.html">here</a>.</label>
+            <input name="TermsAndPrivacy" type="checkbox" required /><label for="TermsAndPrivacy">I agree to the Terms and Conditions, and agree to my data being stored within the Eos project as per the Privacy Policy, both of which can be viewed <a href="../legal.html">here</a>.</label>
             <button type="submit">Create account</button>
           </form>
-          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.</p>    
       </div>
     </div>
     <div class="section active" id="section__app">
@@ -282,7 +282,7 @@ You may NOT:
       </div>
     </div>
 
-    <div class="section noformat" id="section__print">
+    <div class="section" id="section__print">
       <div class="block shown">
           <h2>User Full Report</h2>
           <p>Here, you can see the current data we have on file regarding your mood, including the last 20 negative comments, and the last 5 of each of your neutral and positive comments, that you've entered. Also included is a comprehensive view of the graphs we've generated for your mood scores (up to, at most, this year and the previous year).</p>
