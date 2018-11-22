@@ -257,7 +257,7 @@ You may NOT:
       </div>
     </div>
     <div class="section" id="section__settings">
-      <div class="block shown">
+      <div class="block shown" id="block__settings__main">
           <h2>Your Account Settings</h2>
 
           <form onsubmit="return update_acc()">
@@ -279,6 +279,19 @@ You may NOT:
             <a class="btn" id="downloadLink" download="data.json">Download your data</a>
             <p><b>Important:</b> Here, you can delete your account <i>and all data associated with your account</i>. Please be warned that clicking the button below will immediately, and irrevocably, delete your account and all associated data. If you feel you may want to use your data again, please download it first.</p>
             <button onclick="deleteData()">Delete your data</button>
+      </div>
+      <div class="block" id="block__settings__email">
+        <h2>Verify new email address</h2>
+        <p>To ensure that the new email address is yours, we've sent a verification token to it. Please check your inbox and/or spam/junk folders for it, and supply it here. <b>Until a verification token is supplied, you should continue to sign in to your account with your existing email address.</b></p>
+
+        <form onsubmit="return verify_email()">
+          <label for="email_token">
+            Verification token:
+            <input id="email_token" type="text" placeholder="abc01-def02-ghi03-jkl04" />
+          </label><br />
+            
+            <button type="submit">Update email address</button>
+          </form><br />
       </div>
     </div>
 

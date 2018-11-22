@@ -159,6 +159,36 @@ Any values which remain unchanged **MUST** still be sent, but should be sent as 
 
 The only details required for an account is the **email address and password**, the user's name is not required and will default to "friend".
 
+**If a new email address is supplied, there is an additional email flow, beginning with the following server response:**
+
+```javascript
+{
+    "type": "changeEmailVerification"
+}
+```
+
+This indicates that a verification token has been sent to the new email address, and that the user should look there. The UI should respond by asking the user for this token.
+
+## Verifying an email change
+
+```javascript
+{
+    "type": "changeEmail",
+    "data": "" // the authorisation token should go here
+}
+```
+
+**If there is a pending request matching this auth token**, the server will respond:
+
+```javascript
+{
+    "type": "changeEmail",
+    "emailAddress": "" // the new email address which is now set
+}
+```
+
+Else, it will disregard the request.
+
 
 ## Sending a deletion request
 

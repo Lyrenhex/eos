@@ -237,7 +237,13 @@ func main() {
 				newPass := payload.Pass
 				newName := payload.Data
 				if newEmail != "" {
-					u.EmailAddr = newEmail
+					newID, _ := uuid.NewV4()
+					emailID := newID.String()
+					user.PendingUsers[emailID] = payload.Email
+					mailService.SendAuth(newEmail, emailID)
+					conn.WriteJSON(&Payload{
+						Type: "changeEmailVerification",
+					})
 				}
 				if newPass != "" {
 					newPass, _ := bcrypt.GenerateFromPassword([]byte(payload.Pass), bcrypt.DefaultCost)
@@ -247,6 +253,16 @@ func main() {
 					u.Name = newName
 				}
 				u.Save()
+			case "changeEmail":
+				emailID := payload.Data
+				newEmail := user.PendingUsers[emailID]
+				if newEmail != "" {
+					u.EmailAddr = newEmail
+					conn.WriteJSON(&Payload{
+						Type:  "changeEmail",
+						Email: newEmail,
+					})
+				}
 			case "delete":
 				delete(user.UserIDs, u.EmailAddr)
 				err := os.Remove("data/userdata-" + u.UserID.String() + ".json")
@@ -301,7 +317,7 @@ func main() {
 
 					request := &perspectiveapi.MLRequest{
 						Comment:         perspectiveapi.MLComment{Text: payload.Data},
-						RequestedAttrbs: perspectiveapi.MLAttribute{perspectiveapi.MLTOXICITY{}},
+						RequestedAttrbs: perspectiveapi.MLAttribute{Attrb: perspectiveapi.MLTOXICITY{}},
 						DNS:             true,
 					}
 					jsonValue, _ := json.Marshal(request)
