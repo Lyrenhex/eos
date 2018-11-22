@@ -79,12 +79,21 @@ function update_acc() {
   let newName = document.getElementById('account_name').value;
 
   sock.send(JSON.stringify({'type':'details', 'emailAddress': newEmail, 'password': newPass, 'data': newName}));
+
+  return false;
+}
+function verify_email() {
+  let token = document.getElementById('email_token').value;
+
+  sock.send(JSON.stringify({'type': 'changeEmail', 'data': token}));
+
+  return false;
 }
 sock.onerror = function(e) {
   show('block__error');
 }
 sock.onclose = function(e) {
-  // TODO: onclose
+  show('block__error');
 }
 sock.onmessage = function(e) {
   let msg = JSON.parse(e.data);
@@ -181,7 +190,6 @@ sock.onmessage = function(e) {
           var tracker = document.getElementById('annual_moods_graphs');
           tracker.appendChild(year);
         }
-        var years = yearGraph(msg.user.Moods);
         for(year in years){
           YEARS.push(year);
           year = years[year];
@@ -192,6 +200,16 @@ sock.onmessage = function(e) {
       } else {
         document.getElementById('text__login').classList.add('display');
       }
+      break;
+    case "changeEmailVerification":
+      done('block__settings__main');
+      show('block__settings__email');
+      break;
+    case "changeEmail":
+      let emailField = document.getElementById('account_email');
+      emailField.value = msg.emailAddress;
+      toggle('block__settings__email');
+      undone('block__settings__main');
       break;
     case "chat:ready":
       if (msg.flag) { // chat connection with partner established

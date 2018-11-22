@@ -2,18 +2,22 @@
 
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #00c0ff;
+  background-color: #eeeeee;
   margin: 0;
 }
-.intro {
+.block {
   display: block;
-  margin: auto;
+  margin: 15px auto;
   width: 90%;
   background-color: #fff;
-  box-shadow: 0 2px 8px #555;
   padding: 5px 25px;
   border-radius: 15px;
+  border: 2px solid #09f;
   width: calc(90% - 50px);
+}
+.block.alert {
+  border: 2px solid #dddd16;
+  box-shadow: inset 0 0 10px #dddd16;
 }
 .banner {
   width: 100%;
@@ -21,6 +25,7 @@ body {
   margin-bottom: 20px;
   display: block;
   background-color: #00c0ff;
+  box-shadow: 0 0 1px 2px #000;
 }
 .banner img {
   width: 100%;
@@ -36,13 +41,11 @@ body {
 
 h1 {
   color: #00c0ff;
-  text-shadow: 1px 1px 1px #222;
   font-size: 48pt;
   margin: 0;
 }
 h2 {
   color: #00c0ff;
-  text-shadow: 1px 1px 1px #222;
   font-size: 36pt;
   margin: 0;
 }
@@ -66,16 +69,16 @@ p, li {
   display: block;
   margin: 20px auto;
   font-size: 24pt;
-  border: 2px solid #00c0ff;
+  border: 2px solid #0099ff;
   border-radius: 15px;
-  box-shadow: 0 2px 8px #555;
+  box-shadow: 0 2px 2px #555;
   transition: 0.3s linear all;
   width: calc(90% - 50px);
 }
 .cta:hover {
-  background-color: #00c0ff;
+  background-color: #0099ff;
   color: #fff;
-  box-shadow: 0 8px 16px #555;
+  box-shadow: 0 8px 8px #555;
 }
 
 footer {
