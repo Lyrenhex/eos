@@ -3,7 +3,7 @@
     "name": "Eos, the Mental Health App",
     "scope": "./",
     "display": "standalone",
-    "start_url": "app.html",
+    "start_url": "index.html",
     "short_name": "Eos",
     "theme_color": "transparent",
     "description": "It's always darkest just before the dawn. It may be a struggle, but Eos is there for you; get help, help someone else. The mental health support app.",
