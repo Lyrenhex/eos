@@ -30,7 +30,7 @@ graph TD;
     Chat --> End(End);
 ```
 
-## Network requests
+### Network requests
 
 ```mermaid
 sequenceDiagram
