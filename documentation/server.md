@@ -61,9 +61,9 @@ sequenceDiagram
         Client ->> Server: chat:send;
         Server ->> PerspectiveAPI: (Test message against AI);
         PerspectiveAPI ->> Server: (ATTACK_ON_AUTHOR rating);
-        alt rating is good
+        alt rating is good || API failure
             Server ->> Client: chat:message;
-        else rating is bad || API failure
+        else rating is bad
             Server ->> Client: chat:rejected;
             opt User confirms
                 Client ->> Server: chat:verify;
