@@ -17,6 +17,62 @@ In a production environment:
 
 API calls should be sent via a WebSocket packet to the WebSocket server, from the HTTP(S) server operating **on the same host** (for security purposes).
 
+## Typical user flow
+
+```mermaid
+graph TD;
+    Load(Loading) --> |connecion established| Login{Login screen};
+    Login --> |login| Log[Mood logging];
+    Login --> |sign up| Email[Provide email address];
+    Email --> |email received| Verify[Verify email address and supply password];
+    Verify --> Log;
+    Log --> Chat[Chat service];
+    Chat --> End;
+```
+
+## Network requests
+
+```mermaid
+sequenceDiagram
+    Client --> Server: Inititate websocket connection;
+    Server ->> Client: Version number;
+    alt New account
+        Client ->> Server: signup;
+        Server ->> Client: signup;
+        Note over Client, Server: Email address with verification <br />token sent to client;
+        opt Client decision
+            Client ->> Server: verifyEmail;
+            Server ->> Client: verifyEmail;
+        end
+        Client ->> Server: createAccount;
+    else Existing user
+        Client ->> Server: login;
+    end
+    Server ->> Client: login;
+    Client ->> Server: mood;
+    Client ->> Server: comment;
+    Client ->> Server: chat:start;
+    alt User banned
+        Server ->> Client: chat:banned;
+    else
+        Server ->> Client: chat:ready;
+    end
+    loop Each message
+        Client ->> Server: chat:send;
+        Server ->> Client: chat:message;
+        opt Rejected by AI
+            Server ->> Client: chat:rejected;
+            opt User confirms
+                Client ->> Server: chat:verify;
+            end
+        end
+    end
+    opt Reported by user
+        Client ->> Server: chat:report;
+    end
+    Client ->> Server: chat:close;
+```
+
 ## API Methods
 
 ### Connection
