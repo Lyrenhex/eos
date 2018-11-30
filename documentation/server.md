@@ -39,7 +39,7 @@ sequenceDiagram
     alt New account
         Client ->> Server: signup;
         Server ->> Client: signup;
-        Note over Client, Server: Email address with verification <br />token sent to client;
+        Note over Client, Server: Email with verification <br />token sent to client;
         opt Client decision
             Client ->> Server: verifyEmail;
             Server ->> Client: verifyEmail;
