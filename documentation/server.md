@@ -27,7 +27,7 @@ graph TD;
     Email --> |email received| Verify[Verify email address and supply password];
     Verify --> Log;
     Log --> Chat[Chat service];
-    Chat --> End;
+    Chat --> End(End);
 ```
 
 ## Network requests
