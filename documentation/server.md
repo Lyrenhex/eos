@@ -204,7 +204,7 @@ The server will automatically log the user in to the newly created account:
 }
 ```
 
-## Updating user details
+## Updating user details (details)
 
 ```javascript
 {
@@ -229,7 +229,7 @@ The only details required for an account is the **email address and password**, 
 
 This indicates that a verification token has been sent to the new email address, and that the user should look there. The UI should respond by asking the user for this token.
 
-## Verifying an email change
+## Verifying an email change (changeEmail)
 
 ```javascript
 {
@@ -250,7 +250,7 @@ This indicates that a verification token has been sent to the new email address,
 Else, it will disregard the request.
 
 
-## Sending a deletion request
+## Sending a deletion request (delete)
 
 ```javascript
 {
@@ -262,7 +262,7 @@ This action, depending on how the server's setup, will usually result in instant
 
 Handling of this request should begin immediately; finality warnings should be addressed by the client.
 
-## Chat API: Start a new chat
+## Chat API: Start a new chat (chat:start)
 
 This method must be called, and a ChatID must be provided, before any other chat API methods can be called.
 
@@ -302,7 +302,7 @@ The `cid` field should contain a string **unique chat identification**, which SH
 
 **UPON CHAT TERMINATION BY EITHER PARTY, THE SERVER WILL SEND A `"chat:closed"` NOTICE TO THE OTHER PARTY.**
 
-## Chat API: Send a message
+## Chat API: Send a message (chat:send)
 
 ```javascript
 {
@@ -345,7 +345,7 @@ Whereas the recipient will receive:
 }
 ```
 
-## Chat API: Verify a rejected message
+## Chat API: Verify a rejected message (chat:verify)
 
 Message rejections are not final, acknowledging the unreliability of AI. Thus, if a message is rejected, the client should ask the user. If the user insists, this method can be used to 'force' the message through.
 
@@ -359,7 +359,7 @@ Message rejections are not final, acknowledging the unreliability of AI. Thus, i
 
 Sending will then occur as if the message had been allowed through the filter automatically.
 
-## Chat API: Report a chat
+## Chat API: Report a chat (chat:report)
 
 ```javascript
 {
@@ -368,7 +368,7 @@ Sending will then occur as if the message had been allowed through the filter au
 }
 ```
 
-## Chat API: Close a chat
+## Chat API: Close a chat (chat:close)
 
 ```javascript
 {
@@ -378,7 +378,7 @@ Sending will then occur as if the message had been allowed through the filter au
 
 Different servers may handle chat reports differently. This is not addressed by this specification.
 
-## Admin API: Access a report
+## Admin API: Access a report (admin:access)
 
 **ADMIN API METHODS WILL ONLY RETURN A RESPONSE IF THE LOGGED-IN EOS ACCOUNT'S "ADMIN" PARAMETER IS SET TO TRUE.**
 
@@ -403,7 +403,7 @@ Different servers may handle chat reports differently. This is not addressed by 
 }
 ```
 
-## Admin API: Decide a report
+## Admin API: Decide a report (admin:decision)
 
 **ADMIN API METHODS WILL ONLY RETURN A RESPONSE IF THE LOGGED-IN EOS ACCOUNT'S "ADMIN" PARAMETER IS SET TO TRUE.**
 
@@ -425,7 +425,7 @@ Upon completion, the server will provide this response:
 }
 ```
 
-## Admin API: Flag a report for escalation
+## Admin API: Flag a report for escalation (admin:flag)
 
 **ADMIN API METHODS WILL ONLY RETURN A RESPONSE IF THE LOGGED-IN EOS ACCOUNT'S "ADMIN" PARAMETER IS SET TO TRUE.**
 
