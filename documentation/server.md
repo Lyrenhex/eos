@@ -59,11 +59,15 @@ sequenceDiagram
     end
     loop Each message
         Client ->> Server: chat:send;
-        Server ->> Client: chat:message;
-        opt Rejected by AI
+        Server ->> PerspectiveAPI: (Test message against AI);
+        PerspectiveAPI ->> Server: (ATTACK_ON_AUTHOR rating);
+        alt rating is good
+            Server ->> Client: chat:message;
+        else rating is bad || API failure
             Server ->> Client: chat:rejected;
             opt User confirms
                 Client ->> Server: chat:verify;
+                Server ->> Client: chat:message;
             end
         end
     end
