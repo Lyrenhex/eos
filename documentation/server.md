@@ -35,7 +35,7 @@ graph TD;
 ```mermaid
 sequenceDiagram
     Client --> Server: Inititate websocket connection;
-    Server ->> Client: Version number;
+    Server ->> Client: version;
     alt New account
         Client ->> Server: signup;
         Server ->> Client: signup;
