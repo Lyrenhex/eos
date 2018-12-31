@@ -1,7 +1,7 @@
 <!--
-COPYRIGHT (C) Damian Heaton 2017 - 2018
+COPYRIGHT (C) Max Heaton 2017 - 2018
 
-The storage of this software on a computer via means of browser 'caching', and the execution of such code by user browsers is permitted. This work cannot be duplicated, copied, distributed, or modified (neither privately nor publicly) without the express, written consent of Damian Heaton, whom can be contacted (at time of notice) at damian@lyrenhex.me. This software cannot be used for commercial purposes.
+The storage of this software on a computer via means of browser 'caching', and the execution of such code by user browsers is permitted. This work cannot be duplicated, copied, distributed, or modified (neither privately nor publicly) without the express, written consent of Max Heaton, whom can be contacted (at time of notice) at damian@lyrenhex.me. This software cannot be used for commercial purposes.
 
 THIS SOFTWARE IS DISTRIBUTED "AS IS", WITHOUT WARRANTY OF ANY FORM (EITHER EXPRESS OR IMPLIED), INCLUDING (BUT NOT LIMITED TO) ANY IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -12,9 +12,9 @@ You may:
 - Execute this code for the purpose of using the software.
 
 You may NOT:
-- Distribute, copy, replicate, or duplicate this copyrighted software without express, written permission from Damian Heaton.
+- Distribute, copy, replicate, or duplicate this copyrighted software without express, written permission from Max Heaton.
 - Use this software, in any way, shape or form, for any commercial purpose(s).
-- Claim this software as your own, or attempt to imply affiliation with the software in any way that could be detrimental or unlawful, or to suggest that the software, or Damian Heaton, are represented by, or represent, yourself.
+- Claim this software as your own, or attempt to imply affiliation with the software in any way that could be detrimental or unlawful, or to suggest that the software, or Max Heaton, are represented by, or represent, yourself.
 -->
 
 <!doctype html>
@@ -59,7 +59,7 @@ You may NOT:
       <button onclick="section('print')">Full report</button>
       <button onclick="signout()">Logout</button>
       <span class="appdata">
-        Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.
+        Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.
         <span id="ver" name="version_number"></span>
       </span>
     </div>
@@ -74,6 +74,7 @@ You may NOT:
             <input id="login_email" type="email" placeholder="Email address" required />
             <input id="login_password" type="password" placeholder="Password" required />
             <button type="submit">Sign in</button>
+            <button type="button" onclick="show('block__forgot')">Forgotten password</button>
           </form>
           <hr />
           <h2>Sign up</h2>
@@ -83,10 +84,29 @@ You may NOT:
           <form onsubmit="return signup_email()">
             <input id="signup_emailAddr" type="email" placeholder="Email address" required /><br />
             <input name="Privacy" type="checkbox" required />
-            <label for="Privacy">I agree to Eos having my email address in accordance with the <a href="../legal.html">privacy policy</a>.</label>
+            <label for="Privacy">I agree to Eos having my email address in accordance with the <a href="../legal.html">privacy policy</a>.</label><br />
             <button type="submit">Sign up</button>
           </form>
-          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://dheaton.uk">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="http://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+      </div>
+    </div>
+    <div class="block" id="block__forgot">
+      <div id="rel-container">
+          <h2>Reset password</h2>
+          <p id="text__forgot" class="formText">Your email address is incorrect, or the account does not exist.</p>
+          <form onsubmit="return reset_email()">
+            <input id="forgot_email" type="email" placeholder="Email address" required />
+            <button type="submit">Reset password</button>
+          </form>
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="http://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+      </div>
+    </div>
+    <div class="block" id="block__forgot__2">
+      <div id="rel-container">
+          <h2>Reset password</h2>
+          <p>Please check your email address for further instructions. If it hasn't arrived, please allow some time for the email to reach your inbox, and please also keep checking your spam / junk folders. If it never arrives, please contact us!</p>
+          <button onclick="done('block__forgot__2')">Okay</button>
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="http://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
       </div>
     </div>
     <div class="block" id="block__signup-1">
@@ -95,7 +115,7 @@ You may NOT:
           <p>Please check your email inbox to verify your email address. This will allow you to continue with the account creation process.</p>
           <p>If you cannot find an email from <code>noreply@mail.eoschat.uk</code>, please check your spam and junk folders.</p>
           <p>Your account creation request will automatically expire when the Eos server is next restarted -- please act quickly to finish setting up your account.</p>
-          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.</p>    
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.</p>    
       </div>
     </div>
     <div class="block" id="block__signup">
@@ -110,7 +130,7 @@ You may NOT:
             <input name="TermsAndPrivacy" type="checkbox" required /><label for="TermsAndPrivacy">I agree to the Terms and Conditions, and agree to my data being stored within the Eos project as per the Privacy Policy, both of which can be viewed <a href="../legal.html">here</a>.</label>
             <button type="submit">Create account</button>
           </form>
-          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Damian Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.</p>    
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="../legal.html">here</a>.</p>    
       </div>
     </div>
     <div class="section active" id="section__app">

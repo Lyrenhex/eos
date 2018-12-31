@@ -58,6 +58,13 @@ function signin_email() {
 
   return false;
 }
+function reset_email() {
+  var email = document.getElementById('forgot_email').value;
+
+  sock.send(JSON.stringify({'type':'resetPassword', 'emailAddress':email}));
+
+  return false;
+}
 function signup_email() {
   var email = document.getElementById('signup_emailAddr').value;
 
@@ -200,6 +207,10 @@ sock.onmessage = function(e) {
       } else {
         document.getElementById('text__login').classList.add('display');
       }
+      break;
+    case "resetPassword":
+      done('block__forgot');
+      show('block__forgot__2');
       break;
     case "changeEmailVerification":
       done('block__settings__main');
