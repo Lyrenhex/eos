@@ -13,7 +13,10 @@ Data is saved and stored to individual files within the `data` folder. Configura
     "srvPort": 9874, // Sets the port that the WebSocket serber will run on. Modifying this will require changing the client to account for it.
     "googleApiKey": "", // API key for Google Cloud if using Perspective API. Not required.
     "discordWebhook": "", // URI for a Discord Webhook endpoint. The official Eos server uses Discord webhooks for notifying staff of reports; not needed on custom setups.
-    "sendgridApiKey": "" // API key for SendGrid.com for email-related tasks (address verification, password resets, etc).
+    "sendgridApiKey": "", // API key for SendGrid.com for email-related tasks (address verification, password resets, etc).
+    "sendgridApiAuth": "", // ID for the transactional template for the email verification email.
+    "sendgridApiReset": "", // ID for the transactional template for the password reset email.
+    "sendgridAddress": "", // the email address to send the email from.
 }
 ```
 

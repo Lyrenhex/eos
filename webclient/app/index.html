@@ -74,6 +74,7 @@ You may NOT:
             <input id="login_email" type="email" placeholder="Email address" required />
             <input id="login_password" type="password" placeholder="Password" required />
             <button type="submit">Sign in</button>
+            <button type="button" onclick="show('block__forgot')">Forgotten password</button>
           </form>
           <hr />
           <h2>Sign up</h2>
@@ -86,6 +87,25 @@ You may NOT:
             <label for="Privacy">I agree to Eos having my email address in accordance with the <a href="../legal.html">privacy policy</a>.</label><br />
             <button type="submit">Sign up</button>
           </form>
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="http://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+      </div>
+    </div>
+    <div class="block" id="block__forgot">
+      <div id="rel-container">
+          <h2>Reset password</h2>
+          <p id="text__forgot" class="formText">Your email address is incorrect, or the account does not exist.</p>
+          <form onsubmit="return reset_email()">
+            <input id="forgot_email" type="email" placeholder="Email address" required />
+            <button type="submit">Reset password</button>
+          </form>
+          <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="http://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
+      </div>
+    </div>
+    <div class="block" id="block__forgot__2">
+      <div id="rel-container">
+          <h2>Reset password</h2>
+          <p>Please check your email address for further instructions. If it hasn't arrived, please allow some time for the email to reach your inbox, and please also keep checking your spam / junk folders. If it never arrives, please contact us!</p>
+          <button onclick="done('block__forgot__2')">Okay</button>
           <p id="login-footer">Eos is a not-for-profit online web application made with &hearts; by <a href="http://lyrenhex.com">Max Heaton</a>; <a href="https://www.patreon.com/lyrenhex">support it on Patreon</a>. &copy; 2018. Terms of service and privacy policy is available <a href="https://eoschat.uk/legal.html">here</a>.</p>    
       </div>
     </div>

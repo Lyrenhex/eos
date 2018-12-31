@@ -118,6 +118,26 @@ Once the login has been processed, the server will return the following:
 
 This method **MUST** be called before calling any subsequent method within the server's functionality; non-logged-in method calls will be discarded by the server automatically.
 
+### Resetting a password (resetPassword)
+
+```javascript
+{
+    "type": "resetPassword",
+    "emailAddress": "", // email address goes here
+}
+```
+
+If a login token was successfully sent to the user's email address, then the server will respond:
+
+```javascript
+{
+    "type": "resetPassword",
+    "flag": true
+}
+```
+
+Otherwise, `flag` will be `false`. The client is not expected to do anything else following this.
+
 ### Creating a new account (signup)
 
 ```javascript

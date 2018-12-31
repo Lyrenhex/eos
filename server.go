@@ -34,16 +34,17 @@ const VERSION = "2.0:staging-rc3"
 
 // Configuration stores the JSON configuration stored in `config.json` as a Go-friendly structure.
 type Configuration struct {
-	EnvProd     bool   `json:"envProduction"`
-	EnvKey      string `json:"envKey"`
-	EnvCert     string `json:"envCertificate"`
-	SrvHost     string `json:"srvHostname"`
-	SrvPort     int    `json:"srvPort"`
-	GApiKey     string `json:"googleApiKey"`
-	DWebhook    string `json:"discordWebhook"`
-	MailAPIKey  string `json:"sendgridApiKey"`
-	MailAPIID   string `json:"sendgridApiID"`
-	MailAddress string `json:"sendgridAddress"`
+	EnvProd      bool   `json:"envProduction"`
+	EnvKey       string `json:"envKey"`
+	EnvCert      string `json:"envCertificate"`
+	SrvHost      string `json:"srvHostname"`
+	SrvPort      int    `json:"srvPort"`
+	GApiKey      string `json:"googleApiKey"`
+	DWebhook     string `json:"discordWebhook"`
+	MailAPIKey   string `json:"sendgridApiKey"`
+	MailAPIAuth  string `json:"sendgridApiAuth"`
+	MailAPIReset string `json:"sendgridApiReset"`
+	MailAddress  string `json:"sendgridAddress"`
 }
 
 func (c *Configuration) load() {
@@ -102,11 +103,13 @@ func init() {
 	config.load()
 
 	mailService.APIKey = config.MailAPIKey
-	mailService.APIID = config.MailAPIID
+	mailService.APIAuth = config.MailAPIAuth
+	mailService.APIReset = config.MailAPIReset
 	mailService.Email = config.MailAddress
 
 	user.Users = make(map[uuid.UUID]*user.User)
 	user.PendingUsers = make(map[string]string)
+	user.ResetKeys = make(map[string]string)
 	chat.Chatlogs = make(map[string][]chat.ChatMessage)
 	chat.UserPairs = make(map[uuid.UUID]chat.WaitingUser)
 
@@ -188,6 +191,21 @@ func main() {
 					Flag: success,
 					User: *u,
 				})
+			case "resetPassword":
+				payload.Email = strings.ToLower(payload.Email)
+				success, authToken := user.ResetPassword(payload.Email)
+				if success {
+					mailService.SendToken(payload.Email, authToken)
+					conn.WriteJSON(&Payload{
+						Type: "resetPassword",
+						Flag: true,
+					})
+				} else {
+					conn.WriteJSON(&Payload{
+						Type: "resetPassword",
+						Flag: false,
+					})
+				}
 			case "signup":
 				payload.Email = strings.ToLower(payload.Email)
 				_, exists := u.Login(payload.Email, "")

@@ -18,6 +18,9 @@ var Users map[uuid.UUID]*User
 // PendingUsers is a map of unique account-generation IDs to the associated email address, for verifying emails.
 var PendingUsers map[string]string
 
+// ResetKeys is a map of unique password-reset tokens which are mapped to the associated email address, for bypassing the standard password when necessary.
+var ResetKeys map[string]string
+
 // User represents a specific user account, and stores the following data:
 //
 // - UserID, of type uuid.UUID, a unique identifier for this account used internally
@@ -143,11 +146,35 @@ func (u *User) Login(email, password string) (bool, bool) {
 		u.Load(uid)
 		err := bcrypt.CompareHashAndPassword(u.Password, []byte(password))
 		if err != nil {
-			success = false
+			if password != ResetKeys[email] {
+				success = false
+			} else {
+				success = true
+			}
 		}
 	}
 
 	return success, exists
+}
+
+// ResetPassword checks that the user exists and, if so, generates an auth token for the account, adding it to the ResetKeys map.
+func ResetPassword(email string) (bool, string) {
+	success := true
+	authToken := ""
+	uid := UserIDs[email]
+	if uid == uuid.UUID([16]byte{}) {
+		success = false
+	} else {
+		token, err := uuid.NewV4()
+		if err != nil {
+			success = false
+		} else {
+			authToken = token.String()
+			ResetKeys[email] = authToken
+		}
+	}
+
+	return success, authToken
 }
 
 // AddMood updates the User's Mood data, adding the mood onto each Mood object as per the provided day, month, and year.
