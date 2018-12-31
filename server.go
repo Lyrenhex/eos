@@ -30,7 +30,7 @@ import (
 )
 
 // VERSION stores hardcoded constant storing the server version. AN X VERSION SERVER SHOULD DISTRIBUTE WEBAPP FILES COMPATIBLE WITH IT
-const VERSION = "2.0:staging-rc3"
+const VERSION = "2.0:live"
 
 // Configuration stores the JSON configuration stored in `config.json` as a Go-friendly structure.
 type Configuration struct {
