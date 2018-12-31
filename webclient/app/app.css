@@ -64,13 +64,8 @@ textarea {
   background-color: #fff;
   border: 1px solid #00c0ff;
   border-radius: 15px;
-  box-shadow: 0 2px 4px #555;
-  transition: 0.2s ease-out box-shadow;
   width: calc(100% - 30px);
   max-width: calc(100% - 30px);
-}
-textarea:hover, textarea:focus, textarea:active {
-  box-shadow: 0 4px 16px #555;
 }
 
 .block {
