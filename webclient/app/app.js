@@ -26,17 +26,22 @@ var CHATID = "";
 
 var YEARS = [];
 
-// register the service worker if not active
-if (navigator.serviceWorker.controller) {
-  console.log('active service worker found, no need to register')
-} else {
-  //Register the ServiceWorker
-  navigator.serviceWorker.register('sw.js', {
-    scope: './'
-  }).then(function(reg) {
-    console.log('Service worker has been registered for scope:'+ reg.scope);
-  });
+// make sure the client *allows* service workers...
+// apparently ChromeOS doesn't?
+if (navigator.serviceWorker != undefined) {
+  // register the service worker if not active
+  if (navigator.serviceWorker.controller) {
+    console.log('active service worker found, no need to register')
+  } else {
+    //Register the ServiceWorker
+    navigator.serviceWorker.register('sw.js', {
+      scope: './'
+    }).then(function(reg) {
+      console.log('Service worker has been registered for scope:'+ reg.scope);
+    });
+  }
 }
+
 
 //update_var('version_number', `version ${version}`);
 
