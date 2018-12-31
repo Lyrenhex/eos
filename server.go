@@ -428,7 +428,7 @@ func main() {
 						Content: [1]chat.DiscordWebhookEmbed{chat.DiscordWebhookEmbed{
 							ReportID:    payload.ChatID,
 							Description: "New reported chat log. Please click the link to access the page with which to handle this report log. This link will expire after the report has been addressed, and requires a valid administrator login. In cases where the chat log includes illegal content, please refer to Lyrenhex for escalation and referral to the local law enforcement authorities.",
-							ReportURI:   "https://" + config.SrvHost + "/admin.html?id=" + payload.ChatID,
+							ReportURI:   "https://" + config.SrvHost + "/app/admin.html?id=" + payload.ChatID,
 						}},
 					}
 					jsonValue, _ := json.Marshal(request)
