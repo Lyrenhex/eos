@@ -9,6 +9,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -21,7 +22,8 @@ import (
 	"strings"
 
 	"github.com/gorilla/websocket"
-	"github.com/nu7hatch/gouuid"
+	"github.com/mitchellh/go-homedir"
+	uuid "github.com/nu7hatch/gouuid"
 	"gitlab.com/lyrenhex/eos-v2/chat"
 	"gitlab.com/lyrenhex/eos-v2/mail"
 	"gitlab.com/lyrenhex/eos-v2/perspectiveapi"
@@ -48,8 +50,12 @@ type Configuration struct {
 }
 
 func (c *Configuration) load() {
-	/* Load the server configuration from data/config.json, and return a Configuration structure pre-populated with the config data. If config.json is not openable, throw a Fatal error to terminate (we cannot recover; config is necessary) */
-	file, err := os.Open("data/config.json")
+	/* Load the server configuration from ~/eos/data/config.json, and return a Configuration structure pre-populated with the config data. If config.json is not openable, throw a Fatal error to terminate (we cannot recover; config is necessary) */
+	home, err := homedir.Dir()
+	if err != nil {
+		home = "."
+	}
+	file, err := os.Open(home + "/eos/data/config.json")
 	if err != nil {
 		if os.IsNotExist(err) {
 			fmt.Println("Expected configuration values in `config.json`, got:")
@@ -65,6 +71,35 @@ func (c *Configuration) load() {
 	if err != nil {
 		log.Fatal("Error reading config.json: ", err)
 	}
+}
+
+// input accepts a string prompt and optionally a default value, and will pose this as an input and return user response as a string.
+// If `d` is an empty string, then it will be treated as having no default.
+// If `r` is true, then the input is required and will be repeated until successful.
+func input(p, d string, r bool) string {
+	prompt := p + ": "
+	if d != "" {
+		prompt += "[" + d + "] "
+	}
+	var result string
+	for {
+		fmt.Print(prompt)
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		result = scanner.Text()
+		if len(result) != 0 {
+			return result
+		} else if d != "" {
+			return d
+		} else if !r {
+			return ""
+		}
+		fmt.Println("No input supplied and no default is provided. Please supply an input.")
+	}
+}
+
+func (c *Configuration) setup() {
+	fmt.Println("** CONFIGURATION FILE EMPTY OR NOT FOUND **")
 }
 
 // Payload acts as a consistent structure to interface with JSON client-server exchange data.
