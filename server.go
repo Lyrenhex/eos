@@ -395,7 +395,7 @@ func main() {
 						Connection: conn,
 					}
 					defaultWUser := chat.WaitingUser{}
-					if chat.QueuedUser != defaultWUser {
+					if chat.QueuedUser != defaultWUser && chat.QueuedUser.UserID != u.UserID {
 						// generate new chat ID
 						cid, _ := uuid.NewV4()
 						strCid := cid.String()
