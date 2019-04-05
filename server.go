@@ -9,8 +9,10 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"io/ioutil"
@@ -21,7 +23,8 @@ import (
 	"strings"
 
 	"github.com/gorilla/websocket"
-	"github.com/nu7hatch/gouuid"
+	"github.com/mitchellh/go-homedir"
+	uuid "github.com/nu7hatch/gouuid"
 	"gitlab.com/lyrenhex/eos-v2/chat"
 	"gitlab.com/lyrenhex/eos-v2/mail"
 	"gitlab.com/lyrenhex/eos-v2/perspectiveapi"
@@ -47,17 +50,16 @@ type Configuration struct {
 	MailAddress  string `json:"sendgridAddress"`
 }
 
+// Load the server configuration from ~/eos/data/config.json into the Configuration struct.
 func (c *Configuration) load() {
-	/* Load the server configuration from data/config.json, and return a Configuration structure pre-populated with the config data. If config.json is not openable, throw a Fatal error to terminate (we cannot recover; config is necessary) */
-	file, err := os.Open("data/config.json")
+	home, err := homedir.Dir()
 	if err != nil {
-		if os.IsNotExist(err) {
-			fmt.Println("Expected configuration values in `config.json`, got:")
-			fmt.Printf("%+v\n", c)
-			log.Fatal("Data folder or config.json does not exist. Please create the data folder and populate the config.json file before run.")
-		} else {
-			log.Println("error:", err)
-		}
+		home = "."
+	}
+	file, err := os.Open(home + "/eos/data/config.json")
+	if err != nil {
+		log.Println("error:", err)
+		c.setup()
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
@@ -65,6 +67,104 @@ func (c *Configuration) load() {
 	if err != nil {
 		log.Fatal("Error reading config.json: ", err)
 	}
+}
+
+// Save the Configuration struct's data into ~/eos/data/config.json
+func (c *Configuration) save() {
+	home, err := homedir.Dir()
+	if err != nil {
+		home = "."
+	}
+	file, err := os.Create(home + "/eos/data/config.json")
+	if err == nil {
+		defer file.Close()
+		encoder := json.NewEncoder(file)
+		err = encoder.Encode(c)
+		if err != nil {
+			log.Println("Error saving config.json: ", err)
+		}
+	} else {
+		log.Println("Error saving config.json: ", err)
+	}
+}
+
+// contains determines whether `a` contains `x` string.
+func contains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
+}
+
+// input accepts a string prompt and optionally a default value, and will pose this as an input and return user response as a string.
+// If `d` is an empty string, then it will be treated as having no default.
+// If `r` is true, then the input is required and will be repeated until successful.
+// If `a` is not empty, then only string values from `a` will be allowed.
+func input(p, d string, r bool, a ...string) string {
+	prompt := p + ": "
+	if d != "" {
+		prompt += "[" + d + "] "
+	}
+	if len(a) != 0 {
+		prompt += "<"
+		for i, n := range a {
+			if i > 0 {
+				prompt += "/"
+			}
+			prompt += n
+		}
+		prompt += "> "
+	}
+	var result string
+	for {
+		fmt.Print(prompt)
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		result = strings.ToLower(scanner.Text())
+		if len(result) != 0 {
+			if contains(a, result) {
+				return result
+			}
+			fmt.Println("Invalid input.")
+			continue
+		} else if d != "" {
+			return d
+		} else if !r {
+			return ""
+		}
+		fmt.Println("No input supplied and no default is provided. Please supply an input.")
+	}
+}
+
+func (c *Configuration) setup() {
+	fmt.Println("** Eos Server Configuration Setup **")
+
+	c.EnvProd = false
+	addonsRequired := false
+	if input("Production environment", "y", true, "y", "n") == "y" {
+		c.EnvProd = true
+		addonsRequired = true
+	}
+
+	if c.EnvProd {
+		c.EnvKey = input("Path to TLS Private Key", "", true)
+		c.EnvCert = input("Path to TLS Certificate", "", true)
+	}
+
+	c.SrvHost = input("Hostname", "localhost", true)
+	err := errors.New("")
+	for err != nil {
+		c.SrvPort, err = strconv.Atoi(input("Port", "9874", true))
+	}
+
+	c.GApiKey = input("Google Perspective API Key", "", addonsRequired)
+	c.DWebhook = input("Discord Report Webhook", "", addonsRequired)
+	c.MailAPIKey = input("SendGrid Mail API Key", "", addonsRequired)
+	c.MailAPIAuth = input("SendGrid Mail API Email Auth Template ID", "", addonsRequired)
+	c.MailAPIReset = input("SendGrid Mail API Password Reset Template ID", "", addonsRequired)
+	c.MailAddress = input("From Email Address", "noreply@example.com", addonsRequired)
 }
 
 // Payload acts as a consistent structure to interface with JSON client-server exchange data.
@@ -295,7 +395,7 @@ func main() {
 						Connection: conn,
 					}
 					defaultWUser := chat.WaitingUser{}
-					if chat.QueuedUser != defaultWUser {
+					if chat.QueuedUser != defaultWUser && chat.QueuedUser.UserID != u.UserID {
 						// generate new chat ID
 						cid, _ := uuid.NewV4()
 						strCid := cid.String()
