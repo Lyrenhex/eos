@@ -1,7 +1,7 @@
 /*
  * Eos Backend Server
  *
- * Copyright (c) Damian Heaton 2017 All rights reserved.
+ * Copyright (c) Damian Heaton 2017-2019 All rights reserved.
  *
  * Server operates on port 9874 by default -- please see config.json
  */
@@ -37,6 +37,7 @@ const VERSION = "2.0:live"
 
 // Configuration stores the JSON configuration stored in `config.json` as a Go-friendly structure.
 type Configuration struct {
+	EnvHTTP      bool   `json:"envWebserver"`
 	EnvProd      bool   `json:"envProduction"`
 	EnvKey       string `json:"envKey"`
 	EnvCert      string `json:"envCertificate"`
@@ -56,7 +57,7 @@ func (c *Configuration) load() {
 	if err != nil {
 		home = "."
 	}
-	file, err := os.Open(home + "/eos/data/config.json")
+	file, err := os.Open(home + "/eos/config.json")
 	if err != nil {
 		log.Println("error:", err)
 		c.setup()
@@ -75,7 +76,7 @@ func (c *Configuration) save() {
 	if err != nil {
 		home = "."
 	}
-	file, err := os.Create(home + "/eos/data/config.json")
+	file, err := os.Create(home + "/eos/config.json")
 	if err == nil {
 		defer file.Close()
 		encoder := json.NewEncoder(file)
@@ -225,7 +226,11 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
-	f, err := os.OpenFile("data/server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	home, err := homedir.Dir()
+	if err != nil {
+		home = "."
+	}
+	f, err := os.OpenFile(home+"/eos/data/server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
@@ -235,13 +240,15 @@ func main() {
 
 	// Concurrently run a simple static webserver on port 80 or port 443 if in Production environment, for serving the online webapp from the `webclient` directory.
 	go func() {
-		if config.EnvProd {
-			log.Println("Running redirectToHTTPS server on port 80 and TLS FS on port 443")
-			go http.ListenAndServe(":80", http.HandlerFunc(redirectToHTTPS))
-			panic(http.ListenAndServeTLS(":443", config.EnvCert, config.EnvKey, http.FileServer(http.Dir("webclient"))))
-		} else {
-			log.Println("Running FS on port 80")
-			panic(http.ListenAndServe(":80", http.FileServer(http.Dir("webclient"))))
+		if config.EnvHTTP {
+			if config.EnvProd {
+				log.Println("Running redirectToHTTPS server on port 80 and TLS FS on port 443")
+				go http.ListenAndServe(":80", http.HandlerFunc(redirectToHTTPS))
+				panic(http.ListenAndServeTLS(":443", config.EnvCert, config.EnvKey, http.FileServer(http.Dir("webclient"))))
+			} else {
+				log.Println("Running FS on port 80")
+				panic(http.ListenAndServe(":80", http.FileServer(http.Dir("webclient"))))
+			}
 		}
 	}()
 
@@ -383,7 +390,7 @@ func main() {
 				}
 			case "delete":
 				delete(user.UserIDs, u.EmailAddr)
-				err := os.Remove("data/userdata-" + u.UserID.String() + ".json")
+				err := os.Remove(home + "/eos/data/userdata-" + u.UserID.String() + ".json")
 				if err != nil {
 					log.Println("Error deleting userdata-"+u.UserID.String()+".json: ", err)
 				}
@@ -513,7 +520,7 @@ func main() {
 					})
 				}
 			case "chat:report":
-				file, err := os.Create("data/reportlog-" + payload.ChatID + ".json")
+				file, err := os.Create(home + "/eos/data/reportlog-" + payload.ChatID + ".json")
 				if err == nil {
 					encoder := json.NewEncoder(file)
 					err = encoder.Encode(chat.ChatLog{
@@ -553,7 +560,7 @@ func main() {
 				}
 			case "admin:access":
 				if u.Admin {
-					file, err := os.Open("data/reportlog-" + payload.ChatID + ".json")
+					file, err := os.Open(home + "/eos/data/reportlog-" + payload.ChatID + ".json")
 					if err != nil {
 						if os.IsNotExist(err) {
 							log.Println("Request to access nonexistent report " + payload.ChatID + ".")
@@ -577,7 +584,7 @@ func main() {
 				}
 			case "admin:decision":
 				if u.Admin {
-					err := os.Remove("data/reportlog-" + payload.ChatID + ".json")
+					err := os.Remove(home + "/eos/data/reportlog-" + payload.ChatID + ".json")
 					if err != nil {
 						if os.IsNotExist(err) {
 							log.Println("Request to decide nonexistent report " + payload.ChatID + ".")
@@ -599,7 +606,7 @@ func main() {
 				}
 			case "admin:flag":
 				if u.Admin {
-					err := os.Rename("data/reportlog-"+payload.ChatID+".json", "data/FLAGGED-reportlog-"+payload.ChatID+".json")
+					err := os.Rename(home+"/eos/data/reportlog-"+payload.ChatID+".json", home+"/eos/data/FLAGGED-reportlog-"+payload.ChatID+".json")
 					if err != nil {
 						if os.IsNotExist(err) {
 							log.Println("Request to flag nonexistent report " + payload.ChatID + ".")

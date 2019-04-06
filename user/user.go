@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	homedir "github.com/mitchellh/go-homedir"
 	uuid "github.com/nu7hatch/gouuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -103,7 +104,11 @@ func New(email, pass, name string) *User {
 // Save encodes the User object into basic JSON notation, which is then written to a file specific to that user's UserID.
 func (u *User) Save() {
 	/* Save the user\"s data to their own file, stored according to their user id. */
-	file, err := os.Create("data/userdata-" + u.UserID.String() + ".json")
+	home, err := homedir.Dir()
+	if err != nil {
+		home = "."
+	}
+	file, err := os.Create(home + "/eos/data/userdata-" + u.UserID.String() + ".json")
 	if err == nil {
 		defer file.Close()
 		encoder := json.NewEncoder(file)
@@ -119,7 +124,11 @@ func (u *User) Save() {
 // Load reads the data stored in the file relevant to the provided UserID, uid, and decodes the resulting JSON into the current User object.
 func (u *User) Load(uid uuid.UUID) {
 	/* Based on the provided user id, load the user\"s data from their own data file, add the user back to the standard users map, and return the user structure for immediate use. */
-	file, err := os.Open("data/userdata-" + uid.String() + ".json")
+	home, err := homedir.Dir()
+	if err != nil {
+		home = "."
+	}
+	file, err := os.Open(home + "/eos/data/userdata-" + uid.String() + ".json")
 	if err == nil {
 		defer file.Close()
 		decoder := json.NewDecoder(file)
@@ -258,8 +267,12 @@ func (u *User) AddComment(mood int, comment string) {
 // ReadIDs loads the UserIDs stored in persistant memory into the UserIDs array, creating the array if nonexistent.
 func ReadIDs() {
 	/* Read the email-userid pairs from users.json and store in the UserIDs map for reference when logging in (clients will send an email and password; lookup email in UserIDs to grab their userid, then load their userfile.json) */
+	home, err := homedir.Dir()
+	if err != nil {
+		home = "."
+	}
 	log.Println("Loading UserIDs from file")
-	file, err := os.Open("data/users.json")
+	file, err := os.Open(home + "/eos/data/users.json")
 	if err == nil {
 		defer file.Close()
 		decoder := json.NewDecoder(file)
@@ -275,8 +288,12 @@ func ReadIDs() {
 // SaveIDs writes the contents of the UserIDs map into persistant memory.
 func SaveIDs() {
 	/* Save the email-userid pairs, replacing the existing file is present. */
+	home, err := homedir.Dir()
+	if err != nil {
+		home = "."
+	}
 	log.Println("Saving UserIDs to file")
-	file, err := os.Create("data/users.json")
+	file, err := os.Create(home + "/eos/data/users.json")
 	if err == nil {
 		defer file.Close()
 		encoder := json.NewEncoder(file)
