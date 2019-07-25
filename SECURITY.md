@@ -5,7 +5,7 @@
 | Version | Supported          |
 | ------- | ------------------ |
 | 3.0.x   | TBD                |
-| 2.1.0   | TBD                |
+| 2.1.x   | TBD                |
 | 2.0.x   | :white_check_mark: |
 | < 2.0   | :x:                |
 
