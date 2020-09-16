@@ -1,5 +1,5 @@
 /*
-COPYRIGHT (C) Damian Heaton 2017 - 2018
+COPYRIGHT (C) Damian Heaton 2017 - 2020
 
 The storage of this software on a computer via means of browser 'caching', and the execution of such code by user browsers is permitted. This work cannot be duplicated, copied, distributed, or modified (neither privately nor publicly) without the express, written consent of Damian Heaton, whom can be contacted (at time of notice) at damian@lyrenhex.me. This software cannot be used for commercial purposes.
 
