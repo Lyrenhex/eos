@@ -17,13 +17,6 @@ You may NOT:
 - Claim this software as your own, or attempt to imply affiliation with the software in any way that could be detrimental or unlawful, or to suggest that the software, or Damian Heaton, are represented by, or represent, yourself.
 */
 
-// EDIT THIS LINE AS NECESSARY. Usually, the server should operate on the same hostname as the web app, but the port may need changing depending on which port your server is configured to use.
-var serverAddr = `${location.protocol == "https:" ? "wss:" : "ws:"}//${window.location.hostname}:9874`;
-
-
-var CHATID = "";
-
-
 var YEARS = [];
 
 // make sure the client *allows* service workers...
@@ -54,59 +47,6 @@ var MOOD_TIME_DATA = {
   months: []
 }
 
-var sock = new WebSocket(serverAddr);
-function signin_email() {
-  var email = document.getElementById('login_email').value;
-  var passw = document.getElementById('login_password').value;
-
-  sock.send(JSON.stringify({'type':'login', 'emailAddress':email, 'password': passw}));
-
-  return false;
-}
-function reset_email() {
-  var email = document.getElementById('forgot_email').value;
-
-  sock.send(JSON.stringify({'type':'resetPassword', 'emailAddress':email}));
-
-  return false;
-}
-function signup_email() {
-  var email = document.getElementById('signup_emailAddr').value;
-
-  sock.send(JSON.stringify({'type':'signup', 'emailAddress':email}));
-
-  return false;
-}
-function create_email() {
-  var token = document.getElementById('create_token').value;
-  var passw = document.getElementById('create_password').value;
-
-  sock.send(JSON.stringify({'type':'createAccount', 'data':token, 'password': passw}));
-
-  return false;
-}
-function update_acc() {
-  let newEmail = document.getElementById('account_email').value;
-  let newPass = document.getElementById('account_password').value;
-  let newName = document.getElementById('account_name').value;
-
-  sock.send(JSON.stringify({'type':'details', 'emailAddress': newEmail, 'password': newPass, 'data': newName}));
-
-  return false;
-}
-function verify_email() {
-  let token = document.getElementById('email_token').value;
-
-  sock.send(JSON.stringify({'type': 'changeEmail', 'data': token}));
-
-  return false;
-}
-sock.onerror = function(e) {
-  show('block__error');
-}
-sock.onclose = function(e) {
-  show('block__error');
-}
 sock.onmessage = function(e) {
   let msg = JSON.parse(e.data);
   console.log(msg);
@@ -385,39 +325,6 @@ function setState() {
 function deleteData() {
   let json = {
     type: 'delete'
-  }
-  sock.send(JSON.stringify(json));
-}
-
-function startChat() {
-  if (document.getElementById('chat_flow_end').classList.contains('shown'))
-  document.getElementById('chat_flow_end').classList.remove('shown')
-  let json = {
-    type: "chat:start"
-  }
-  sock.send(JSON.stringify(json));
-}
-function sendChatMsg() {
-  let chatbox = document.getElementById('chatbox');
-  let textToSend = chatbox.value;
-  let json = {
-    type: "chat:send",
-    cid: CHATID,
-    data: textToSend
-  }
-  sock.send(JSON.stringify(json));
-  chatbox.value = "";
-}
-function sendChatReport() {
-  let json = {
-    type: "chat:report",
-    cid: CHATID
-  }
-  sock.send(JSON.stringify(json));
-}
-function endChat() {
-  let json = {
-    type: "chat:close"
   }
   sock.send(JSON.stringify(json));
 }

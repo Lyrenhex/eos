@@ -41,11 +41,6 @@ function show(blockId) {
   let block = document.getElementById(blockId);
   block.classList.add('shown');
 }
-function err(error) {
-  let edump = document.getElementById('error_dump');
-  edump.textContent = JSON.stringify(error, null, 4);
-  show('block__error');
-}
 function toggle(id) {
   let block = document.getElementById(id);
   block.classList.toggle('shown');
@@ -56,9 +51,6 @@ function update_var(varName, text){
     element = spans[element];
     element.textContent = text;
   }
-}
-function signout() {
-  location.reload();
 }
 function section(id) {
   let activeSection = document.getElementsByClassName("section active")[0];
