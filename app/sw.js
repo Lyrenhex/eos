@@ -1,33 +1,39 @@
-//This is the "Offline page" service worker
+const ASSETS = [
+  "index.html",
+  "app.js",
+  "app.css",
+  "func.js",
+  "Chart.bundle.min.js",
+  "logo.png",
+  "offline.html"
+];
 
-//Install stage sets up the offline page in the cahche and opens a new cache
-self.addEventListener('install', function(event) {
-  var offlinePage = new Request('offline.html');
+let cache_name = "Eos_3.0.0";
+
+self.addEventListener("install", event => {
+  console.log("installing...");
   event.waitUntil(
-  fetch(offlinePage).then(function(response) {
-    return caches.open('pwabuilder-offline').then(function(cache) {
-      console.log('[PWA Builder] Cached offline page during Install'+ response.url);
-      return cache.put(offlinePage, response);
-    });
-  }));
+    caches
+      .open(cache_name)
+      .then(cache => {
+        return cache.addAll(assets);
+      })
+      .catch(err => console.log(err))
+  );
 });
 
-//If any fetch fails, it will show the offline page.
-//Maybe this should be limited to HTML documents?
-self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    fetch(event.request).catch(function(error) {
-        console.error( '[PWA Builder] Network request Failed. Serving offline page ' + error );
-        return caches.open('pwabuilder-offline').then(function(cache) {
-          return cache.match('offline.html');
-      });
-    }));
-});
-
-//This is a event that can be fired from your page to tell the SW to update the offline page
-self.addEventListener('refreshOffline', function(response) {
-  return caches.open('pwabuilder-offline').then(function(cache) {
-    console.log('[PWA Builder] Offline page updated from refreshOffline event: '+ response.url);
-    return cache.put(offlinePage, response);
-  });
+self.addEventListener("fetch", event => {
+  if (event.request.url === "https://eos.lyrenhex.com/") {
+      event.respondWith(
+          fetch(event.request).catch(err =>
+              self.cache.open(cache_name).then(cache => cache.match("/offline.html"))
+          )
+      );
+  } else {
+      event.respondWith(
+          fetch(event.request).catch(err =>
+              caches.match(event.request).then(response => response)
+          )
+      );
+  }
 });
