@@ -341,6 +341,7 @@ function change_name() {
 }
 function deleteData() {
   storage.clear();
+  data.storage.clear();
   data = new UserData(storage);
   refresh();
 }
