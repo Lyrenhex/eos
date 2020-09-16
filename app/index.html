@@ -154,7 +154,7 @@ You may NOT:
     <div class="section" id="section__print">
       <div class="block shown">
           <h2>User Full Report</h2>
-          <p>Here, you can see the current data we have on file regarding your mood, including the last 20 negative comments, and the last 5 of each of your neutral and positive comments, that you've entered. Also included is a comprehensive view of the graphs we've generated for your mood scores (up to, at most, this year and the previous year).</p>
+          <p>Here, you can see the current data we have on file regarding your mood, including the comments that you've entered. Also included is a comprehensive view of the graphs we've generated for your mood scores.</p>
           <p>This information is hoped to assist you and any mental health professionals who may be aiding you with evaluating your progress, and to consolidate the information into a single page.</p>
           <h2>User comments:</h2>
           <h3>Positive comments:</h3>
@@ -179,17 +179,19 @@ You may NOT:
       <div class="block shown" id="block__settings__main">
           <h2>Your Account Settings</h2>
 
-          <form onsubmit="return update_acc()">
+          <form onsubmit="return change_name()">
             <label for="account_name">
-              Name:
-              <input id="account_name" type="text" placeholder="name goes here" />
+              <input id="account_name" type="text" placeholder="Your name (leave blank to remove your name data)" />
             </label><br />
               
               <button type="submit">Change name</button>
             </form><br />
-            <a class="btn" id="downloadLink" download="data.json">Export your data</a>
-            <p><b>Important:</b> Here, you can delete your saved data. Please be warned that clicking the button below will immediately, and irrevocably, delete all saved data. If you feel you may want to use your data again, please export it first.</p>
-            <button onclick="deleteData()">Delete your data</button>
+            <button class="btn" id="downloadLink" download="data.json" onclick="exportData()">Export your data
+              <p>This will download your data in a human-readable but computer-friendly file format. Please keep this file safe!</p>
+            </button>
+            <button onclick="deleteData()">Delete your data
+              <p>This will <b>immediately and irrevocably</b> delete all saved data. If you may wish to use your data again, please export it first.</p>
+            </button>
       </div>
     </div>
 
@@ -197,8 +199,8 @@ You may NOT:
       <div class="block shown" id="block__about__main">
           <h2>About Eos</h2>
 
-          <p>Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Max Heaton</a>. &copy; 2018 - 2020.
-            <span id="ver" name="version_number"></span></p>
+          <p>Eos is a not-for-profit online web application made with &hearts; by <a href="https://lyrenhex.com">Max Heaton</a>. &copy; 2017 - 2020.
+            Version <span id="ver" name="version_number"></span></p>
       </div>
     </div>
 

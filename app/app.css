@@ -93,14 +93,6 @@ textarea {
   display: block;
 }
 
-.shown {
-  left: 0;
-  top: 0;
-}
-.done {
-  position: fixed;
-  left: -200%;
-}
 .flex {
   display: flex;
   flex-flow: row wrap;
@@ -260,7 +252,7 @@ blockquote {
 }
 
 .btn__menu {
-  display: none;
+  display: block;
   position: fixed;
   top: 10px;
   left: 10px;
@@ -269,9 +261,6 @@ blockquote {
   width: 40px;
   z-index: 10;
   font-size: 16px;
-}
-.btn__menu.loggedin {
-  display: block;
 }
 @media only print {
   .btn__menu.loggedin {
@@ -282,13 +271,14 @@ blockquote {
   display: block;
   position: fixed;
   top: 0;
-  left: 0;
+  left: -100%;
   height: 100vh;
   width: calc(100vw - 56px);
   max-width: 360px;
   background: #fff;
   z-index: 9;
-  transition: 0.4s transform ease-out;
+  transition: 0.4s left ease-out;
+  box-shadow: 0 0 10px 0 #000;
 }
 .menu h1 {
   margin-left: 70px;
@@ -420,8 +410,17 @@ blockquote {
   right: 35px;
 }
 
+.shown {
+  left: 0;
+  top: 0;
+}
+.done {
+  position: fixed;
+  left: -200%;
+}
+
 @media only screen and (min-width: 800px){
-  .btn__menu.loggedin {
+  .btn__menu {
     display: none;
   }
   .menu.shown {

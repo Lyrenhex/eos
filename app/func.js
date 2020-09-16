@@ -61,8 +61,8 @@ function section(id) {
 
 function dayGraph(ctx, data) {
   var moods = [0, 0, 0, 0, 0, 0, 0];
-  for(day in data.Day){
-    moods[day] = (data.Day[day].Mood / data.Day[day].Num);
+  for(day in data.day){
+    moods[day] = (data.day[day].mood / data.day[day].num);
   }
   chart = new Chart(ctx, {
     type: 'line',
@@ -102,69 +102,10 @@ function dayGraph(ctx, data) {
     }
   });
 }
-function fortGraph(ctx, data) {
-  var date = new Date();
-  var moods = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]];
-  for(day in data.Day){
-    if(data.Day[day].weeks !== undefined){
-      if(data.Day[day].weeks[date.getWeek()] !== undefined){
-        moods[0][day] = (data.Day[day].weeks[date.getWeek()].Mood / data.Day[day].weeks[date.getWeek()].Num);
-      }
-      if(data.Day[day].weeks[date.getWeek() - 1] !== undefined){
-        moods[1][day] = (data.Day[day].weeks[date.getWeek() - 1].Mood / data.Day[day].weeks[date.getWeek() - 1].Num);
-      }
-    }
-  }
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'],
-      datasets: [
-        {
-          label: "This week",
-          data: moods[0],
-          borderColor: 'rgba(0, 192, 255, 0.8)',
-          backgroundColor: 'rgba(0, 192, 255, 0.4)'
-        },
-        {
-          label: "Last week",
-          data: moods[1]
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      tooltips: {
-        mode: 'index',
-        intersect: false
-      },
-      hover: {
-        mode: 'nearest',
-        intersect: false
-      },
-      scales: {
-        xAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Day of week'
-          }
-        }],
-        yAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Average mood'
-          }
-        }]
-      }
-    }
-  });
-}
 function monthGraph(ctx, data){
   var moods = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  for(month in data.Month){
-    moods[month] = (data.Month[month].Mood / data.Month[month].Num);
+  for(month in data.month){
+    moods[month] = (data.month[month].mood / data.month[month].num);
   }
   let chart = new Chart(ctx, {
     type: 'line',
@@ -206,9 +147,9 @@ function monthGraph(ctx, data){
 }
 function yearGraph(data){
   var moods = {};
-  for(year in data.Years) {
-    if (year.Year !== 0) {
-      if (moods[data.Years[year].Year] === undefined) {
+  for(year in data.years) {
+    if (year.year !== 0) {
+      if (moods[data.years[year].year] === undefined) {
         moods[data.Years[year].Year] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       }
       data.Years[year].Month.forEach((month, i) => {
