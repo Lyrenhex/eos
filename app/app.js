@@ -66,26 +66,26 @@ class UserData {
     if (string === "") this.#name = null;
     else this.#name = string;
     this.storage.setItem('name', this.#name);
-    refresh();
+    refresh_name();
   }
 
   addPositive(string) {
     if (string === "") return;
     this.#positives.push(string);
     this.storage.setItem('positives', JSON.stringify(this.#positives));
-    refresh();
+    refresh_comments();
   }
   addNegative(string) {
     if (string === "") return;
     this.#negatives.push(string);
     this.storage.setItem('negatives', JSON.stringify(this.#negatives));
-    refresh();
+    refresh_comments();
   }
   addNeutral(string) {
     if (string === "") return;
     this.#neutrals.push(string);
     this.storage.setItem('neutrals', JSON.stringify(this.#neutrals));
-    refresh();
+    refresh_comments();
   }
   addMood(day, month, year, mood) {
     this.#moods.day[day].mood += mood;
@@ -116,7 +116,7 @@ class UserData {
     }
 
     this.storage.setItem('moods', JSON.stringify(this.#moods));
-    refresh();
+    refresh_graphs();
   }
 }
 
@@ -167,11 +167,15 @@ function exportData() {
   document.body.removeChild(a);
 }
 
-function refresh() {
+function refresh_name() {
   if(data.name !== null){
     update_var('name', `, ${data.name}`);
+  } else {
+    update_var('name', '');
   }
+}
 
+function refresh_comments() {
   let ul = document.getElementById('comments_positive');
   while (ul.firstChild) {
     ul.removeChild(ul.lastChild);
@@ -219,7 +223,9 @@ function refresh() {
       ul.appendChild(li);
     }
   });
+}
 
+function refresh_graphs() {
   var ctx = document.getElementById('moodchart_months');
   monthGraph(ctx, data.moods);
   var ctx = document.getElementById('moodchart_days');
@@ -247,6 +253,12 @@ function refresh() {
     tracker.appendChild(year);
   }
   document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('activeYear'); */
+}
+
+function refresh() {
+  refresh_name();
+  refresh_comments();
+  refresh_graphs();
 }
 
 function mood(mood){
