@@ -33,13 +33,11 @@ self.addEventListener("fetch", event => {
           return response;
         }
         console.log('Network request for ', event.request.url);
-        return fetch(event.request).then(response => {
-          return caches.open(staticCacheName).then(cache => {
-            cache.put(event.request.url, response.clone());
-            return response;
-          });
-        });
 
+        return caches.open(cache_name).then(cache => {
+          cache.put(event.request.url, response.clone());
+          return response;
+        });
       }).catch(error => { })
   );
 });
