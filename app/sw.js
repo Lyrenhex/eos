@@ -24,17 +24,37 @@ self.addEventListener("install", event => {
 });
 
 self.addEventListener("fetch", event => {
-  if (event.request.url.startsWith("https://eos.lyrenhex.com/app/")) {
-      event.respondWith(
-          fetch(event.request).catch(err =>
-            caches.open(cache_name).then(cache => cache.match("/offline.html"))
-          )
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        if (response) {
+          console.log('Found ', event.request.url, ' in cache');
+          return response;
+        }
+        console.log('Network request for ', event.request.url);
+        return fetch(event.request).then(response => {
+          return caches.open(staticCacheName).then(cache => {
+            cache.put(event.request.url, response.clone());
+            return response;
+          });
+        });
+
+      }).catch(error => { })
+  );
+});
+
+self.addEventListener('activate', event => {
+  const cacheAllowlist = [cache_name];
+
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheAllowlist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
       );
-  } else {
-      event.respondWith(
-          fetch(event.request).catch(err =>
-              caches.match(event.request).then(response => response)
-          )
-      );
-  }
+    })
+  );
 });
