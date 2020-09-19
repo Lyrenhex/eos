@@ -6,10 +6,11 @@ const ASSETS = [
   "func.js",
   "Chart.bundle.min.js",
   "logo.png",
-  "offline.html"
+  "offline.html",
+  "manifest.json"
 ];
 
-let cache_name = "Eos_3.0.0-1";
+let cache_name = "Eos_3.0.0-2";
 
 self.addEventListener("install", event => {
   console.log("installing...");
