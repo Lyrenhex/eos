@@ -36,7 +36,7 @@ self.addEventListener("fetch", event => {
 
         response = fetch(event.request);
         caches.open(cache_name).then(cache => {
-          cache.put(event.request.url, response.clone());
+          cache.put(event.request.url, response);
         });
         return response;
       }).catch(error => { })
