@@ -169,7 +169,8 @@ function exportData() {
     positives: data.positives,
     negatives: data.negatives,
     neutrals: data.neutrals,
-    moods: data.moods
+    moods: data.moods,
+    theme: data.theme
   };
 
   var file = new Blob([JSON.stringify(dataObj)], {type: "application/json"});
