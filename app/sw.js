@@ -27,7 +27,7 @@ self.addEventListener("fetch", event => {
   if (event.request.url.startsWith("https://eos.lyrenhex.com/app/")) {
       event.respondWith(
           fetch(event.request).catch(err =>
-              self.cache.open(cache_name).then(cache => cache.match("/offline.html"))
+            caches.open(cache_name).then(cache => cache.match("/offline.html"))
           )
       );
   } else {
