@@ -35,10 +35,10 @@ self.addEventListener("fetch", event => {
         console.log('Network request for ', event.request.url);
 
         return fetch(event.request).then(response => {
-          caches.open(cache_name).then(cache => {
+          return caches.open(cache_name).then(cache => {
             cache.put(event.request.url, response.clone());
+            return response;
           });
-          return response;
         });
       }).catch(error => { })
   );
