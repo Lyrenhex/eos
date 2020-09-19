@@ -123,15 +123,9 @@ class UserData {
 var storage = window.localStorage;
 var data = new UserData(storage);
 
-var YEARS = [];
-var USER;
-var DB;
+var graphs;
+
 var MOOD;
-var MOOD_TIME_DATA = {
-  nums: [],
-  dates: [],
-  months: []
-}
 
 window.onresize = function() {
   if (window.innerWidth >= 800) {
@@ -139,11 +133,22 @@ window.onresize = function() {
   }
 };
 
-document.onreadystatechange = function() {
-  window.onresize();
+window.onload = () => {
   update_var('version_number', `${VERSION}`);
-
+  window.onresize();
+  createGraphs();
   refresh();
+}
+
+function createGraphs() {
+  let dayGraph = createDayGraph();
+  let monthGraph = createMonthGraph();
+  let yearGraph = createYearGraph();
+  graphs = {
+    day: dayGraph,
+    month: monthGraph,
+    year: yearGraph
+  };
 }
 
 function exportData() {
@@ -161,7 +166,7 @@ function exportData() {
   var a = document.createElement('a');
   a.href = URL.createObjectURL(file);
   a.download = "eos_data.json";
-  a.target = "_new";
+  a.target = "_blank";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -226,33 +231,9 @@ function refresh_comments() {
 }
 
 function refresh_graphs() {
-  var ctx = document.getElementById('moodchart_months');
-  monthGraph(ctx, data.moods);
-  var ctx = document.getElementById('moodchart_days');
-  dayGraph(ctx, data.moods);
-
-  var ctx = document.getElementById('pr_moodchart_months');
-  monthGraph(ctx, data.moods);
-  var ctx = document.getElementById('pr_moodchart_days');
-  dayGraph(ctx, data.moods);
-
-  //var ctx = document.getElementById('moodchart_days_fortnight');
-  //fortGraph(ctx, msg.user.Moods);
-
-  /* var years = yearGraph(data.moods);
-  for(year in years){
-    YEARS.push(year);
-    year = years[year];
-    var tracker = document.getElementById('annual_moods_graphs');
-    tracker.appendChild(year);
-  }
-  for(year in years){
-    YEARS.push(year);
-    year = years[year];
-    var tracker = document.getElementById('pr_annual_moods_graphs');
-    tracker.appendChild(year);
-  }
-  document.getElementById(`graph.${YEARS[YEARS.length-1]}`).classList.add('activeYear'); */
+  graphs.day.update_day(data.moods);
+  graphs.month.update_month(data.moods);
+  graphs.year.update_year(data.moods);
 }
 
 function refresh() {
@@ -298,8 +279,9 @@ function danger_submit() {
   mood_continue();
 }
 function mood_continue() {
-  done(`mood__${MOOD}`);
   section('tracker');
+  toggle(`mood__${MOOD}`);
+  undone('block__mood');
 }
 
 function monthNext() {

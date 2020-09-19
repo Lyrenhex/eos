@@ -110,22 +110,19 @@
     <div class="section" id="section__tracker">
       <div class="block shown">
           <h2>Your tracker</h2>
+          <p>The graphs for months and days are average moods based on <b>all</b> occurrences of that month/day, regardless of
+            year (or week or month either, for the day graph).</p>
           <div class="tracker_graphs">
             <div class="graph">
-                <h3>Mood by year</h3>
-                <div class="moods_month_annual" id="annual_moods_graphs">
-                  <button class="arrow" onclick="monthPrev()">&lsaquo;</button>
-                  <button class="arrow arrow--right" onclick="monthNext()">&rsaquo;</button>
-                </div>
+              <h3>Mood by year</h3>
+              <canvas id="moodchart_years"></canvas>
             </div>
             <div class="graph">
               <h3>All time in months</h3>
-              <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
               <canvas id="moodchart_months"></canvas>
             </div>
             <div class="graph">
               <h3>All time in days</h3>
-              <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
               <canvas id="moodchart_days"></canvas>
             </div>
           </div>
@@ -146,7 +143,7 @@
           <ul id='comments_negative'></ul>
           <h2>Average moods</h2>
           <h3>Mood by year</h3>
-          <div class="moods_month_annual" id="pr_annual_moods_graphs"></div>
+          <canvas id="pr_moodchart_years"></canvas>
           <h3>All time in months</h3>
           <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
           <canvas id="pr_moodchart_months"></canvas>
