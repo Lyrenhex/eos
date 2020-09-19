@@ -2,13 +2,14 @@ const ASSETS = [
   "index.html",
   "app.js",
   "app.css",
+  "theme.dark.css",
   "func.js",
   "Chart.bundle.min.js",
   "logo.png",
   "offline.html"
 ];
 
-let cache_name = "Eos_3.0.0";
+let cache_name = "Eos_3.0.0-1";
 
 self.addEventListener("install", event => {
   console.log("installing...");
@@ -16,7 +17,7 @@ self.addEventListener("install", event => {
     caches
       .open(cache_name)
       .then(cache => {
-        return cache.addAll(assets);
+        return cache.addAll(ASSETS);
       })
       .catch(err => console.log(err))
   );
