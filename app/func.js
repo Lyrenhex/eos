@@ -55,7 +55,6 @@ class Graph {
 
   update_day(data) {
     var moods = [0, 0, 0, 0, 0, 0, 0];
-    console.log(data);
     for (var day in data.day) {
       moods[day] = (data.day[day].mood / data.day[day].num);
     }

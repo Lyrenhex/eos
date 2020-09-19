@@ -10,7 +10,7 @@ button:hover, button:focus, a.btn:hover, a.btn:focus {
     color: #000;
 }
 
-input[type=text], input[type=password], input[type=email], select {
+input[type=text], input[type=password], input[type=email], input[type=file], select {
     background-color: #000;
     color: #fff;
 }

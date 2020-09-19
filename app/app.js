@@ -193,6 +193,48 @@ function refresh_name() {
   }
 }
 
+function importData() {
+  if (document.querySelector("#file__import").files.length == 0) {
+    console.log("test");
+    return;
+  }
+
+  // first file selected by user
+  var file = document.querySelector("#file__import").files[0];
+
+  // read the file
+  var reader = new FileReader();
+
+  // file reading finished successfully
+  reader.addEventListener('load', function (e) {
+    // contents of file in variable     
+    var text = e.target.result;
+
+    let dataObj = JSON.parse(text);
+    storage.clear();
+    data.storage.clear();
+    storage.setItem('name', dataObj.name);
+    storage.setItem('positives', JSON.stringify(dataObj.positives));
+    storage.setItem('negatives', JSON.stringify(dataObj.negatives));
+    storage.setItem('neutrals', JSON.stringify(dataObj.neutrals));
+    storage.setItem('moods', JSON.stringify(dataObj.moods));
+    storage.setItem('theme', dataObj.theme);
+
+    data = new UserData(storage);
+    refresh();
+
+    console.log("Imported .json: ", data);
+  });
+
+  // file reading failed
+  reader.addEventListener('error', function (event) {
+    console.error('Failed reading text file:', event);
+  });
+
+  // read as text file
+  reader.readAsText(file);
+}
+
 function refresh_comments() {
   let ul = document.getElementById('comments_positive');
   while (ul.firstChild) {
