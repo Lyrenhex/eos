@@ -24,7 +24,7 @@ self.addEventListener("install", event => {
 });
 
 self.addEventListener("fetch", event => {
-  if (event.request.url === "https://eos.lyrenhex.com/") {
+  if (event.request.url.startsWith("https://eos.lyrenhex.com/app/")) {
       event.respondWith(
           fetch(event.request).catch(err =>
               self.cache.open(cache_name).then(cache => cache.match("/offline.html"))
