@@ -5,14 +5,17 @@ body {
 h1, h2, h3, h4 {
   color: #00c0ff;
 }
+
 .block h2 {
   margin-left: 60px;
 }
+
 a:link, a:visited {
   color: #00c0ff;
   text-decoration: none;
   transition: 0.1s linear all;
 }
+
 a:hover, a:focus {
   color: #0094c4;
 }
@@ -28,9 +31,11 @@ button, a.btn:link, a.btn:visited, input {
   margin: 10px;
   color: #000;
 }
+
 input[type=text], input[type=password], input[type=email] {
   width: calc(95% - 24px);
 }
+
 button:hover, button:focus, a.btn:hover, a.btn:focus {
   box-shadow: 0 2px 2px #555;
   background-color: #00c0ff;
@@ -52,7 +57,8 @@ textarea {
 .block {
   background-color: #fff;
   position: fixed;
-  left: 200%; /* position hidden blocks off the screen to allow the fancy transitions */
+  left: 200%;
+  /* position hidden blocks off the screen to allow the fancy transitions */
   width: calc(100% - 20px);
   height: 100%;
   transition: 1s ease-in-out left;
@@ -66,10 +72,12 @@ textarea {
   position: relative;
   height: 100%;
 }
+
 .formText {
   color: red;
   display: none;
 }
+
 .formText.display {
   display: block;
 }
@@ -83,7 +91,8 @@ textarea {
   margin: auto;
   justify-content: center;
 }
-.flex > button {
+
+.flex>button {
   padding: 10px;
   font-size: 48pt;
   border-radius: 15px;
@@ -92,38 +101,48 @@ textarea {
   width: 150px;
   height: 150px;
 }
-.flex > button:hover {
+
+.flex>button:hover {
   background-color: #00c0ff;
   color: #eee;
   cursor: pointer;
 }
-.flex > button.round {
+
+.flex>button.round {
   border-radius: 75px;
 }
-.flex > .round.one {
+
+.flex>.round.one {
   border: 1px solid #f31a1a;
 }
-.flex > .round.one:hover, .flex > .round.one:focus {
+
+.flex>.round.one:hover, .flex>.round.one:focus {
   background-color: #f31a1a;
 }
-.flex > .round.two {
+
+.flex>.round.two {
   border: 1px solid #ffc107;
 }
-.flex > .round.two:hover, .flex > .round.two:focus {
+
+.flex>.round.two:hover, .flex>.round.two:focus {
   background-color: #ffc107;
   color: #000;
 }
-.flex > .round.four {
+
+.flex>.round.four {
   border: 1px solid #33ffc2;
 }
-.flex > .round.four:hover, .flex > .round.four:focus {
+
+.flex>.round.four:hover, .flex>.round.four:focus {
   background-color: #33ffc2;
   color: #000;
 }
-.flex > .round.five {
+
+.flex>.round.five {
   border: 1px solid #00ff40;
 }
-.flex > .round.five:hover, .flex > .round.five:focus {
+
+.flex>.round.five:hover, .flex>.round.five:focus {
   background-color: #00ff40;
   color: #000;
 }
@@ -135,28 +154,34 @@ textarea {
   margin: auto;
   justify-content: center;
 }
-.tracker_graphs > .graph {
+
+.tracker_graphs>.graph {
   display: block;
   width: 45%;
   min-width: 375px;
   margin: 0 20px;
   max-width: 100%;
 }
+
 canvas {
   max-width: 500px;
   display: block;
   margin: auto;
 }
+
 .moods_month_annual {
   position: relative;
   max-width: 100%;
 }
+
 .moods_month_annual canvas {
   max-height: 0;
 }
+
 .moods_month_annual canvas.activeYear {
   max-height: none;
 }
+
 button.arrow {
   position: absolute;
   font-size: 40px;
@@ -169,9 +194,11 @@ button.arrow {
   transform: translateY(-50%);
   opacity: 0.4;
 }
+
 button.arrow:hover, button.arrow:focus {
   opacity: 0.8;
 }
+
 button.arrow--right {
   right: 5px;
 }
@@ -200,6 +227,7 @@ blockquote {
   height: calc(100% - 60px);
   overflow: auto;
 }
+
 .chat input[type="text"] {
   position: fixed;
   left: 100vw;
@@ -210,6 +238,7 @@ blockquote {
   border: 1px solid #000;
   border-radius: 10px 10px 0 0;
 }
+
 .chat.shown input[type="text"] {
   left: -1px;
 }
@@ -220,11 +249,13 @@ blockquote {
   width: 70%;
   margin-bottom: 10px;
 }
+
 .msg.anon {
   background-color: #00c0ff;
   border-radius: 30px 30px 30px 0;
   box-shadow: 2px 2px 5px #000;
 }
+
 .msg.user {
   background-color: #fff;
   border-radius: 30px 30px 0 30px;
@@ -243,11 +274,13 @@ blockquote {
   z-index: 10;
   font-size: 16px;
 }
+
 @media only print {
   .btn__menu.loggedin {
     display: none;
   }
 }
+
 .menu {
   display: block;
   position: fixed;
@@ -261,11 +294,13 @@ blockquote {
   transition: 0.4s left ease-out;
   box-shadow: 0 0 10px 0 #000;
 }
+
 .menu h1 {
   margin-left: 70px;
   margin-top: 25px;
   color: #111;
 }
+
 .menu button {
   margin: 0;
   width: 100%;
@@ -277,9 +312,11 @@ blockquote {
   text-align: left;
   font-size: 18pt;
 }
+
 .menu button:hover, .menu button:focus {
   background: #ccc;
 }
+
 .menu .appdata {
   position: fixed;
   left: 0;
@@ -301,6 +338,7 @@ blockquote {
   margin-left: 20px;
   overflow-x: hidden;
 }
+
 .section.active {
   visibility: visible;
 }
@@ -309,6 +347,7 @@ blockquote {
   margin-left: 20px;
   margin-right: 20px;
 }
+
 .section.noformat h1, .section.noformat h2, .section.noformat h3, .section.noformat h4, .section.noformat h5, .section.noformat h6 {
   color: #000;
 }
@@ -322,10 +361,12 @@ blockquote {
   overflow: hidden;
   transition: 1s ease-in-out all;
 }
+
 .unit.shown {
   left: 0;
   transition: 1s ease-in-out all;
 }
+
 .unit #chatlog {
   height: calc(100% - 190px);
   overflow: auto;
@@ -333,6 +374,7 @@ blockquote {
   top: 80px;
   width: calc(100% - 20px);
 }
+
 .unit #chatlog p {
   background-color: #fff;
   width: calc(90% - 20px);
@@ -342,12 +384,15 @@ blockquote {
   font-size: 14pt;
   box-shadow: 0 1px 0 0 #000;
 }
+
 .unit #chatlog .otherUser {
   color: #09f;
 }
+
 .unit #chatlog .user {
   color: rgb(126, 126, 126);
 }
+
 .unit #chatbox {
   height: 35px;
   border-radius: 27px;
@@ -359,6 +404,7 @@ blockquote {
   display: block;
   margin: auto;
 }
+
 .unit #chatbox__send {
   height: 55px;
   width: 55px;
@@ -372,19 +418,23 @@ blockquote {
   border: none;
   box-shadow: none;
 }
+
 .unit #chatbox__send:hover {
   background-color: #d1d1d1;
   color: #000;
 }
+
 .unit #chatbox__send:focus {
   background-color: #aaaaaa;
   color: #000;
 }
+
 .unit #chat__report {
   position: absolute;
   top: 10px;
   right: 170px;
 }
+
 .unit #chat__end {
   position: absolute;
   top: 10px;
@@ -395,12 +445,13 @@ blockquote {
   left: 0;
   top: 0;
 }
+
 .done {
   position: fixed;
   left: -200%;
 }
 
-@media only screen and (min-width: 800px){
+@media only screen and (min-width: 800px) {
   .btn__menu {
     display: none;
   }
@@ -440,5 +491,34 @@ blockquote {
   }
   .loading.done {
     left: -200%;
+  }
+}
+
+@media only print {
+  body {
+    background-color: unset;
+  }
+  .menu {
+    display: none;
+  }
+  .btn__menu {
+    display: none;
+  }
+  .block h2 {
+    margin-left: auto;
+  }
+  .section {
+    display: none;
+    margin-left: auto;
+  }
+  .section.active, .block {
+    display: block;
+    position: relative;
+    width: auto;
+    height: auto;
+    overflow: visible;
+  }
+  #p__printer-friendly {
+    display: none;
   }
 }
