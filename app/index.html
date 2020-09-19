@@ -27,6 +27,9 @@
         text-align: center;
       }
     </style>
+    <link rel="stylesheet" href="app.css" title="main" />
+    <link rel="stylesheet alternate" href="theme.dark.css" title='' name="theme" id="theme.dark" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Spectral" />
   </head>
 
   <body>
@@ -167,6 +170,10 @@
               
               <button type="submit">Change name</button>
             </form><br />
+            <select id="theme_selector" onchange="data.setTheme()">
+              <option value="">Default theme</option>
+              <option value="dark">Dark theme (high contrast)</option>
+            </select>
             <button class="btn" id="downloadLink" download="data.json" onclick="exportData()">Export your data
               <p>This will download your data in a human-readable but computer-friendly file format. Please keep this file safe!</p>
             </button>
@@ -198,9 +205,7 @@
       </div>
     </div>
 
-    <link rel="stylesheet" href="app.css" />
     <script src="func.js"></script>
     <script src="app.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Spectral" />
   </body>
 </html>

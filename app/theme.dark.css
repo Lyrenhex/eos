@@ -1,0 +1,119 @@
+/* EOS DARK THEME ALTERNATE STYLES */
+
+button {
+    background-color: #000;
+    color: #fff;
+}
+
+button:hover, button:focus, a.btn:hover, a.btn:focus {
+    background-color: #00c0ff;
+    color: #000;
+}
+
+input[type=text], input[type=password], input[type=email], select {
+    background-color: #000;
+    color: #fff;
+}
+
+textarea {
+    background-color: #000;
+    color: #fff;
+}
+
+.block {
+    background-color: #000;
+    color: #fff;
+}
+
+.flex>button {
+    background-color: #000;
+    color: #fff;
+}
+
+.flex>button:hover {
+    background-color: #00c0ff;
+    color: #000;
+}
+
+.flex>button.round {
+    border-radius: 75px;
+}
+
+.flex>.round.one {
+    border: 1px solid #f31a1a;
+}
+
+.flex>.round.one:hover, .flex>.round.one:focus {
+    background-color: #f31a1a;
+}
+
+.flex>.round.two {
+    border: 1px solid #ffc107;
+}
+
+.flex>.round.two:hover, .flex>.round.two:focus {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.flex>.round.four {
+    border: 1px solid #33ffc2;
+}
+
+.flex>.round.four:hover, .flex>.round.four:focus {
+    background-color: #33ffc2;
+    color: #000;
+}
+
+.flex>.round.five {
+    border: 1px solid #00ff40;
+}
+
+.flex>.round.five:hover, .flex>.round.five:focus {
+    background-color: #00ff40;
+    color: #000;
+}
+
+blockquote {
+    border-left: 5px solid #ddd;
+    padding: 5px 10px;
+}
+
+.btn__menu {
+    background-color: #000;
+    color: #fff;
+}
+
+@media only print {
+    .btn__menu.loggedin {
+        display: none;
+    }
+}
+
+.menu {
+    background: rgb(41, 41, 41);
+}
+
+.menu h1 {
+    color: #fff;
+}
+
+.menu button {
+    background-color: rgb(41, 41, 41);
+    color: #fff;
+}
+
+.menu button:hover, .menu button:focus {
+    background: #777;
+}
+
+.section.noformat h1, .section.noformat h2, .section.noformat h3, .section.noformat h4, .section.noformat h5, .section.noformat h6 {
+    color: #000;
+}
+
+@media only print {
+    .block {
+        background-color: unset;
+        color: #000;
+    }
+}

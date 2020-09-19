@@ -23,6 +23,7 @@ class UserData {
   #negatives;
   #neutrals;
   #moods;
+  #theme;
   constructor (storage) {
     this.storage = storage;
 
@@ -31,6 +32,7 @@ class UserData {
     this.#negatives = JSON.parse(this.storage.getItem('negatives'));
     this.#neutrals = JSON.parse(this.storage.getItem('neutrals'));
     this.#moods = JSON.parse(this.storage.getItem('moods'));
+    this.#theme = this.storage.getItem('theme');
 
     if (this.#positives == null) this.#positives = [];
     if (this.#negatives == null) this.#negatives = [];
@@ -45,6 +47,7 @@ class UserData {
         { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 }],
       years: []
     };
+    if (this.#theme == null) this.#theme = "";
   }
   get name() {
     return this.#name;
@@ -60,6 +63,9 @@ class UserData {
   }
   get moods() {
     return this.#moods;
+  }
+  get theme() {
+    return this.#theme;
   }
 
   setName(string) {
@@ -117,6 +123,12 @@ class UserData {
 
     this.storage.setItem('moods', JSON.stringify(this.#moods));
     refresh_graphs();
+  }
+
+  setTheme() {
+    this.#theme = document.getElementById("theme_selector").value;
+    this.storage.setItem('theme', this.#theme);
+    refresh_theme();
   }
 }
 
@@ -236,10 +248,23 @@ function refresh_graphs() {
   graphs.year.update_year(data.moods);
 }
 
+function refresh_theme() {
+  document.getElementsByName('theme').forEach((link, i) => {
+    link.title = '';
+    link.disabled = true;
+  });
+
+  if (data.theme !== "") {
+    document.getElementById(`theme.${data.theme}`).disabled = false;
+    document.getElementById(`theme.${data.theme}`).title = "main";
+  }
+}
+
 function refresh() {
   refresh_name();
   refresh_comments();
   refresh_graphs();
+  refresh_theme();
 }
 
 function mood(mood){
