@@ -1,5 +1,11 @@
 [{
       "relation": ["delegate_permission/common.handle_all_urls"],
-      "target" : { "namespace": "android_app", "package_name": "com.lyrenhex.eos.twa",
-                   "sha256_cert_fingerprints": ["FA:03:E8:C3:3E:6F:33:5D:6D:EA:97:2B:02:7D:77:86:D5:E8:E0:16:77:A9:41:DA:ED:61:05:AA:F7:84:98:CF"] }
-    }]
+      "target": {
+            "namespace": "android_app",
+            "package_name": "com.lyrenhex.eos.twa",
+            "sha256_cert_fingerprints": [
+                  "FA:03:E8:C3:3E:6F:33:5D:6D:EA:97:2B:02:7D:77:86:D5:E8:E0:16:77:A9:41:DA:ED:61:05:AA:F7:84:98:CF",
+                  "EB:95:5C:81:13:22:FD:10:EF:16:08:B6:79:28:E3:6A:98:D3:AD:F5:D8:91:5F:2D:F3:0A:2E:98:CC:AB:20:A0"
+            ]
+      }
+}]
