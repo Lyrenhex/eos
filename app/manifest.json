@@ -4,7 +4,7 @@
     "scope": "./",
     "display": "standalone",
     "start_url": "index.html",
-    "short_name": "Eos",
+    "short_name": "Eos Mental Health",
     "theme_color": "transparent",
     "description": "It's always darkest just before the dawn. Eos provides insightful mood tracking and support & resources when you need them. The mental health support app.",
     "orientation": "any",

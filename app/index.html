@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en-UK">
   <head>
-    <title>Eos App</title> <!-- set this to a generic name; we can change it based on user state and actions. -->
+    <title>Eos Mental Health</title>
+    <!-- set this to a generic name; we can change it based on user state and actions. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
     <meta name="robots" content="noindex, nofollow" />
@@ -37,7 +38,7 @@
   <body>
     <button id="btn__menu" class="btn__menu" onclick="toggle('menu')">&#9776;</button>
     <div class="menu" id="menu">
-      <h1>Eos for web</h1>
+      <h1>Eos Mental Health</h1>
       <button onclick="section('log')">Log mood</button>
       <button onclick="section('tracker')">Mood tracker</button>
       <button onclick="section('print')">Full report</button>
@@ -47,7 +48,8 @@
     <div class="section active" id="section__log">
       <div class="block shown" id="block__mood">
         <h2>Heya<span name="name"></span>. How are you?</h2>
-        <p>To help us help you best, please rate your mood below on a scale from -2 (extremely down / at risk) to 2 (extremely happy).</p>
+        <p>To help us help you best, please rate your mood below on a scale from -2 (extremely down / at risk) to 2
+          (extremely happy).</p>
         <div class="flex">
           <button class="round one" onclick="mood(-2)">-2</button>
           <button class="round two" onclick="mood(-1)">-1</button>
@@ -62,154 +64,212 @@
       NB: these are displayed **dependant on response to block__mood.** -->
 
       <div class="block" id="mood__2">
-          <h2>That good<span name="name"></span>? Great!</h2>
-          <p>Well, someone's in a good mood - well done! Now, I wonder what it is that has you so cheerful? ... And so will you when next you're feeling low.</p>
-          <p>We won't sugarcoat it; now's the time to prepare for those times that you're feeling really down. How about writing something in the box below, to look back on when you need it most?</p>
-          <textarea id="ecstatic_comment" placeholder="Write something nice, to look back to when you're feeling down. (For example, nice things people have said about you; people who care about you; things that you think will help)"></textarea>
-          <button onclick="ecstatic_submit()">Save for later</button>
-        </div>
+        <h2>That good<span name="name"></span>? Great!</h2>
+        <p>Well, someone's in a good mood - well done! Now, I wonder what it is that has you so cheerful? ... And so
+          will you when next you're feeling low.</p>
+        <p>We won't sugarcoat it; now's the time to prepare for those times that you're feeling really down. How about
+          writing something in the box below, to look back on when you need it most?</p>
+        <textarea id="ecstatic_comment"
+          placeholder="Write something nice, to look back to when you're feeling down. (For example, nice things people have said about you; people who care about you; things that you think will help)"></textarea>
+        <button onclick="ecstatic_submit()">Save for later</button>
+      </div>
 
       <div class="block" id="mood__1">
         <h2>Great to hear<span name="name"></span>!</h2>
-        <p>When you can identify that you're happy, that's a <i>good thing</i>, and it really does make living worth it, don't you agree?</p>
-        <p>Of course, we aren't going to force you to write anything, but we really encourage it: how about you write something good about life, yourself, or anything, whilst you're feeling upbeat? It really helps later on!</p>
-        <textarea id="happy_comment" placeholder="Write something nice, to look back to when you're feeling down. (For example, nice things people have said about you; people who care about you; things that you think will help)"></textarea>
+        <p>When you can identify that you're happy, that's a <i>good thing</i>, and it really does make living worth it,
+          don't you agree?</p>
+        <p>Of course, we aren't going to force you to write anything, but we really encourage it: how about you write
+          something good about life, yourself, or anything, whilst you're feeling upbeat? It really helps later on!</p>
+        <textarea id="happy_comment"
+          placeholder="Write something nice, to look back to when you're feeling down. (For example, nice things people have said about you; people who care about you; things that you think will help)"></textarea>
         <button onclick="happy_submit()">Save for later</button>
       </div>
 
       <div class="block" id="mood__0">
         <h2>Feeling neutral can be good</h2>
-        <p>When you suffer from a mental condition - or even if you don't! - it's important to look at what's <i>good</i> about how you are. There's always something good to think about; and if you can't find anything, it might just be really difficult to see.</p>
-        <p>For example, you're currently feeling 'neutral' (or as some would say, 'a bit meh'), which is actually great for you! You're not feeling worthless; you're not feeling tearful; you're not feeling helpless. <b>You're feeling alright.</b></p>
-        <p>After all, that's what neutral really means. <b>You're feeling alright</b>, even if it might be difficult for you to see that, or surprising to see it that way, but it's true.</p>
-        <blockquote>When you face the light, shadow is behind you. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>- <a href="https://metanoia.org" target="_blank">Metanoia</a></i></blockquote>
-        <textarea id="neutral_comment" placeholder="Anything you need to get off your chest? We care, and this won't be disclosed with anyone."></textarea>
+        <p>When you suffer from a mental condition - or even if you don't! - it's important to look at what's
+          <i>good</i> about how you are. There's always something good to think about; and if you can't find anything,
+          it might just be really difficult to see.
+        </p>
+        <p>For example, you're currently feeling 'neutral' (or as some would say, 'a bit meh'), which is actually great
+          for you! You're not feeling worthless; you're not feeling tearful; you're not feeling helpless. <b>You're
+            feeling alright.</b></p>
+        <p>After all, that's what neutral really means. <b>You're feeling alright</b>, even if it might be difficult for
+          you to see that, or surprising to see it that way, but it's true.</p>
+        <blockquote>When you face the light, shadow is behind you. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>- <a
+              href="https://metanoia.org" target="_blank">Metanoia</a></i></blockquote>
+        <textarea id="neutral_comment"
+          placeholder="Anything you need to get off your chest? We care, and this won't be disclosed with anyone."></textarea>
         <button onclick="neutral_submit()">Continue</button>
       </div>
 
       <div class="block" id="mood__-1">
         <h2>Damn<span name="name"></span>...</h2>
-        <p>What you're going through is tough, it really is. Whilst we can't claim to know fully how it is (since we aren't in your particular situation), many of we who use and even those who develop Eos suffer from similar issues; we want to be there for you.</p>
-        <p>Whatever you're going through, the Eos community stands with you. The way forward, as is so often the case with these pesky mental conditions, is to push through and come out on the other side.</p>
-        <p>Distract yourself: play video games; read a book; talk to a friend or someone you love. Just don't sit there wallowing, as dwelling only makes it worse.</p>
-        <p>Trust us: if you do <i>something</i>, you'll feel <b>so much better</b>. It might take time, patience, and self-care, but we believe in you: <b>you can pull through this</b>.</p>
-        <textarea id="negative_comment" placeholder="If you want to, pour your heart out here. Writing your thoughts down can be really helpful to you, and we aren't going to show this to another soul."></textarea>
+        <p>What you're going through is tough, it really is. Whilst we can't claim to know fully how it is (since we
+          aren't in your particular situation), many of we who use and even those who develop Eos suffer from similar
+          issues; we want to be there for you.</p>
+        <p>Whatever you're going through, the Eos community stands with you. The way forward, as is so often the case
+          with these pesky mental conditions, is to push through and come out on the other side.</p>
+        <p>Distract yourself: play video games; read a book; talk to a friend or someone you love. Just don't sit there
+          wallowing, as dwelling only makes it worse.</p>
+        <p>Trust us: if you do <i>something</i>, you'll feel <b>so much better</b>. It might take time, patience, and
+          self-care, but we believe in you: <b>you can pull through this</b>.</p>
+        <textarea id="negative_comment"
+          placeholder="If you want to, pour your heart out here. Writing your thoughts down can be really helpful to you, and we aren't going to show this to another soul."></textarea>
         <button onclick="negative_submit()">Continue</button>
       </div>
 
       <div class="block" id="mood__-2">
         <h2>Just breathe.</h2>
-        <p>Right now, you're in a difficult state. What you're going through, the thoughts that are racing through your mind - it's incomprehensible. We've been there. But this state is amplified by fear, terror, and panic; so you need to <b>breathe</b>.</p>
-        <p>There are a variety of helpful breathing methods, some of which you might have been told by friends or family in a similar situation, including the <a href="http://www.nhs.uk/Conditions/stress-anxiety-depression/Pages/ways-relieve-stress.aspx" target="_blank">NHS breathing exercise</a>. Try one now, if you can; it might help.</p>
-        <p>Furthermore, you should really consider reaching out to someone. We're here for you, but some people may find it more beneficial to speak to a friend, family member, or contact <a href="https://www.samaritans.org" target="_blank">the Samaritans</a>.</p>
-        <p>Really, the goal you should have right now is simple: <b>distract yourself</b>. Be that by playing video games, or trying <a href="https://www.rcpsych.ac.uk/PDF/Self-Harm%20Distractions%20and%20Alternatives%20FINAL.pdf" target="_blank">one of the amazing recommendations from psychiatrists</a>.</p>
-        <p><a href="https://www.metanoia.org/suicide/" target="_blank">If you're feeling really suicidal still, please read this <b>first</b>.</a></p>
+        <p>Right now, you're in a difficult state. What you're going through, the thoughts that are racing through your
+          mind - it's incomprehensible. We've been there. But this state is amplified by fear, terror, and panic; so you
+          need to <b>breathe</b>.</p>
+        <p>There are a variety of helpful breathing methods, some of which you might have been told by friends or family
+          in a similar situation, including the <a
+            href="http://www.nhs.uk/Conditions/stress-anxiety-depression/Pages/ways-relieve-stress.aspx"
+            target="_blank">NHS breathing exercise</a>. Try one now, if you can; it might help.</p>
+        <p>Furthermore, you should really consider reaching out to someone. We're here for you, but some people may find
+          it more beneficial to speak to a friend, family member, or contact <a href="https://www.samaritans.org"
+            target="_blank">the Samaritans</a>.</p>
+        <p>Really, the goal you should have right now is simple: <b>distract yourself</b>. Be that by playing video
+          games, or trying <a
+            href="https://www.rcpsych.ac.uk/PDF/Self-Harm%20Distractions%20and%20Alternatives%20FINAL.pdf"
+            target="_blank">one of the amazing recommendations from psychiatrists</a>.</p>
+        <p><a href="https://www.metanoia.org/suicide/" target="_blank">If you're feeling really suicidal still, please
+            read this <b>first</b>.</a></p>
 
         <ul id='comments'></ul>
 
-        <textarea id="danger_comment" placeholder="Do a thought-stream, or just write whatever's in your head, if you think it'll help. Express yourself."></textarea>
+        <textarea id="danger_comment"
+          placeholder="Do a thought-stream, or just write whatever's in your head, if you think it'll help. Express yourself."></textarea>
         <button onclick="danger_submit()">Continue</button>
       </div>
     </div>
 
     <div class="section" id="section__tracker">
       <div class="block shown">
-          <h2>Your tracker</h2>
-          <p>The graphs for months and days are average moods based on <b>all</b> occurrences of that month/day, regardless of
-            year (or week or month either, for the day graph).</p>
-          <div class="tracker_graphs">
-            <div class="graph">
-              <h3>Mood by year</h3>
-              <canvas id="moodchart_years"></canvas>
-            </div>
-            <div class="graph">
-              <h3>All time in months</h3>
-              <canvas id="moodchart_months"></canvas>
-            </div>
-            <div class="graph">
-              <h3>All time in days</h3>
-              <canvas id="moodchart_days"></canvas>
-            </div>
+        <h2>Your tracker</h2>
+        <p>The graphs for months and days are average moods based on <b>all</b> occurrences of that month/day,
+          regardless of
+          year (or week or month either, for the day graph).</p>
+        <div class="tracker_graphs">
+          <div class="graph">
+            <h3>Mood by year</h3>
+            <canvas id="moodchart_years"></canvas>
           </div>
+          <div class="graph">
+            <h3>All time in months</h3>
+            <canvas id="moodchart_months"></canvas>
+          </div>
+          <div class="graph">
+            <h3>All time in days</h3>
+            <canvas id="moodchart_days"></canvas>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="section" id="section__print">
       <div class="block shown">
-          <h2>User Full Report</h2>
-          <p>Here, you can see the current data we have on file regarding your mood, including the comments that you've entered. Also included is a comprehensive view of the graphs we've generated for your mood scores.</p>
-          <p>This information is hoped to assist you and any mental health professionals who may be aiding you with evaluating your progress, and to consolidate the information into a single page.</p>
-          <p id="p__printer-friendly"><i>This page is printer-friendly. Please use your browser's print function (Ctrl+P,
-              typically) if you would like to
-              print your full report.</i></p>
-          <h2>User comments:</h2>
-          <h3>Positive comments:</h3>
-          <ul id='comments_positive'></ul>
-          <h3>Neutral comments:</h3>
-          <ul id='comments_neutral'></ul>
-          <h3>Negative comments:</h3>
-          <ul id='comments_negative'></ul>
-          <h2>Average moods</h2>
-          <h3>Mood by year</h3>
-          <canvas id="pr_moodchart_years"></canvas>
-          <h3>All time in months</h3>
-          <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month - regardless of year - are averaged to form this graph.</p>
-          <canvas id="pr_moodchart_months"></canvas>
-          <h3>All time in days</h3>
-          <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day - regardless of week, month, or year - are averaged to form this graph.</p>
-          <canvas id="pr_moodchart_days"></canvas>
+        <h2>User Full Report</h2>
+        <p>Here, you can see the current data we have on file regarding your mood, including the comments that you've
+          entered. Also included is a comprehensive view of the graphs we've generated for your mood scores.</p>
+        <p>This information is hoped to assist you and any mental health professionals who may be aiding you with
+          evaluating your progress, and to consolidate the information into a single page.</p>
+        <p id="p__printer-friendly"><i>This page is printer-friendly. Please use your browser's print function (Ctrl+P,
+            typically) if you would like to
+            print your full report.</i></p>
+        <h2>User comments:</h2>
+        <h3>Positive comments:</h3>
+        <ul id='comments_positive'></ul>
+        <h3>Neutral comments:</h3>
+        <ul id='comments_neutral'></ul>
+        <h3>Negative comments:</h3>
+        <ul id='comments_negative'></ul>
+        <h2>Average moods</h2>
+        <h3>Mood by year</h3>
+        <canvas id="pr_moodchart_years"></canvas>
+        <h3>All time in months</h3>
+        <p>This graph is an average mood based on <b>all</b> occurrences of a month. That is, all entries for a month -
+          regardless of year - are averaged to form this graph.</p>
+        <canvas id="pr_moodchart_months"></canvas>
+        <h3>All time in days</h3>
+        <p>This graph is an average mood based on <b>all</b> occurrences of a day. That is, all entries for a day -
+          regardless of week, month, or year - are averaged to form this graph.</p>
+        <canvas id="pr_moodchart_days"></canvas>
       </div>
     </div>
 
     <div class="section" id="section__settings">
       <div class="block shown" id="block__settings__main">
-          <h2>Your Account Settings</h2>
+        <h2>Your Account Settings</h2>
 
-          <form onsubmit="return change_name()">
-            <label for="account_name">
-              <input id="account_name" type="text" placeholder="Your name (leave blank to remove your name data)" />
-            </label><br />
-              
-              <button type="submit">Change name</button>
-            </form>
-            <select id="theme_selector" onchange="data.setTheme()">
-              <option value="">Default theme</option>
-              <option value="dark">Dark theme (high contrast)</option>
-            </select>
-            <button class="btn" id="downloadLink" download="data.json" onclick="exportData()"
-              style="width: calc(100% - 40px);">Export your data
-              <p>This will download your data in a human-readable but computer-friendly file format. Please keep this file safe!</p>
-            </button>
-            <button onclick="deleteData()" style="width: calc(100% - 40px);">Delete your data
-              <p>This will <b>immediately and irrevocably</b> delete all saved data. If you may wish to use your data again, please export it first.</p>
-            </button>
-            <h3>Import your data</h3>
-            <p><b>This will delete all current data within the app</b>, replacing it with the data stored in a <code>.json</code>
-              file produced using the 'Export your data' function.</p>
-            <input type="file" id="file__import" accept=".json" onchange="importData()" /></h3>
+        <form onsubmit="return change_name()">
+          <label for="account_name">
+            <input id="account_name" type="text" placeholder="Your name (leave blank to remove your name data)" />
+          </label><br />
+
+          <button type="submit">Change name</button>
+        </form>
+        <select id="theme_selector" onchange="data.setTheme()">
+          <option value="">Default theme</option>
+          <option value="dark">Dark theme (high contrast)</option>
+        </select>
+        <button class="btn" id="downloadLink" download="data.json" onclick="exportData()"
+          style="width: calc(100% - 40px);">Export your data
+          <p>This will download your data in a human-readable but computer-friendly file format. Please keep this file
+            safe!</p>
+        </button>
+        <button onclick="deleteData()" style="width: calc(100% - 40px);">Delete your data
+          <p>This will <b>immediately and irrevocably</b> delete all saved data. If you may wish to use your data again,
+            please export it first.</p>
+        </button>
+        <h3>Import your data</h3>
+        <p><b>This will delete all current data within the app</b>, replacing it with the data stored in a
+          <code>.json</code>
+          file produced using the 'Export your data' function.
+        </p>
+        <input type="file" id="file__import" accept=".json" onchange="importData()" /></h3>
       </div>
     </div>
 
     <div class="section" id="section__about">
       <div class="block shown" id="block__about__main">
         <h2>About Eos</h2>
-        <p>Eos is a free, open-source application to help with tracking moods, providing resources to help during your low moments, and consolidating all data into a presentable report at a moment's notice. This can help if you're working with a mental health professional (such as a cognitive-behavioural therapist), but is not, nor is it intended to, a replacement for qualified support.</p>
-        <p>The source code for this free software is available <a href="https://github.com/lyrenhex/eos">on GitHub</a>.</p>
-        <p>This app is a not-for-profit online progressive web application made with &hearts; by <a href="https://lyrenhex.com">Max Heaton</a>. &copy; 2017 - 2020.
+        <p>Eos is a free, open-source application to help with tracking moods, providing resources to help during your
+          low moments, and consolidating all data into a presentable report at a moment's notice. This can help if
+          you're working with a mental health professional (such as a cognitive-behavioural therapist), but is not, nor
+          is it intended to, a replacement for qualified support.</p>
+        <p>The source code for this free software is available <a href="https://github.com/lyrenhex/eos">on GitHub</a>.
+        </p>
+        <p>This app is a not-for-profit online progressive web application made with &hearts; by <a
+            href="https://lyrenhex.com">Max Heaton</a>. &copy; 2017 - 2020.
           Version <span id="ver" name="version_number"></span></p>
         <h3>Version 3: Local</h3>
-        <p>As of version 3, Eos no longer operates servers. All data is now stored locally, on-device, with the ability to import/export data if you need to change device / back up your data.</p>
-        <p>The chat function is no longer available. I'd like to apologise for this if you liked the chat function; I'm always open to re-implementing it in future if there's demand, so please let me know if you would like a better version of the chat feature!</p>
+        <p>As of version 3, Eos no longer operates servers. All data is now stored locally, on-device, with the ability
+          to import/export data if you need to change device / back up your data.</p>
+        <p>The chat function is no longer available. I'd like to apologise for this if you liked the chat function; I'm
+          always open to re-implementing it in future if there's demand, so please let me know if you would like a
+          better version of the chat feature!</p>
         <p>Thank you for supporting Eos' goal to support you!</p>
         <h3>Support the project</h3>
-        <p>Eos is free software, so there are <b>no payments required for any function within the app</b>. If, however, you'd like to make a voluntary contribution towards myself and the project, then you can either sponsor me on GitHub or give me a Ko-fi. Thank you!</p>
-        <iframe src="https://github.com/sponsors/Lyrenhex/button" title="Sponsor Lyrenhex" height="35" width="116" style="border: 0;"></iframe>
-        <script type='text/javascript' src='https://ko-fi.com/widgets/widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support Me on Ko-fi', '#0099ff', 'R6R626C8R');kofiwidget2.draw();</script> 
+        <p>Eos is free software, so there are <b>no payments required for any function within the app</b>. If, however,
+          you'd like to make a voluntary contribution towards myself and the project, then you can either sponsor me on
+          GitHub or give me a Ko-fi. Thank you!</p>
+        <iframe src="https://github.com/sponsors/Lyrenhex/button" title="Sponsor Lyrenhex" height="35" width="116"
+          style="border: 0;"></iframe>
+        <script type='text/javascript' src='https://ko-fi.com/widgets/widget_2.js'></script>
+        <script
+          type='text/javascript'>kofiwidget2.init('Support Me on Ko-fi', '#0099ff', 'R6R626C8R'); kofiwidget2.draw();</script>
         <h3>Credits</h3>
-        <p>Eos is developed by <a href="https://lyrenhex.com">Max Heaton</a>, with contributions from <a href="https://github.com/Lyrenhex/eos/graphs/contributors">the community on GitHub</a>.</p>
-        <p>Eos uses <a href="https://chartjs.org">Chart.js</a>, licensed under the MIT License &copy; 2018 Chart.js Contributors.</p>
-        <p>I'd additionally like to thank my family, friends, and the multiple health professionals I was under the care of when developing Eos, without whom this would never have been possible.</p>
+        <p>Eos is developed by <a href="https://lyrenhex.com">Max Heaton</a>, with contributions from <a
+            href="https://github.com/Lyrenhex/eos/graphs/contributors">the community on GitHub</a>.</p>
+        <p>Eos uses <a href="https://chartjs.org">Chart.js</a>, licensed under the MIT License &copy; 2018 Chart.js
+          Contributors.</p>
+        <p>I'd additionally like to thank my family, friends, and the multiple health professionals I was under the care
+          of when developing Eos, without whom this would never have been possible.</p>
       </div>
     </div>
   </body>
+
 </html>
