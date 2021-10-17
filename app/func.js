@@ -1,7 +1,7 @@
-Date.prototype.getWeek = function() { // get the current week of the year (start Sun)
-  var onejan = new Date(this.getFullYear(),0,1);
+Date.prototype.getWeek = function () { // get the current week of the year (start Sun)
+  var onejan = new Date(this.getFullYear(), 0, 1);
   var millisecsInDay = 86400000;
-  return Math.ceil((((this - onejan) /millisecsInDay) + onejan.getDay()+1)/7);
+  return Math.ceil((((this - onejan) / millisecsInDay) + onejan.getDay() + 1) / 7);
 };
 
 function escapeHtml(str) {
@@ -26,7 +26,7 @@ function toggle(id) {
   let block = document.getElementById(id);
   block.classList.toggle('shown');
 }
-function update_var(varName, text){
+function update_var(varName, text) {
   let spans = document.getElementsByName(varName);
   for (element in spans) {
     element = spans[element];
@@ -83,7 +83,9 @@ class Graph {
       if (data.years[year].year !== 0) {
         let dataset = {
           label: `${data.years[year].year}`,
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          borderColor: data.years[year].colour + "aa",
+          backgroundColor: data.years[year].colour + "55"
         };
         data.years[year].month.forEach((month, i) => {
           dataset.data[i] = month.mood / month.num;
@@ -99,7 +101,7 @@ class Graph {
 function createDayGraph() {
   var tracker = document.getElementById('moodchart_days');
   var report = document.getElementById('pr_moodchart_days');
-  var chart_tracker = new Chart(tracker, {
+  let conf = {
     type: 'line',
     data: {
       labels: ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'],
@@ -132,48 +134,16 @@ function createDayGraph() {
         }]
       }
     }
-  });
-  var chart_report = new Chart(report, {
-    type: 'line',
-    data: {
-      labels: ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'],
-      datasets: []
-    },
-    options: {
-      responsive: true,
-      tooltips: {
-        mode: 'index',
-        intersect: false
-      },
-      hover: {
-        mode: 'nearest',
-        intersect: false
-      },
-      scales: {
-        xAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Day of week'
-          }
-        }],
-        yAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Average mood'
-          }
-        }]
-      }
-    }
-  });
+  };
+  var chart_tracker = new Chart(tracker, conf);
+  var chart_report = new Chart(report, conf);
   return new Graph(chart_tracker, chart_report);
 }
 
 function createMonthGraph() {
   var tracker = document.getElementById('moodchart_months');
   var report = document.getElementById('pr_moodchart_months');
-  var chart_tracker = new Chart(tracker, {
+  let conf = {
     type: 'line',
     data: {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -206,48 +176,16 @@ function createMonthGraph() {
         }]
       }
     }
-  });
-  var chart_report = new Chart(report, {
-    type: 'line',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      datasets: []
-    },
-    options: {
-      responsive: true,
-      tooltips: {
-        mode: 'index',
-        intersect: false
-      },
-      hover: {
-        mode: 'nearest',
-        intersect: false
-      },
-      scales: {
-        xAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Month'
-          }
-        }],
-        yAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Average mood'
-          }
-        }]
-      }
-    }
-  });
+  };
+  var chart_tracker = new Chart(tracker, conf);
+  var chart_report = new Chart(report, conf);
   return new Graph(chart_tracker, chart_report);
 }
 
 function createYearGraph() {
   var tracker = document.getElementById('moodchart_years');
   var report = document.getElementById('pr_moodchart_years');
-  var chart_tracker = new Chart(tracker, {
+  let conf = {
     type: 'line',
     data: {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -280,40 +218,12 @@ function createYearGraph() {
         }]
       }
     }
-  });
-  var chart_report = new Chart(report, {
-    type: 'line',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      datasets: []
-    },
-    options: {
-      responsive: true,
-      tooltips: {
-        mode: 'index',
-        intersect: false
-      },
-      hover: {
-        mode: 'nearest',
-        intersect: false
-      },
-      scales: {
-        xAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Month'
-          }
-        }],
-        yAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: 'Average mood'
-          }
-        }]
-      }
-    }
-  });
+  };
+  var chart_tracker = new Chart(tracker, conf);
+  var chart_report = new Chart(report, conf);
   return new Graph(chart_tracker, chart_report);
 }
+
+function generateNewColour() {
+  return '#' + (Math.random() * 0xfffff * 1000000).toString(16).slice(0, 6);
+};

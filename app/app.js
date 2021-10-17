@@ -1,5 +1,5 @@
 // set the version number
-const VERSION = "3.0.0";
+const VERSION = "3.0.1";
 
 // make sure the client *allows* service workers...
 // apparently ChromeOS doesn't?
@@ -11,8 +11,8 @@ if (navigator.serviceWorker != undefined) {
     //Register the ServiceWorker
     navigator.serviceWorker.register('sw.js', {
       scope: './'
-    }).then(function(reg) {
-      console.log('Service worker has been registered for scope:'+ reg.scope);
+    }).then(function (reg) {
+      console.log('Service worker has been registered for scope:' + reg.scope);
     });
   }
 }
@@ -24,7 +24,7 @@ class UserData {
   #neutrals;
   #moods;
   #theme;
-  constructor (storage) {
+  constructor(storage) {
     this.storage = storage;
 
     this.#name = this.storage.getItem('name');
@@ -39,15 +39,23 @@ class UserData {
     if (this.#neutrals == null) this.#neutrals = [];
     if (this.#moods == null) this.#moods = {
       day: [{ mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
-        { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
-        { mood: 0, num: 0 }],
+      { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
+      { mood: 0, num: 0 }],
       month: [{ mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
-        { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
-        { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
-        { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 }],
+      { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
+      { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
+      { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 }],
       years: []
     };
     if (this.#theme == null) this.#theme = "";
+
+    for (var year in this.#moods.years) {
+      if (this.#moods.years[year].colour == undefined) {
+        this.#moods.years[year].colour = generateNewColour();
+
+        this.storage.setItem('moods', JSON.stringify(this.#moods));
+      }
+    }
   }
   get name() {
     return this.#name;
@@ -111,10 +119,11 @@ class UserData {
     if (!yearRecorded) {
       let newYear = {
         year: year,
+        colour: generateNewColour(),
         month: [{ mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
-          { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
-          { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
-          { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 }]
+        { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
+        { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 },
+        { mood: 0, num: 0 }, { mood: 0, num: 0 }, { mood: 0, num: 0 }]
       }
       newYear.month[month].mood += mood;
       newYear.month[month].num++;
@@ -139,7 +148,7 @@ var graphs;
 
 var MOOD;
 
-window.onresize = function() {
+window.onresize = function () {
   if (window.innerWidth >= 800) {
     show('menu');
   }
@@ -170,10 +179,10 @@ function exportData() {
     negatives: data.negatives,
     neutrals: data.neutrals,
     moods: data.moods,
-    theme: data.theme
+    theme: data.theme,
   };
 
-  var file = new Blob([JSON.stringify(dataObj)], {type: "application/json"});
+  var file = new Blob([JSON.stringify(dataObj)], { type: "application/json" });
 
   // credit: thank you to 0x000f at https://stackoverflow.com/questions/1066452/easiest-way-to-open-a-download-window-without-navigating-away-from-the-page
   var a = document.createElement('a');
@@ -186,7 +195,7 @@ function exportData() {
 }
 
 function refresh_name() {
-  if(data.name !== null){
+  if (data.name !== null) {
     update_var('name', `, ${data.name}`);
   } else {
     update_var('name', '');
@@ -195,7 +204,6 @@ function refresh_name() {
 
 function importData() {
   if (document.querySelector("#file__import").files.length == 0) {
-    console.log("test");
     return;
   }
 
@@ -213,12 +221,12 @@ function importData() {
     let dataObj = JSON.parse(text);
     storage.clear();
     data.storage.clear();
-    storage.setItem('name', dataObj.name);
-    storage.setItem('positives', JSON.stringify(dataObj.positives));
-    storage.setItem('negatives', JSON.stringify(dataObj.negatives));
-    storage.setItem('neutrals', JSON.stringify(dataObj.neutrals));
-    storage.setItem('moods', JSON.stringify(dataObj.moods));
-    storage.setItem('theme', dataObj.theme);
+    if (dataObj.name != undefined) storage.setItem('name', dataObj.name);
+    if (dataObj.positives != undefined) storage.setItem('positives', JSON.stringify(dataObj.positives));
+    if (dataObj.negatives != undefined) storage.setItem('negatives', JSON.stringify(dataObj.negatives));
+    if (dataObj.neutrals != undefined) storage.setItem('neutrals', JSON.stringify(dataObj.neutrals));
+    if (dataObj.moods != undefined) storage.setItem('moods', JSON.stringify(dataObj.moods));
+    if (dataObj.theme != undefined) storage.setItem('theme', dataObj.theme);
 
     data = new UserData(storage);
     refresh();
@@ -262,7 +270,7 @@ function refresh_comments() {
     ul.removeChild(ul.lastChild);
   }
   data.neutrals.forEach((data, key) => {
-    if(data !== ""){
+    if (data !== "") {
       let li = document.createElement('li');
       li.classList.add('spectral');
       let li_text = document.createTextNode(data);
@@ -275,7 +283,7 @@ function refresh_comments() {
     ul.removeChild(ul.lastChild);
   }
   data.negatives.forEach((data, key) => {
-    if(data !== ""){
+    if (data !== "") {
       let li = document.createElement('li');
       li.classList.add('spectral');
       let li_text = document.createTextNode(data);
@@ -310,7 +318,7 @@ function refresh() {
   refresh_theme();
 }
 
-function mood(mood){
+function mood(mood) {
   let date = new Date();
   let month = date.getMonth();
   let day = date.getDay();
@@ -355,7 +363,7 @@ function mood_continue() {
 function monthNext() {
   var active = document.getElementsByClassName('activeYear')[0];
   var index = YEARS.indexOf(active.id);
-  if (index-1 < 0){
+  if (index - 1 < 0) {
     index = YEARS.length - 1;
   } else {
     index--;
@@ -367,7 +375,7 @@ function monthNext() {
 function monthPrev() {
   var active = document.getElementsByClassName('activeYear')[0];
   var index = YEARS.indexOf(active.id);
-  if (index+1 >= YEARS.length){
+  if (index + 1 >= YEARS.length) {
     index = 0;
   } else {
     index++;

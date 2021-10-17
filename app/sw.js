@@ -10,7 +10,7 @@ const ASSETS = [
   "manifest.json"
 ];
 
-let cache_name = "Eos_3.0.0-2";
+let cache_name = "Eos_3.0.1";
 
 self.addEventListener("install", event => {
   console.log("installing...");
