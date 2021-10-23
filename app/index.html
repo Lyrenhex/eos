@@ -32,6 +32,7 @@
     <link rel="stylesheet alternate" href="theme.dark.css" title='' name="theme" id="theme.dark" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Spectral" />
     <script src="func.js" charset="utf-8"></script>
+    <script src="storagespace.js" charset="utf-8"></script>
     <script src="app.js" charset="utf-8"></script>
   </head>
 
@@ -215,6 +216,8 @@
           <option value="">Default theme</option>
           <option value="dark">Dark theme (high contrast)</option>
         </select>
+        <p>Eos is currently using about <span name='usage'></span> KiB out of <span name='capacity'></span> KiB total
+          available space.</p>
         <button class="btn" id="downloadLink" download="data.json" onclick="exportData()"
           style="width: calc(100% - 40px);">Export your data
           <p>This will download your data in a human-readable but computer-friendly file format. Please keep this file

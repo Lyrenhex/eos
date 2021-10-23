@@ -24,8 +24,8 @@ class UserData {
   #neutrals;
   #moods;
   #theme;
-  constructor(storage) {
-    this.storage = storage;
+  constructor() {
+    this.storage = new StorageSpace((usage) => { update_var('usage', Math.round(usage / 1024)); });
 
     this.#name = this.storage.getItem('name');
     this.#positives = JSON.parse(this.storage.getItem('positives'));
@@ -79,26 +79,42 @@ class UserData {
   setName(string) {
     if (string === "") this.#name = null;
     else this.#name = string;
-    this.storage.setItem('name', this.#name);
+    while (!this.storage.setItem('name', this.#name)) {
+      if (!this.freeSpace()) {
+        break;
+      }
+    }
     refresh_name();
   }
 
   addPositive(string) {
     if (string === "") return;
     this.#positives.push(string);
-    this.storage.setItem('positives', JSON.stringify(this.#positives));
+    while (!this.storage.setItem('positives', JSON.stringify(this.#positives))) {
+      if (!this.freeSpace()) {
+        break;
+      }
+    }
     refresh_comments();
   }
   addNegative(string) {
     if (string === "") return;
     this.#negatives.push(string);
-    this.storage.setItem('negatives', JSON.stringify(this.#negatives));
+    while (!this.storage.setItem('negatives', JSON.stringify(this.#negatives))) {
+      if (!this.freeSpace()) {
+        break;
+      }
+    }
     refresh_comments();
   }
   addNeutral(string) {
     if (string === "") return;
     this.#neutrals.push(string);
-    this.storage.setItem('neutrals', JSON.stringify(this.#neutrals));
+    while (!this.storage.setItem('neutrals', JSON.stringify(this.#neutrals))) {
+      if (!this.freeSpace()) {
+        break;
+      }
+    }
     refresh_comments();
   }
   addMood(day, month, year, mood) {
@@ -130,19 +146,45 @@ class UserData {
       this.#moods.years.push(newYear);
     }
 
-    this.storage.setItem('moods', JSON.stringify(this.#moods));
+    while (!this.storage.setItem('moods', JSON.stringify(this.#moods))) {
+      if (!this.freeSpace()) {
+        break;
+      }
+    }
     refresh_graphs();
   }
 
   setTheme() {
     this.#theme = document.getElementById("theme_selector").value;
-    this.storage.setItem('theme', this.#theme);
+    while (!this.storage.setItem('theme', this.#theme)) {
+      if (!this.freeSpace()) {
+        break;
+      }
+    }
     refresh_theme();
+  }
+
+  freeSpace() {
+    if (this.#negatives.length > 0) {
+      this.#negatives.shift();
+      this.storage.setItem('negatives', JSON.stringify(this.#negatives));
+    } else if (this.#neutrals.length > 0) {
+      this.#neutrals.shift();
+      this.storage.setItem('neutrals', JSON.stringify(this.#neutrals));
+    } else if (this.#positives.length > 0) {
+      this.#positives.shift();
+      this.storage.setItem('positives', JSON.stringify(this.#positives));
+    } else if (this.#moods.years.length > 1) {
+      this.#moods.years.shift();
+    } else {
+      console.error("No space could be made by deleting old comments or dropping data from previous years.");
+      return false;
+    }
+    return true;
   }
 }
 
-var storage = window.localStorage;
-var data = new UserData(storage);
+var data = new UserData();
 
 var graphs;
 
@@ -156,6 +198,8 @@ window.onresize = function () {
 
 window.onload = () => {
   update_var('version_number', `${VERSION}`);
+  update_var('usage', Math.round(data.storage.usage() / 1024));
+  update_var('capacity', Math.round(data.storage.capacity() / 1024));
   window.onresize();
   createGraphs();
   refresh();
@@ -219,16 +263,28 @@ function importData() {
     var text = e.target.result;
 
     let dataObj = JSON.parse(text);
-    storage.clear();
-    data.storage.clear();
-    if (dataObj.name != undefined) storage.setItem('name', dataObj.name);
-    if (dataObj.positives != undefined) storage.setItem('positives', JSON.stringify(dataObj.positives));
-    if (dataObj.negatives != undefined) storage.setItem('negatives', JSON.stringify(dataObj.negatives));
-    if (dataObj.neutrals != undefined) storage.setItem('neutrals', JSON.stringify(dataObj.neutrals));
-    if (dataObj.moods != undefined) storage.setItem('moods', JSON.stringify(dataObj.moods));
-    if (dataObj.theme != undefined) storage.setItem('theme', dataObj.theme);
 
-    data = new UserData(storage);
+    var size = 0;
+    for (var key in dataObj) {
+      if (dataObj.hasOwnProperty(key)) {
+        size += (key + dataObj[key]).length * 2;
+      }
+    }
+
+    if (size > data.storage.capacity()) {
+      console.error(`Imported data is too large for storage: ${size} B > ${data.storage.capacity()} B`);
+      return;
+    }
+
+    data.storage.clear();
+    if (dataObj.name != undefined) data.storage.setItem('name', dataObj.name);
+    if (dataObj.positives != undefined) data.storage.setItem('positives', JSON.stringify(dataObj.positives));
+    if (dataObj.negatives != undefined) data.storage.setItem('negatives', JSON.stringify(dataObj.negatives));
+    if (dataObj.neutrals != undefined) data.storage.setItem('neutrals', JSON.stringify(dataObj.neutrals));
+    if (dataObj.moods != undefined) data.storage.setItem('moods', JSON.stringify(dataObj.moods));
+    if (dataObj.theme != undefined) data.storage.setItem('theme', dataObj.theme);
+
+    data = new UserData();
     refresh();
 
     console.log("Imported .json: ", data);
@@ -391,8 +447,7 @@ function change_name() {
   return false;
 }
 function deleteData() {
-  storage.clear();
   data.storage.clear();
-  data = new UserData(storage);
+  data = new UserData();
   refresh();
 }

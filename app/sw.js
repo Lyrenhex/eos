@@ -4,6 +4,7 @@ const ASSETS = [
   "app.css",
   "theme.dark.css",
   "func.js",
+  "storage.js",
   "Chart.bundle.min.js",
   "logo.png",
   "offline.html",
