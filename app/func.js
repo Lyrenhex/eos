@@ -118,20 +118,22 @@ function createDayGraph() {
         intersect: false
       },
       scales: {
-        xAxes: [{
+        x: {
           display: true,
           scaleLabel: {
             display: true,
             labelString: 'Day of week'
           }
-        }],
-        yAxes: [{
+        },
+        y: {
           display: true,
+          min: -2,
+          max: 2,
           scaleLabel: {
             display: true,
             labelString: 'Average mood'
           }
-        }]
+        }
       }
     }
   };
@@ -160,20 +162,22 @@ function createMonthGraph() {
         intersect: false
       },
       scales: {
-        xAxes: [{
+        x: {
           display: true,
           scaleLabel: {
             display: true,
             labelString: 'Month'
           }
-        }],
-        yAxes: [{
+        },
+        y: {
           display: true,
+          min: -2,
+          max: 2,
           scaleLabel: {
             display: true,
             labelString: 'Average mood'
           }
-        }]
+        }
       }
     }
   };
@@ -202,20 +206,22 @@ function createYearGraph() {
         intersect: false
       },
       scales: {
-        xAxes: [{
+        x: {
           display: true,
           scaleLabel: {
             display: true,
             labelString: 'Month'
           }
-        }],
-        yAxes: [{
+        },
+        y: {
           display: true,
+          min: -2,
+          max: 2,
           scaleLabel: {
             display: true,
             labelString: 'Average mood'
           }
-        }]
+        }
       }
     }
   };
