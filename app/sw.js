@@ -4,13 +4,14 @@ const ASSETS = [
   "app.css",
   "theme.dark.css",
   "func.js",
+  "storage.js",
   "Chart.bundle.min.js",
   "logo.png",
   "offline.html",
   "manifest.json"
 ];
 
-let cache_name = "Eos_3.0.1";
+let cache_name = "Eos_3.1.0";
 
 self.addEventListener("install", event => {
   console.log("installing...");

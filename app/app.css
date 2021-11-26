@@ -164,6 +164,7 @@ textarea {
 }
 
 canvas {
+  width: 100%;
   max-width: 500px;
   display: block;
   margin: auto;
@@ -172,14 +173,6 @@ canvas {
 .moods_month_annual {
   position: relative;
   max-width: 100%;
-}
-
-.moods_month_annual canvas {
-  max-height: 0;
-}
-
-.moods_month_annual canvas.activeYear {
-  max-height: none;
 }
 
 button.arrow {
@@ -455,19 +448,23 @@ blockquote {
   .btn__menu {
     display: none;
   }
+
   .menu.shown {
     box-shadow: none;
     border-right: 2px solid #0099ff;
   }
+
   .menu h1 {
     margin-left: 25px;
   }
+
   .section {
     left: 360px;
     width: calc(100vw - 360px);
     transform: translateZ(0) scale(1.0, 1.0);
     -webkit-font-smoothing: subpixel-antialiased;
   }
+
   .block {
     top: 50%;
     border-radius: 30px 0;
@@ -477,18 +474,23 @@ blockquote {
     height: 80%;
     transform: translate(-50%, -50%);
   }
+
   .block.shown {
     left: 50%;
   }
+
   .block.shown.done {
     left: -200%;
   }
+
   .block h2 {
     margin-left: auto;
   }
+
   .loading {
     left: calc(50% + 180px);
   }
+
   .loading.done {
     left: -200%;
   }
@@ -498,19 +500,24 @@ blockquote {
   body {
     background-color: unset;
   }
+
   .menu {
     display: none;
   }
+
   .btn__menu {
     display: none;
   }
+
   .block h2 {
     margin-left: auto;
   }
+
   .section {
     display: none;
     margin-left: auto;
   }
+
   .section.active, .block {
     display: block;
     position: relative;
@@ -518,6 +525,7 @@ blockquote {
     height: auto;
     overflow: visible;
   }
+
   #p__printer-friendly {
     display: none;
   }
