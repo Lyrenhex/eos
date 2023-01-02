@@ -11,7 +11,7 @@ const ASSETS = [
   "manifest.json"
 ];
 
-let cache_name = "Eos_3.1.1";
+let cache_name = "Eos_3.1.2";
 
 self.addEventListener("install", event => {
   console.log("installing...");

@@ -1,5 +1,5 @@
 // set the version number
-const VERSION = "3.1.1";
+const VERSION = "3.1.2";
 
 // make sure the client *allows* service workers...
 // apparently ChromeOS doesn't?
